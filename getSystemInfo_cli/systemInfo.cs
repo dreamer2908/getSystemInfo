@@ -404,5 +404,71 @@ namespace getSystemInfo_cli
 
         // TODO: get software list
         // MS Office, Visio, AV, others
+        private static string varToString(object v)
+        {
+            return v != null ? v.ToString() : string.Empty;
+        }
+        private static long varToLong(object v)
+        {
+            return v != null ? long.Parse(v.ToString()) : 0;
+        }
+        public static List<string[]> getProgram_list()
+        {
+            List<string[]> result = new List<string[]>();
+
+            string uninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(uninstallKey))
+            {
+                foreach (string skName in rk.GetSubKeyNames())
+                {
+                    using (RegistryKey sk = rk.OpenSubKey(skName))
+                    {
+                        // note that these value might be not available, i.e null is returned
+                        var displayName = sk.GetValue("DisplayName");
+                        var publisher = sk.GetValue("Publisher");
+                        var installDate = sk.GetValue("InstallDate");
+                        var size = sk.GetValue("EstimatedSize");
+                        var version = sk.GetValue("DisplayVersion");
+
+                        // ignore nameless programs
+                        if (displayName == null)
+                            continue;
+
+                        string[] thisOne = new string[6];
+
+                        thisOne[0] = skName;
+                        thisOne[1] = varToString(displayName);
+                        thisOne[2] = varToString(publisher);
+                        thisOne[3] = varToString(installDate);
+                        thisOne[4] = misc.byteToHumanSize(varToLong(size));
+                        thisOne[5] = varToString(version);
+
+                        result.Add(thisOne);
+
+                        //if (! displayName.ToString().StartsWith("7-"))
+                        //    continue;
+
+                        //Console.WriteLine(skName);
+                        //Console.WriteLine(displayName);
+                        //Console.WriteLine(publisher);
+                        //Console.WriteLine(installDate);
+                        //if (size != null)
+                        //{
+                        //    long sizeb = long.Parse(size.ToString()) * 1024;
+                        //    Console.WriteLine(misc.byteToHumanSize(sizeb, 2));
+                        //} else
+                        //{
+                        //    Console.WriteLine("Size unavailable");
+                        //}
+                        //Console.WriteLine(version);
+
+                        //misc.printStringArray(thisOne);
+                        //Console.WriteLine("==============================");
+                    }
+                }
+            }
+
+            return result;
+        }
     }
 }

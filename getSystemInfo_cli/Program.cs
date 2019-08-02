@@ -69,7 +69,8 @@ namespace getSystemInfo_cli
             // works fine in (1) and (2), crashes in (3), and simply hangs on (4)
             // monitorInfo_david.search();
 
-            List<systemInfo.sruct_networkInterfaceInfo> a = systemInfo.getNetwork_interfaces();
+            // List<systemInfo.sruct_networkInterfaceInfo> a = systemInfo.getNetwork_interfaces();
+            systemInfo.getProgram_list();
 
             Console.ReadLine();
         }

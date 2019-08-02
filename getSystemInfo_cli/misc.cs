@@ -62,5 +62,14 @@ namespace getSystemInfo_cli
                 }
             }
         }
+
+        public static void printStringArray(string[] arr)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                string s = arr[i];
+                Console.WriteLine(i.ToString() + ": " + s);
+            }
+        }
     }
 }
