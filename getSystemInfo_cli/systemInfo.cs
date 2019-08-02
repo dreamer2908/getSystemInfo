@@ -293,8 +293,25 @@ namespace getSystemInfo_cli
         }
         private static bool isValidIpAdressV4(string ip)
         {
-            var match = Regex.Match(ip, "^\\d+\\.\\d+\\.\\d+\\.\\d+$");
-            return (match.Success && match.Value.Length == ip.Length);
+            // check valid form n.n.n.n
+            var match = Regex.Match(ip, "^(\\d+)\\.(\\d+)\\.(\\d+)\\.(\\d+)$");
+            if (match.Success && match.Value.Length == ip.Length)
+            {
+                // check 4 numbers: 0 <= n <= 255
+                for (int i = 1; i <= 4; i++)
+                {
+                    string v = match.Groups[i].Value;
+                    int n = int.Parse(v);
+                    // Console.WriteLine(n);
+                    if (n > 255)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            return false;
         }
         public static List<sruct_networkInterfaceInfo> getNetwork_interfaces()
         {
