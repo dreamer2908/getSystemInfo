@@ -470,5 +470,27 @@ namespace getSystemInfo_cli
 
             return result;
         }
+
+        public static void getProgram_analyze()
+        {
+            // check for anti-virus apps: Avast, MSE, Windows Defender (win10), McAfee, etc.
+            // check for office suite: MS Word/Excel/Powerpoint/Visio/Outlook/others, Lotus Note, OpenOffice, LibreOffice, WPS Office
+            // check for pdf apps: Adobe Reader (DC), Foxit PDF, VeryPDF, PDFill, SumatraPDF, Adolix
+            // check for archivers: 7-zip, WinRAR
+            // check for IME: QQ, Sougou, Unikey, GooglePinyin
+            // check for IM apps: Skype, WeChat, Line, Zalo, Microsoft Teams, webex
+            // check for browsers: Google Chrome, Firefox, Coccoc, IE, Edge
+            // check for ERP apps: LeanERP, Sangely, legacy ERP, Workflow ERP GP
+            // check for vendor apps: NGC, eFORMz for UA, U60 Adidas, TradeCard, PackOne
+            // check for camera apps: Witness Pro, FreeView, Camera Stream Controller, DAO_install, IP Wizard II, Lilin*, NVR-Client, Onvif, OSDTool, Vivotek Installation Wizard 2
+            // check for remote apps: UltraVNC, TeamViewer, AnyDesk, UltraViewer, Radmin
+            // check for some known free apps: CCleaner, System Ninjar, FormatFactory, CutePDF, FSCapture, GIMP, HandBrake, K-Lite, KMSpico, Notepad++, Oracle VM, RapidCRC, Unlocker, VLC, PenyuUSB, IObit Uninstaller, Advanced SystemCare, Any Video*, Free Video*, Dropbox, IrfanView, QuickTime, Windows Movie Maker, winmail, Lingoes, StarDict, Youdao, Honeyview
+            // check for some known commercial apps: Adobe PTS, Paragon, Easeus, Aomei, MiniTool, ZKTeco, AutoCAD, CorelDraw, Proshow
+            // check for specialized apps: HTKK, QTTNCN, KetoanCDcoso, ECUS5VNACCS, ET-bag, SinaJet Plot, GuardScan Monitor, GuardScan Monitor, PSV-EAP, TS24, Ucancam, Ncstudio, Wintopo Pro, Scan2CAD, PGM, Tajima, Wilcom 9
+            // check for some known dev apps: Visual Studio, SQL Server (see https://stackoverflow.com/questions/2381055/check-if-sql-server-any-version-is-installed), Sublime Text, Git, XAMPP
+
+            // some known apps but uncommon, so put to others: Process Hacker, Xerox, Everything
+            // list to ignore (driver, frameworks, updates, redist): Adobe Flash Player, Java*, Cisco*, Apple*, Samsung*, Lenovo*, Huawei*, Sony*, Panasonic*, Toshiba*, Active Directory*, CodeMeter*, *Printer*, *Driver*, Update*, Gnu*, Microsoft .NET*, Microsoft Help*, Microsoft ODBC*, Microsoft SQL*, Microsoft System*, Microsoft Visual*, Microsoft*SDK*, MSDN*, 
+        }
     }
 }
