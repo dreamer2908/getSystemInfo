@@ -257,15 +257,40 @@ namespace getSystemInfo_cli
             return getTotalSpace(getSystem_systemDrive());
         }
 
-        // TODO: get VGA, monitor
+        // this returns both available and unavailable GPUs
+        public static List<string> getVideo_adapter()
+        {
+            return lookupValue_all("Win32_VideoController", "Name");
+        }
+        // getting monitor real name (like in control panel) is problematic
+        // list of test system:
+        // 1 - PC-276x: Win10 x64 EN
+        // 2 - NAV 160.84: Win10 x64 EN
+        // 3 - 160.28: Win7 x64 EN
+        // 4 - 160.91: Win7 x86 EN
+        // getVideo_monitor1 gives the wanted result in (1) and (2), crashes in (3), and hangs on (4)
         public static void getVideo_monitor1()
+        {
+            foreach (string s in screenInterrogatory.GetAllMonitorsFriendlyNames())
+            {
+                Console.WriteLine(s);
+            }
+        }
+        // getVideo_monitor2 doesn't work in (1), only returning //DisplayX etc
+        public static void getVideo_monitor2()
+        {
+            systemInfo.getVideo_monitor4();
+        }
+        // getVideo_monitor3 doesn't work in (1), only return Generic PnP Monitor
+        public static void getVideo_monitor3()
         {
             foreach (var display in WindowsDisplayAPI.Display.GetDisplays())
             {
                 Console.WriteLine(display.DeviceName);
             }
         }
-        public static void getVideo_monitor2()
+        // getVideo_monitor4 works in (1) and (2), crashes in (3), and simply hangs on (4)
+        public static void getVideo_monitor4()
         {
             foreach (var target in WindowsDisplayAPI.DisplayConfig.PathDisplayTarget.GetDisplayTargets())
             {

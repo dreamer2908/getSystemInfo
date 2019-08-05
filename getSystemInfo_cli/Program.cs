@@ -51,26 +51,26 @@ namespace getSystemInfo_cli
             // 3 - 160.28: Win7 x64 EN
             // 4 - 160.91: Win7 x86 EN
             // gives the wanted result in (1) and (2), crashes in (3), and simply hangs on (4)
-            //foreach (string s in screenInterrogatory.GetAllMonitorsFriendlyNames())
-            //{
-            //    Console.WriteLine(s);
-            //}
-
-            // doesn't work here, only returning //DisplayX etc
-            // monitorInfo.search();
-
-            // doesn't work here, only return Generic PnP Monitor  
             // systemInfo.getVideo_monitor1();
 
-            // works in (1) and (2), crashes in (3), and simply hangs on (4)
+            // doesn't work here, only returning //DisplayX etc
             // systemInfo.getVideo_monitor2();
+
+            // doesn't work here, only return Generic PnP Monitor  
+            // systemInfo.getVideo_monitor3();
+
+            // works in (1) and (2), crashes in (3), and simply hangs on (4)
+            // systemInfo.getVideo_monitor4();
 
             // David Heffernan stuff
             // works fine in (1) and (2), crashes in (3), and simply hangs on (4)
             // monitorInfo_david.search();
 
             // List<systemInfo.sruct_networkInterfaceInfo> a = systemInfo.getNetwork_interfaces();
-            systemInfo.getProgram_list();
+
+            misc.printStringArray(systemInfo.getVideo_adapter().ToArray());
+
+            // systemInfo.getProgram_list();
 
             Console.ReadLine();
         }
