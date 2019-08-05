@@ -427,12 +427,8 @@ namespace getSystemInfo_cli
         }
 
 
-        // TODO: get software list
-        // MS Office, Visio, AV, others
-        private static string varToString(object v)
-        {
-            return v != null ? v.ToString() : string.Empty;
-        }
+        // get software list
+        private static string varToString(object v) => v != null ? v.ToString() : string.Empty;
         private static long varToLong(object v)
         {
             return v != null ? long.Parse(v.ToString()) : 0;
