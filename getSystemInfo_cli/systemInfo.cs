@@ -257,6 +257,37 @@ namespace getSystemInfo_cli
             return getTotalSpace(getSystem_systemDrive());
         }
 
+        // get physical HDD list: model name, capacity
+        public struct struct_hddInfo
+        {
+            public string name;
+            public string model;
+            public long size;
+            public List<string[]> smart;
+        }
+        public static List<struct_hddInfo> getHDD_list()
+        {
+            List<struct_hddInfo> result = new List<struct_hddInfo>();
+            List<string[]> hdds = lookupValue_all("Win32_DiskDrive", new string[] { "Name", "Model", "Size" });
+
+            foreach (string[] hdd in hdds)
+            {
+                struct_hddInfo thisOne = new struct_hddInfo
+                {
+                    name = hdd[0],
+                    model = hdd[1],
+                    size = varToLong(hdd[2]),
+                    smart = new List<string[]>()
+                };
+                result.Add(thisOne);
+            }
+
+            // todo: use smartmontools to get HDD S.M.A.R.T info
+            // smartctl.exe -a /dev/pd[0-255] for \\.\PhysicalDrive[0-255] ("name" in hdd info struct)
+
+            return result;
+        }
+
         // this returns both available and unavailable GPUs
         public static List<string> getVideo_adapter()
         {
