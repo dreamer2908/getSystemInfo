@@ -14,6 +14,8 @@ namespace getSystemInfo_cli
 {
     class systemInfo
     {
+        #region lookupValue
+
         private static string lookupValue_first(string wantedClass, string wantedValue)
         {
             string result = String.Empty;
@@ -72,6 +74,9 @@ namespace getSystemInfo_cli
             return count;
         }
 
+        #endregion
+
+        #region getCPU
         public static string getCPU_name()
         {
             return lookupValue_first("win32_processor", "Name");
@@ -96,6 +101,10 @@ namespace getSystemInfo_cli
         {
             return lookupValue_first("win32_processor", "SocketDesignation");
         }
+
+        #endregion
+
+        #region getRAM
 
         // count number of installed ram sticks
         public static string getRAM_stickCount()
@@ -130,7 +139,11 @@ namespace getSystemInfo_cli
         {
             return lookupValue_all("Win32_PhysicalMemory", new string[] { "Manufacturer", "PartNumber", "Capacity", "Speed" });
         }
-        
+
+        #endregion
+
+        #region getMobo
+
         public static string getMobo_manufacturer()
         {
             return lookupValue_first("Win32_BaseBoard", "Manufacturer");
@@ -141,121 +154,9 @@ namespace getSystemInfo_cli
             return lookupValue_first("Win32_BaseBoard", "Product");
         }
 
-        // the same as System Manufacturer in dxdiag
-        public static string getSystem_manufacturer()
-        {
-            return lookupValue_first("Win32_ComputerSystem", "Manufacturer");
-        }
+        #endregion
 
-        // the same as System Model in dxdiag
-        public static string getSystem_model()
-        {
-            return lookupValue_first("Win32_ComputerSystem", "Model");
-        }
-
-        // mimic Operating System in dxdiag
-        public static string getSystem_OS()
-        {
-            string result = lookupValue_first("Win32_OperatingSystem", "Caption").Replace("Microsoft ", "");
-            result += " " + lookupValue_first("Win32_OperatingSystem", "OSArchitecture");
-            // string osVersion = String.Format("{0}.{0}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor);
-            string osVersion = lookupValue_first("Win32_OperatingSystem", "Version");
-            result += " (" + osVersion + ")";
-            return result;
-        }
-
-        public static string getSystem_language()
-        {
-            CultureInfo ci = CultureInfo.CurrentUICulture;
-
-            //Console.WriteLine("Default Language Info:");
-            //Console.WriteLine("* Name: {0}", ci.Name);
-            //Console.WriteLine("* Display Name: {0}", ci.DisplayName);
-            //Console.WriteLine("* English Name: {0}", ci.EnglishName);
-            //Console.WriteLine("* 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName);
-            //Console.WriteLine("* 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName);
-            //Console.WriteLine("* 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName);
-
-            return ci.Name;
-
-        }
-
-        public static string getSystem_name()
-        {
-            return lookupValue_first("Win32_ComputerSystem", "Name");
-        }
-
-        public static string getSystem_domain()
-        {
-            return lookupValue_first("Win32_ComputerSystem", "Domain");
-        }
-
-        public static string getSystem_currentUsername()
-        {
-            return lookupValue_first("Win32_ComputerSystem", "UserName");
-        }
-
-        // not working, no account found
-        // TODO: fix this
-        public static List<string[]> getSystem_listUserAccounts()
-        {
-            List<string[]> result1 = lookupValue_all("Win32_Account", new string[] { "Name", "Domain", "SID", "LocalAccount", "AccountType", "Disabled" });
-            List<string[]> result2 = new List<string[]>();
-
-            Console.WriteLine(result1.Count);
-            
-            // filter to get only account type 512
-            foreach (string[] acc in result1)
-            {
-                if (acc[4] == "512")
-                {
-                    result2.Add(acc);
-                }
-            }
-
-            return result2;
-        }
-
-        // note that it won't work with network share drive
-        // https://stackoverflow.com/questions/1393711/get-free-disk-space
-        private static long getTotalFreeSpace(string driveName)
-        {
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.IsReady && drive.Name == driveName)
-                {
-                    return drive.TotalFreeSpace;
-                }
-            }
-            return -1;
-        }
-        private static long getTotalSpace(string driveName)
-        {
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.IsReady && drive.Name == driveName)
-                {
-                    return drive.TotalSize;
-                }
-            }
-            return -1;
-        }
-
-        // get system drive total size and free space
-        public static string getSystem_systemDrive()
-        {
-            string sysDrive = Path.GetPathRoot(Environment.SystemDirectory);
-            //Console.WriteLine(sysDrive);
-            return sysDrive;
-        }
-        public static long getSystem_systemDriveFreeSpace()
-        {
-            return getTotalFreeSpace(getSystem_systemDrive());
-        }
-        public static long getSystem_systemDriveTotalSpace()
-        {
-            return getTotalSpace(getSystem_systemDrive());
-        }
+        #region getHDD
 
         // get physical HDD list: model name, capacity
         public struct struct_hddInfo
@@ -287,6 +188,10 @@ namespace getSystemInfo_cli
 
             return result;
         }
+
+        #endregion
+
+        #region getVideo
 
         // this returns both available and unavailable GPUs
         public static List<string> getVideo_adapter()
@@ -328,6 +233,10 @@ namespace getSystemInfo_cli
                 Console.WriteLine(target.FriendlyName);
             }
         }
+
+        #endregion
+
+        #region getNetwork
 
         // get network card, ip address
         // return Name ("Ethernet 2"), Description ("Realtek PCIe GbE Family Controller"), Physical Address, IPv4 Addresses with Subnet Mask, Default Gateways, DNS Servers
@@ -457,6 +366,129 @@ namespace getSystemInfo_cli
             return result;
         }
 
+        #endregion
+
+        #region getSystem
+
+        // the same as System Manufacturer in dxdiag
+        public static string getSystem_manufacturer()
+        {
+            return lookupValue_first("Win32_ComputerSystem", "Manufacturer");
+        }
+
+        // the same as System Model in dxdiag
+        public static string getSystem_model()
+        {
+            return lookupValue_first("Win32_ComputerSystem", "Model");
+        }
+
+        // mimic Operating System in dxdiag
+        public static string getSystem_OS()
+        {
+            string result = lookupValue_first("Win32_OperatingSystem", "Caption").Replace("Microsoft ", "");
+            result += " " + lookupValue_first("Win32_OperatingSystem", "OSArchitecture");
+            // string osVersion = String.Format("{0}.{0}", Environment.OSVersion.Version.Major, Environment.OSVersion.Version.Minor);
+            string osVersion = lookupValue_first("Win32_OperatingSystem", "Version");
+            result += " (" + osVersion + ")";
+            return result;
+        }
+
+        public static string getSystem_language()
+        {
+            CultureInfo ci = CultureInfo.CurrentUICulture;
+
+            //Console.WriteLine("Default Language Info:");
+            //Console.WriteLine("* Name: {0}", ci.Name);
+            //Console.WriteLine("* Display Name: {0}", ci.DisplayName);
+            //Console.WriteLine("* English Name: {0}", ci.EnglishName);
+            //Console.WriteLine("* 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName);
+            //Console.WriteLine("* 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName);
+            //Console.WriteLine("* 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName);
+
+            return ci.Name;
+
+        }
+
+        public static string getSystem_name()
+        {
+            return lookupValue_first("Win32_ComputerSystem", "Name");
+        }
+
+        public static string getSystem_domain()
+        {
+            return lookupValue_first("Win32_ComputerSystem", "Domain");
+        }
+
+        public static string getSystem_currentUsername()
+        {
+            return lookupValue_first("Win32_ComputerSystem", "UserName");
+        }
+
+        // not working, no account found
+        // TODO: fix this
+        public static List<string[]> getSystem_listUserAccounts()
+        {
+            List<string[]> result1 = lookupValue_all("Win32_Account", new string[] { "Name", "Domain", "SID", "LocalAccount", "AccountType", "Disabled" });
+            List<string[]> result2 = new List<string[]>();
+
+            Console.WriteLine(result1.Count);
+
+            // filter to get only account type 512
+            foreach (string[] acc in result1)
+            {
+                if (acc[4] == "512")
+                {
+                    result2.Add(acc);
+                }
+            }
+
+            return result2;
+        }
+
+        // note that it won't work with network share drive
+        // https://stackoverflow.com/questions/1393711/get-free-disk-space
+        private static long getTotalFreeSpace(string driveName)
+        {
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (drive.IsReady && drive.Name == driveName)
+                {
+                    return drive.TotalFreeSpace;
+                }
+            }
+            return -1;
+        }
+        private static long getTotalSpace(string driveName)
+        {
+            foreach (DriveInfo drive in DriveInfo.GetDrives())
+            {
+                if (drive.IsReady && drive.Name == driveName)
+                {
+                    return drive.TotalSize;
+                }
+            }
+            return -1;
+        }
+
+        // get system drive total size and free space
+        public static string getSystem_systemDrive()
+        {
+            string sysDrive = Path.GetPathRoot(Environment.SystemDirectory);
+            //Console.WriteLine(sysDrive);
+            return sysDrive;
+        }
+        public static long getSystem_systemDriveFreeSpace()
+        {
+            return getTotalFreeSpace(getSystem_systemDrive());
+        }
+        public static long getSystem_systemDriveTotalSpace()
+        {
+            return getTotalSpace(getSystem_systemDrive());
+        }
+
+        #endregion
+
+        #region getProgram
 
         // get software list
         private static string varToString(object v) => v != null ? v.ToString() : string.Empty;
@@ -544,5 +576,7 @@ namespace getSystemInfo_cli
             // some known apps but uncommon, so put to others: Process Hacker, Xerox, Everything
             // list to ignore (driver, frameworks, updates, redist): Adobe Flash Player, Java*, Cisco*, Apple*, Samsung*, Lenovo*, Huawei*, Sony*, Panasonic*, Toshiba*, Active Directory*, CodeMeter*, *Printer*, *Driver*, Update*, Gnu*, Microsoft .NET*, Microsoft Help*, Microsoft ODBC*, Microsoft SQL*, Microsoft System*, Microsoft Visual*, Microsoft*SDK*, MSDN*, 
         }
+
+        #endregion
     }
 }
