@@ -292,7 +292,7 @@ namespace getSystemInfo_cli
                     Console.WriteLine(MonitorFriendlyName(DisplayModes[i].adapterId, DisplayModes[i].id));
                 }
             }
-            Console.ReadLine();
+            // Console.ReadLine(); // don't pause here plz
         }
     }
 }

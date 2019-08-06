@@ -252,13 +252,34 @@ namespace getSystemInfo_cli
         {
             return lookupValue_all("Win32_VideoController", "Name");
         }
+
         // getting monitor real name (like in control panel) is problematic
         // list of test system:
-        // 1 - PC-276x: Win10 x64 EN
-        // 2 - NAV 160.84: Win10 x64 EN
-        // 3 - 160.28: Win7 x64 EN
-        // 4 - 160.91: Win7 x86 EN
-        // getVideo_monitor1 gives the wanted result in (1) and (2), crashes in (3), and hangs on (4)
+        // 1 - PC-276x: Win10 x64 EN (direct, display on) (in cpl: "VK191")
+        // 2 - NAV 160.84: Win10 x64 EN (VNC, display on) (in cpl: "Dell S2340L" and "Generic PnP Monitor"
+        // 3a - 160.28: Win7 x64 EN (RDP session) (in cpl: "Generic PnP Monitor")
+        // 3b - 160.28: Win7 x64 EN (VNC, display on) (in cpl: "Dell E176FP")
+        // 4a - 160.91: Win7 x86 EN (VNC, display off) (in cpl: "Generic Non-PnP Monitor")
+        // 4b - 160.91: Win7 x86 EN (VNC, display on) (in cpl: "Generic Non-PnP Monitor")
+        // 5 - 160.27: Win7 x64 TW (VNC, KVM) (in cpl: "KVM Monitor")
+        // 6 - 160.87: Win7 x86 EN (VNC, no display) (in cpl: N/A)
+
+        // result matrix
+
+        // <cp> means the same as in control panel
+        // <generic1> means "Generic PnP Monitor"
+        // <generic2> means "Generic Non-PnP Monitor"
+
+        // Methods \ System     (1)         (2)         (3a)        (3b)        (4a)        (4b)        (5)         (6)
+        // getVideo_monitor1    <cp>        <cp>        <except>    <cp>        <empty>     <empty>     <cp>        <empty>
+        // getVideo_monitor2    <generic>   <generic>   <empty>     <generic>   <generic2>  <generic2>  <generic>   <empty>
+        // getVideo_monitor3    <generic>   <generic>   <empty>     <generic>   <generic2>  <generic2>  <generic>   <empty>
+        // getVideo_monitor4    <cp>        <cp>        <except>    <cp>        <empty>     <empty>     <cp>        <empty>
+        // getVideo_monitor5    <cp>        <cp>        <except>    <cp>        <empty>     <empty>     <cp>        <empty>
+
+        // three exceptions has the same error: System.ComponentModel.Win32Exception (0x80004005): The paramenter is incorrect
+
+        // by G.Y, https://stackoverflow.com/a/28257839
         public static void getVideo_monitor1()
         {
             foreach (string s in screenInterrogatory.GetAllMonitorsFriendlyNames())
@@ -266,12 +287,17 @@ namespace getSystemInfo_cli
                 Console.WriteLine(s);
             }
         }
-        // getVideo_monitor2 doesn't work in (1), only returning //DisplayX etc
+
+        // by JamesStuddart, https://stackoverflow.com/q/4958683
+        // getVideo_monitor2 doesn't work anywhere, only returning \\.\DISPLAY1 and \\.\DISPLAY1\Monitor0
         public static void getVideo_monitor2()
         {
-            systemInfo.getVideo_monitor4();
+            monitorInfo.search();
         }
-        // getVideo_monitor3 doesn't work in (1), only return Generic PnP Monitor
+
+        // using WindowsDisplayAPI package, by Soroush Falahati https://stackoverflow.com/a/44046839
+        // supporting .NET 2.0 (?) and 4.5
+        // getVideo_monitor3 only returns Generic PnP Monitor and Generic Non-PnP Monitor
         public static void getVideo_monitor3()
         {
             foreach (var display in WindowsDisplayAPI.Display.GetDisplays())
@@ -279,13 +305,19 @@ namespace getSystemInfo_cli
                 Console.WriteLine(display.DeviceName);
             }
         }
-        // getVideo_monitor4 works in (1) and (2), crashes in (3), and simply hangs on (4)
+        // using the new API, requires at least Windows Vista
         public static void getVideo_monitor4()
         {
             foreach (var target in WindowsDisplayAPI.DisplayConfig.PathDisplayTarget.GetDisplayTargets())
             {
                 Console.WriteLine(target.FriendlyName);
             }
+        }
+
+        // by David Heffernan https://stackoverflow.com/a/26406082
+        public static void getVideo_monitor5()
+        {
+            monitorInfo_david.search();
         }
 
         #endregion
