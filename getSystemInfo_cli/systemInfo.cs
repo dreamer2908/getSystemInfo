@@ -9,6 +9,7 @@ using System.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
 using System.Net;
+using System.Diagnostics;
 
 namespace getSystemInfo_cli
 {
@@ -187,6 +188,40 @@ namespace getSystemInfo_cli
             // smartctl.exe -a /dev/pd[0-255] for \\.\PhysicalDrive[0-255] ("name" in hdd info struct)
 
             return result;
+        }
+
+        private static int executeTask(string executable, string argument, bool hideConsole, out string output)
+        {
+            Process proc = new Process();
+            proc.StartInfo.FileName = executable;
+            proc.StartInfo.Arguments = argument;
+
+            if (hideConsole)
+            {
+                proc.StartInfo.CreateNoWindow = true;
+                proc.StartInfo.UseShellExecute = false;
+            }
+
+            // set to capture console output
+            proc.StartInfo.RedirectStandardOutput = true;
+            proc.StartInfo.RedirectStandardError = true;
+
+            // hookup the eventhandlers to capture the data that is received
+            var sb = new StringBuilder();
+            proc.OutputDataReceived += (sender, args) => sb.AppendLine(args.Data);
+            proc.ErrorDataReceived += (sender, args) => sb.AppendLine(args.Data);
+
+            proc.Start();
+
+            // start capturing console output
+            proc.BeginOutputReadLine();
+            proc.BeginErrorReadLine();
+
+            proc.WaitForExit();
+
+            output = sb.ToString().Trim();
+
+            return proc.ExitCode;
         }
 
         #endregion
