@@ -159,14 +159,16 @@ namespace getSystemInfo_cli
 
         #region getHDD
 
-        // get physical HDD list: model name, capacity
+        // get physical HDD list: model name, capacity, smart info
+        // todo: function to run self tests
         public struct struct_hddInfo
         {
-            public string name;
+            public string addr;
             public string model;
             public long size;
-            public List<string[]> smart;
+            public string smart;
         }
+
         public static List<struct_hddInfo> getHDD_list()
         {
             List<struct_hddInfo> result = new List<struct_hddInfo>();
@@ -176,16 +178,33 @@ namespace getSystemInfo_cli
             {
                 struct_hddInfo thisOne = new struct_hddInfo
                 {
-                    name = hdd[0],
+                    addr = hdd[0],
                     model = hdd[1],
                     size = varToLong(hdd[2]),
-                    smart = new List<string[]>()
+                    smart = getHddSmartInfo(hdd[0])
                 };
+                //Console.WriteLine(thisOne.name);
+                //Console.WriteLine(thisOne.model);
+                //Console.WriteLine(thisOne.size);
+                //Console.WriteLine(thisOne.smart);
                 result.Add(thisOne);
             }
 
-            // todo: use smartmontools to get HDD S.M.A.R.T info
-            // smartctl.exe -a /dev/pd[0-255] for \\.\PhysicalDrive[0-255] ("name" in hdd info struct)
+            return result;
+        }
+
+        private static string getHddSmartInfo(string addr)
+        {
+            // use smartmontools to get HDD S.M.A.R.T info
+            // `smartctl.exe -a /dev/pd[0-255]` for \\.\PhysicalDrive[0-255] ("name" in hdd info struct)
+            // `smartctl.exe --scan` to scan for HDDs. the output includes type and location
+            string devAddr = addr.ToLower().Replace("\\\\.\\physicaldrive", "/dev/pd");
+            // Console.WriteLine(devAddr);
+            string result = string.Empty;
+
+            int exitCode = executeTask("smartctl.exe", "-a " + devAddr, true, out result);
+            // Console.WriteLine(exitCode);
+            // Console.WriteLine(result);
 
             return result;
         }

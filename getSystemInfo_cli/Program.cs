@@ -72,6 +72,8 @@ namespace getSystemInfo_cli
 
             // systemInfo.getProgram_list();
 
+            systemInfo.getHDD_list();
+
             Console.ReadLine();
         }
 
