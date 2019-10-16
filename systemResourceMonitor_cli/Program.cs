@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 
 namespace systemResourceMonitor_cli
 {
@@ -25,8 +27,26 @@ namespace systemResourceMonitor_cli
             //    Console.WriteLine(t);
             //}
 
-            sb.AppendLine("Current Time: " + getNowString());
-            
+            sb.AppendLine("System Time: " + getNowString());
+
+            #region System
+            sb.AppendLine(string.Format("Mainboard Manufacturer: {0}", systemInfo.getMobo_manufacturer()));
+            sb.AppendLine(string.Format("Mainboard Model: {0}", systemInfo.getMobo_model()));
+
+            sb.AppendLine(string.Format("System Manufacturer: {0}", systemInfo.getSystem_manufacturer()));
+            sb.AppendLine(string.Format("System Model: {0}", systemInfo.getSystem_model()));
+
+            // Console.WriteLine(misc.byteToHumanSize(systemInfo.getSystem_systemDriveFreeSpace()));
+            // Console.WriteLine(misc.byteToHumanSize(systemInfo.getSystem_systemDriveTotalSpace()));
+
+            sb.AppendLine(string.Format("System OS: {0}", systemInfo.getSystem_OS()));
+            sb.AppendLine(string.Format("System Language: {0}", systemInfo.getSystem_language()));
+            sb.AppendLine(string.Format("Computer Name: {0}", systemInfo.getSystem_name()));
+            sb.AppendLine(string.Format("Domain Name: {0}", systemInfo.getSystem_domain()));
+            sb.AppendLine(string.Format("Current Username: {0}", systemInfo.getSystem_currentUsername()));
+            #endregion
+
+            #region CPU
             sb.AppendLine(string.Format("CPU Name: {0}", systemInfo.getCPU_name()));
             sb.AppendLine(string.Format("CPU Core Count: {0}", systemInfo.getCPU_coreCount()));
             sb.AppendLine(string.Format("CPU Thread Count: {0}", systemInfo.getCPU_threadCount()));
@@ -38,8 +58,9 @@ namespace systemResourceMonitor_cli
             t = cpuCounter.NextValue(); // this time it will be correct
 
             sb.AppendLine(string.Format("CPU Usage: {0:0.00}%", t));
+            #endregion
 
-
+            #region RAM
             var comInfo = new Microsoft.VisualBasic.Devices.ComputerInfo();
             long total = (long)comInfo.TotalPhysicalMemory;
             long available = (long)comInfo.AvailablePhysicalMemory;
@@ -57,29 +78,15 @@ namespace systemResourceMonitor_cli
 
             for (int i = 0; i < RAMs.Count; i++)
             {
-                sb.AppendLine(string.Format("RAM stick #{0}:", i + 1));
+                sb.AppendLine(string.Format("RAM Stick #{0}:", i + 1));
                 sb.AppendLine(string.Format("    Manufacturer: {0}", RAMs[i][0]));
                 sb.AppendLine(string.Format("    PartNumber: {0}", RAMs[i][1]));
                 sb.AppendLine(string.Format("    Capacity: {0}", misc.byteToHumanSize(long.Parse(RAMs[i][2]))));
                 sb.AppendLine(string.Format("    Bus Speed: {0} MHz", RAMs[i][3]));
             }
+            #endregion
 
-            sb.AppendLine(string.Format("Mainboard Manufacturer: {0}", systemInfo.getMobo_manufacturer()));
-            sb.AppendLine(string.Format("Mainboard Model: {0}", systemInfo.getMobo_model()));
-
-            sb.AppendLine(string.Format("System Manufacturer: {0}", systemInfo.getSystem_manufacturer()));
-            sb.AppendLine(string.Format("System Model: {0}", systemInfo.getSystem_model()));
-
-            // Console.WriteLine(misc.byteToHumanSize(systemInfo.getSystem_systemDriveFreeSpace()));
-            // Console.WriteLine(misc.byteToHumanSize(systemInfo.getSystem_systemDriveTotalSpace()));
-
-            sb.AppendLine(string.Format("System OS: {0}", systemInfo.getSystem_OS()));
-            sb.AppendLine(string.Format("System Language: {0}", systemInfo.getSystem_language()));
-            sb.AppendLine(string.Format("Computer Name: {0}", systemInfo.getSystem_name()));
-            sb.AppendLine(string.Format("Domain Name: {0}", systemInfo.getSystem_domain()));
-            sb.AppendLine(string.Format("Current Username: {0}", systemInfo.getSystem_currentUsername()));
-
-            // get logical drives
+            #region HDD
 
             DriveInfo[] allDrives = DriveInfo.GetDrives();
 
@@ -113,8 +120,43 @@ namespace systemResourceMonitor_cli
                 sb.AppendLine("    Capacity: " + misc.byteToHumanSize(HDD.size));
                 sb.AppendLine("    S.M.A.R.T Info:\n" + padSpaceLines(HDD.smart, "        ") + "\n");
             }
+            #endregion
 
-            File.WriteAllText(string.Format("system_info_{0}.txt", getNowStringForFilename()), sb.ToString());
+            #region Network
+            var networkInterface = systemInfo.getNetwork_interfaces();
+
+            sb.AppendLine(string.Format("Network Interface Count: {0}", networkInterface.Count));
+
+            for (int i = 0; i < networkInterface.Count; i++)
+            {
+                var network = networkInterface[i];
+                sb.AppendLine(string.Format("Network Interface #{0}:", i + 1));
+                sb.AppendLine(string.Format("    Name: {0}", network.name));
+                sb.AppendLine(string.Format("    Description: {0}", network.description));
+                sb.AppendLine(string.Format("    MAC Address: {0}", network.MAC));
+                sb.AppendLine(string.Format("    Status: {0}", network.isUp ? "Up" : "Down"));
+                sb.AppendLine(string.Format("    Speed: {0}", networkSpeedToHumanSize(network.speed)));
+                sb.AppendLine(string.Format("    IP Addresses ({0}):", network.ipAddresses.Count));
+                foreach (var ip in network.ipAddresses)
+                {
+                    sb.AppendLine(string.Format("        {0} {1}", ip.ipAddr, ip.netMask));
+                }
+                sb.AppendLine(string.Format("    Gateways ({0}):", network.gateways.Count));
+                foreach (var gate in network.gateways)
+                {
+                    sb.AppendLine(string.Format("        {0}", gate));
+                }
+                sb.AppendLine(string.Format("    DNS Servers ({0}):", network.dnsServers.Count));
+                foreach (var dns in network.dnsServers)
+                {
+                    sb.AppendLine(string.Format("        {0}", dns));
+                }
+
+                // todo: get current up/down speed
+            }
+            #endregion
+
+            File.WriteAllText(Path.Combine(Application.StartupPath.ToString(), string.Format("system_info_{0}.txt", getNowStringForFilename())), sb.ToString());
 
             Console.WriteLine("Done.");
             // Console.ReadLine();
@@ -147,6 +189,28 @@ namespace systemResourceMonitor_cli
         public static string formatDateTime(DateTime d)
         {
             return d.ToString("yyyy-MM-dd HH:mm:ss");
+        }
+
+        public static string networkSpeedToHumanSize(long speed)
+        {
+            string[] units = { "Bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps", "Ybps" };
+
+            if (speed < 1000)
+            {
+                return String.Format("{0} {1}", speed, units[0]);
+            }
+
+            double value = speed;
+            int unit = 0;
+
+            while (value >= 1000)
+            {
+                unit++;
+                value = value / 1000;
+            }
+
+            string formatOptions = "{0:0} {1}";
+            return String.Format(formatOptions, value, units[unit]);
         }
     }
 }
