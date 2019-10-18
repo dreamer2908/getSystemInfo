@@ -124,6 +124,7 @@ namespace systemResourceMonitor_cli
 
             #region Network
             var networkInterface = systemInfo.getNetwork_interfaces();
+            NetworkInterface[] allNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
 
             sb.AppendLine(string.Format("Network Interface Count: {0}", networkInterface.Count));
 
@@ -152,7 +153,46 @@ namespace systemResourceMonitor_cli
                     sb.AppendLine(string.Format("        {0}", dns));
                 }
 
-                // todo: get current up/down speed
+                // get the current throughput of this interface
+                foreach (var thisInterface in allNetworkInterfaces)
+                {
+                    if (thisInterface.Name == network.name)
+                    {
+                        if (thisInterface.OperationalStatus == OperationalStatus.Up)
+                        {
+                            var firstTime = DateTime.Now;
+                            var interfaceStatistic = thisInterface.GetIPv4Statistics();
+
+                            // get the latest sent/received byte count
+                            long lngBytesSent = interfaceStatistic.BytesSent;
+                            long lngBytesReceived = interfaceStatistic.BytesReceived;
+
+                            // wait 1s, then get the stats again, and calculate the difference
+                            // but don't trust it to be 1000 ms, as Sleep is not accurate
+                            System.Threading.Thread.Sleep(1000);
+                            var secondTime = DateTime.Now;
+                            int sleepTime = (int)(secondTime - firstTime).TotalMilliseconds;
+
+                            interfaceStatistic = thisInterface.GetIPv4Statistics();
+                            long bytesSentDelta = interfaceStatistic.BytesSent - lngBytesSent;
+                            long bytesReceivedDelta = interfaceStatistic.BytesReceived - lngBytesReceived;
+
+                            long bitSentSpeed = (bytesSentDelta) * 8 * (sleepTime / 1000);
+                            long bitReceivedSpeed = (bytesReceivedDelta) * 8 * (sleepTime / 1000);
+
+                            double sendSpeedPerc = 100.0 * bitSentSpeed / thisInterface.Speed;
+                            double recvSpeedPerc = 100.0 * bitReceivedSpeed / thisInterface.Speed;
+
+                            sb.AppendLine("    Stats:");
+                            // sb.AppendLine(string.Format("        TX Bytes: {0}", bytesSentDelta));
+                            // sb.AppendLine(string.Format("        RX Bytes: {0}", bitReceivedSpeed));
+                            sb.AppendLine(string.Format("        TX Speed: {0} ({1:0.00}%)", networkSpeedToHumanSize(bitSentSpeed), sendSpeedPerc));
+                            sb.AppendLine(string.Format("        RX Speed: {0} ({1:0.00}%)", networkSpeedToHumanSize(bitReceivedSpeed), recvSpeedPerc));
+                        }
+
+                        break;
+                    }
+                }
             }
             #endregion
 
