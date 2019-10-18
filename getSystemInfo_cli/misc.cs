@@ -50,6 +50,33 @@ namespace getSystemInfo_cli
             return byteToHumanSize(bytes, 3);
         }
 
+        public static string bpsToHumanSize(long speed, int decimalPlaces)
+        {
+            string[] units = { "Bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps", "Ybps" };
+
+            if (speed < 1000)
+            {
+                return String.Format("{0} {1}", speed, units[0]);
+            }
+
+            double value = speed;
+            int unit = 0;
+
+            while (value >= 1000)
+            {
+                unit++;
+                value = value / 1000;
+            }
+
+            string formatOptions = "{0:" + generateFloatStringFormatDescriptor(decimalPlaces, true) + "} {1}";
+            return String.Format(formatOptions, value, units[unit]);
+        }
+
+        public static string bpsToHumanSize(long bytes)
+        {
+            return bpsToHumanSize(bytes, 3);
+        }
+
         public static void printListOfStringArray(List<string[]> l)
         {
             for (int i = 0; i < l.Count; i++)

@@ -136,7 +136,7 @@ namespace systemResourceMonitor_cli
                 sb.AppendLine(string.Format("    Description: {0}", network.description));
                 sb.AppendLine(string.Format("    MAC Address: {0}", network.MAC));
                 sb.AppendLine(string.Format("    Status: {0}", network.isUp ? "Up" : "Down"));
-                sb.AppendLine(string.Format("    Speed: {0}", networkSpeedToHumanSize(network.speed)));
+                sb.AppendLine(string.Format("    Speed: {0}", misc.bpsToHumanSize(network.speed)));
                 sb.AppendLine(string.Format("    IP Addresses ({0}):", network.ipAddresses.Count));
                 foreach (var ip in network.ipAddresses)
                 {
@@ -186,8 +186,8 @@ namespace systemResourceMonitor_cli
                             sb.AppendLine("    Stats:");
                             // sb.AppendLine(string.Format("        TX Bytes: {0}", bytesSentDelta));
                             // sb.AppendLine(string.Format("        RX Bytes: {0}", bitReceivedSpeed));
-                            sb.AppendLine(string.Format("        TX Speed: {0} ({1:0.00}%)", networkSpeedToHumanSize(bitSentSpeed), sendSpeedPerc));
-                            sb.AppendLine(string.Format("        RX Speed: {0} ({1:0.00}%)", networkSpeedToHumanSize(bitReceivedSpeed), recvSpeedPerc));
+                            sb.AppendLine(string.Format("        TX Speed: {0} ({1:0.00}%)", misc.bpsToHumanSize(bitSentSpeed), sendSpeedPerc));
+                            sb.AppendLine(string.Format("        RX Speed: {0} ({1:0.00}%)", misc.bpsToHumanSize(bitReceivedSpeed), recvSpeedPerc));
                         }
 
                         break;
@@ -229,28 +229,6 @@ namespace systemResourceMonitor_cli
         public static string formatDateTime(DateTime d)
         {
             return d.ToString("yyyy-MM-dd HH:mm:ss");
-        }
-
-        public static string networkSpeedToHumanSize(long speed)
-        {
-            string[] units = { "Bps", "Kbps", "Mbps", "Gbps", "Tbps", "Pbps", "Ebps", "Zbps", "Ybps" };
-
-            if (speed < 1000)
-            {
-                return String.Format("{0} {1}", speed, units[0]);
-            }
-
-            double value = speed;
-            int unit = 0;
-
-            while (value >= 1000)
-            {
-                unit++;
-                value = value / 1000;
-            }
-
-            string formatOptions = "{0:0} {1}";
-            return String.Format(formatOptions, value, units[unit]);
         }
     }
 }
