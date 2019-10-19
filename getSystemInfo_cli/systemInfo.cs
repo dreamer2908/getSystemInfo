@@ -153,8 +153,55 @@ namespace getSystemInfo_cli
         // list all install ram sticks, return a list of string array of <manufacturer> <model> <capacity> <speed>
         public static List<string[]> getRAM_stickList()
         {
-            return lookupValue_all("Win32_PhysicalMemory", new string[] { "Manufacturer", "PartNumber", "Capacity", "Speed" });
+            var RAMs = lookupValue_all("Win32_PhysicalMemory", new string[] { "Manufacturer", "PartNumber", "Capacity", "Speed", "MemoryType" });
+
+            for (int i = 0; i < RAMs.Count; i++)
+            {
+                RAMs[i][4] = MemoryTypeToText[RAMs[i][4]];
+            }
+
+            return RAMs;
         }
+
+        // might be inaccurate
+        // sources:
+        // https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-physicalmemory
+        // https://stackoverflow.com/questions/14227171/how-to-get-memory-information-ram-type-e-g-ddr-ddr2-ddr3-with-wmi-c
+        // https://gist.github.com/ayancey/b3399177f9072db88d8a58559f1e3503
+        public static readonly Dictionary<string, string> MemoryTypeToText = new Dictionary<string, string>()
+        {
+            { "0", "Unknown" },
+            { "1", "Other" },
+            { "2", "DRAM" },
+            { "3", "Synchronous DRAM" },
+            { "4", "Cache DRAM" },
+            { "5", "EDO" },
+            { "6", "EDRAM" },
+            { "7", "VRAM" },
+            { "8", "SRAM" },
+            { "9", "RAM" },
+            { "10", "ROM" },
+            { "11", "Flash" },
+            { "12", "EEPROM" },
+            { "13", "FEPROM" },
+            { "14", "EPROM" },
+            { "15", "CDRAM" },
+            { "16", "3DRAM" },
+            { "17", "SDRAM" },
+            { "18", "SGRAM" },
+            { "19", "RDRAM" },
+            { "20", "DDR" },
+            { "21", "DDR2" },
+            { "22", "DDR2 FB-DIMM" },
+            { "23", "" },
+            { "24", "DDR3" },
+            { "25", "FBD2" },
+            { "26", "DDR4" },
+            { "27", "LPDDR" },
+            { "28", "LPDDR2" },
+            { "29", "LPDDR3" },
+            { "30", "LPDDR4" },
+        };
 
         #endregion
 
