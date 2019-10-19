@@ -24,8 +24,13 @@ namespace getSystemInfo_cli
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
-                result = mo.Properties[wantedValue].Value.ToString();
-                break;
+                try
+                {
+                    result = mo.Properties[wantedValue].Value.ToString();
+                    break;
+                }
+                catch (Exception)
+                { }
             }
             return result;
         }
@@ -37,7 +42,12 @@ namespace getSystemInfo_cli
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
-                result.Add(mo.Properties[wantedValue].Value.ToString());
+                try
+                {
+                    result.Add(mo.Properties[wantedValue].Value.ToString());
+                }
+                catch (Exception)
+                { }
             }
             return result;
         }
@@ -53,7 +63,12 @@ namespace getSystemInfo_cli
                 string[] oneResult = new string[wantedValues.Length];
                 for (int i = 0; i < wantedValues.Length; i++)
                 {
-                    oneResult[i] = mo.Properties[wantedValues[i]].Value.ToString();
+                    try
+                    {
+                        oneResult[i] = mo.Properties[wantedValues[i]].Value.ToString();
+                    }
+                    catch (Exception)
+                    { }
                 }
                 results.Add(oneResult);
             }
@@ -67,7 +82,7 @@ namespace getSystemInfo_cli
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
-                if (mo.Properties[wantedValue].Value != null)
+                if (mo.Properties[wantedValue] != null && mo.Properties[wantedValue].Value != null)
                 {
                     count += 1;
                 }
