@@ -464,7 +464,12 @@ namespace getSystemInfo_cli
                         {
                             struct_ipAddr thisIP;
                             thisIP.ipAddr = unicast.Address.ToString();
-                            thisIP.netMask = unicast.IPv4Mask.ToString();
+
+                            // in .NET 2.0 & 3.5, IPv4Mask is null if the network interface is down
+                            // this was fixed in .NET 4.0 and later; IPv4Mask will have the correct value
+                            // the following null check can prevent crashing in unfortunate occasions,
+                            // but please use .NET 4.0 or later
+                            thisIP.netMask = (unicast.IPv4Mask != null) ? unicast.IPv4Mask.ToString(): String.Empty;
                             if (isValidIpAdressV4(thisIP.ipAddr))
                             {
                                 thisOne.ipAddresses.Add(thisIP);
