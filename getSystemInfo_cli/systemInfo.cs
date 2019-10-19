@@ -4,7 +4,6 @@ using System.Text;
 using System.Management;
 using System.Globalization;
 using System.IO;
-using WindowsDisplayAPI;
 using System.Net.NetworkInformation;
 using Microsoft.Win32;
 using System.Text.RegularExpressions;
@@ -357,37 +356,37 @@ namespace getSystemInfo_cli
             }
         }
 
-        // by JamesStuddart, https://stackoverflow.com/q/4958683
-        // getVideo_monitor2 doesn't work anywhere, only returning \\.\DISPLAY1 and \\.\DISPLAY1\Monitor0
-        public static void getVideo_monitor2()
-        {
-            monitorInfo.search();
-        }
+        //// by JamesStuddart, https://stackoverflow.com/q/4958683
+        //// getVideo_monitor2 doesn't work anywhere, only returning \\.\DISPLAY1 and \\.\DISPLAY1\Monitor0
+        //public static void getVideo_monitor2()
+        //{
+        //    monitorInfo.search();
+        //}
 
-        // using WindowsDisplayAPI package, by Soroush Falahati https://stackoverflow.com/a/44046839
-        // supporting .NET 2.0 (?) and 4.5
-        // getVideo_monitor3 only returns Generic PnP Monitor and Generic Non-PnP Monitor
-        public static void getVideo_monitor3()
-        {
-            foreach (var display in WindowsDisplayAPI.Display.GetDisplays())
-            {
-                Console.WriteLine(display.DeviceName);
-            }
-        }
-        // using the new API, requires at least Windows Vista
-        public static void getVideo_monitor4()
-        {
-            foreach (var target in WindowsDisplayAPI.DisplayConfig.PathDisplayTarget.GetDisplayTargets())
-            {
-                Console.WriteLine(target.FriendlyName);
-            }
-        }
+        //// using WindowsDisplayAPI package, by Soroush Falahati https://stackoverflow.com/a/44046839
+        //// supporting .NET 2.0 (?) and 4.5
+        //// getVideo_monitor3 only returns Generic PnP Monitor and Generic Non-PnP Monitor
+        //public static void getVideo_monitor3()
+        //{
+        //    foreach (var display in WindowsDisplayAPI.Display.GetDisplays())
+        //    {
+        //        Console.WriteLine(display.DeviceName);
+        //    }
+        //}
+        //// using the new API, requires at least Windows Vista
+        //public static void getVideo_monitor4()
+        //{
+        //    foreach (var target in WindowsDisplayAPI.DisplayConfig.PathDisplayTarget.GetDisplayTargets())
+        //    {
+        //        Console.WriteLine(target.FriendlyName);
+        //    }
+        //}
 
-        // by David Heffernan https://stackoverflow.com/a/26406082
-        public static void getVideo_monitor5()
-        {
-            monitorInfo_david.search();
-        }
+        //// by David Heffernan https://stackoverflow.com/a/26406082
+        //public static void getVideo_monitor5()
+        //{
+        //    monitorInfo_david.search();
+        //}
 
         #endregion
 

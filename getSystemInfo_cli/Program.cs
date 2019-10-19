@@ -55,46 +55,6 @@ namespace getSystemInfo_cli
                 Console.WriteLine(e);
             }
 
-            try
-            {
-                Console.WriteLine("systemInfo.getVideo_monitor2");
-                systemInfo.getVideo_monitor2();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            try
-            {
-                Console.WriteLine("systemInfo.getVideo_monitor3");
-                systemInfo.getVideo_monitor3();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            try
-            {
-                Console.WriteLine("systemInfo.getVideo_monitor4");
-                systemInfo.getVideo_monitor4();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
-            try
-            {
-                Console.WriteLine("systemInfo.getVideo_monitor5");
-                systemInfo.getVideo_monitor5();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-
             // List<systemInfo.sruct_networkInterfaceInfo> a = systemInfo.getNetwork_interfaces();
 
             misc.printStringArray(systemInfo.getVideo_adapter().ToArray());
