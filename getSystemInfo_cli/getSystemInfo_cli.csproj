@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>getSystemInfo_cli</RootNamespace>
     <AssemblyName>getSystemInfo_cli</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
