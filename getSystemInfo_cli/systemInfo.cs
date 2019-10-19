@@ -118,6 +118,13 @@ namespace getSystemInfo_cli
             return lookupValue_first("win32_processor", "SocketDesignation");
         }
 
+        public static List<string[]> getCPU_all()
+        {
+            var CPUs = lookupValue_all("win32_processor", new string[] { "Name", "NumberOfCores", "NumberOfLogicalProcessors", "MaxClockSpeed", "SocketDesignation" });
+
+            return CPUs;
+        }
+
         #endregion
 
         #region getRAM
