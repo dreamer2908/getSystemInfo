@@ -5,7 +5,7 @@ VisualStudioVersion = 15.0.28307.271
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "getSystemInfo_cli", "getSystemInfo_cli\getSystemInfo_cli.csproj", "{EC1F069E-004C-4F1C-BB76-ACB0CCCD346C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "systemResourceMonitor_cli", "systemResourceMonitor_cli\systemResourceMonitor_cli.csproj", "{6FC21301-BCBE-47FA-B276-2761DF2E1C3A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "getSystemResources", "getSystemResources\getSystemResources.csproj", "{6FC21301-BCBE-47FA-B276-2761DF2E1C3A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

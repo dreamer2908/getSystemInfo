@@ -7,7 +7,7 @@ using System.Net.NetworkInformation;
 using System.Text;
 using System.Windows.Forms;
 
-namespace systemResourceMonitor_cli
+namespace getSystemResources
 {
     class Program
     {
@@ -152,6 +152,7 @@ namespace systemResourceMonitor_cli
                 sbAppendWriteLine("    MAC Address: {0}", network.MAC);
                 sbAppendWriteLine("    Status: {0}", network.isUp ? "Up" : "Down");
                 sbAppendWriteLine("    Speed: {0}", misc.bpsToHumanSize(network.speed));
+                sbAppendWriteLine("    DHCP Enabled: {0}", network.isDhcpEnabled ? "Yes" : "No");
                 sbAppendWriteLine("    IP Addresses ({0}):", network.ipAddresses.Count);
                 foreach (var ip in network.ipAddresses)
                 {

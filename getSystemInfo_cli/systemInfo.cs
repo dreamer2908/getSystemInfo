@@ -405,6 +405,7 @@ namespace getSystemInfo_cli
             public string description;
             public string MAC;
             public bool isUp;
+            public bool isDhcpEnabled;
             public List<struct_ipAddr> ipAddresses;
             public List<string> gateways;
             public List<string> dnsServers;
@@ -453,6 +454,7 @@ namespace getSystemInfo_cli
                             description = adapter.Description,
                             MAC = adapter.GetPhysicalAddress().ToString(),
                             isUp = (adapter.OperationalStatus == OperationalStatus.Up),
+                            isDhcpEnabled = adapter.GetIPProperties().GetIPv4Properties().IsDhcpEnabled,
                             ipAddresses = new List<struct_ipAddr>(),
                             gateways = new List<string>(),
                             dnsServers = new List<string>()
