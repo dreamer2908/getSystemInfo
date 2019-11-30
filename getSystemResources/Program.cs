@@ -106,6 +106,10 @@ namespace getSystemResources
 
             sbAppendWriteLine("Logical Drive Count: {0}", allDrives.Length);
 
+            bool showFixedDriveStats = true;
+            long fixedDriveTotalSize = 0;
+            long fixedDriveAvailableSize = 0;
+
             foreach (DriveInfo d in allDrives)
             {
                 sbAppendWriteLine("    Drive {0}", d.Name);
@@ -117,7 +121,29 @@ namespace getSystemResources
                     sbAppendWriteLine("        Available space to current user: {0}", misc.byteToHumanSize(d.AvailableFreeSpace));
                     sbAppendWriteLine("        Total available space: {0}", misc.byteToHumanSize(d.TotalFreeSpace));
                     sbAppendWriteLine("        Total size of drive: {0} ", misc.byteToHumanSize(d.TotalSize));
+
+                    if (showFixedDriveStats)
+                    {
+                        long dUsedSize = d.TotalSize - d.TotalFreeSpace;
+                        double dUsedPercent = 100.0 * dUsedSize / d.TotalSize;
+                        // sbAppendWriteLine("    Fixed drives total size: {0}", misc.byteToHumanSize(fixedDriveTotalSize));
+                        sbAppendWriteLine("        Your fixed stats: {0}, {1} used ({2:0.00}%)", misc.byteToHumanSize(d.TotalSize), misc.byteToHumanSize(dUsedSize), dUsedPercent);
+                    }
+
+                    if (d.DriveType == DriveType.Fixed)
+                    {
+                        fixedDriveTotalSize += d.TotalSize;
+                        fixedDriveAvailableSize += d.TotalFreeSpace;
+                    }
+
                 }
+            }
+
+            if (showFixedDriveStats)
+            {
+                long fixedDriveUsedSize = fixedDriveTotalSize - fixedDriveAvailableSize;
+                double fixedDriveUsedPercent = 100.0 * fixedDriveUsedSize / fixedDriveTotalSize;
+                sbAppendWriteLine("    Your fixed stats: {0}, {1} used ({2:0.00}%)", misc.byteToHumanSize(fixedDriveTotalSize), misc.byteToHumanSize(fixedDriveUsedSize), fixedDriveUsedPercent);
             }
 
             var HDDs = systemInfo.getHDD_list();
