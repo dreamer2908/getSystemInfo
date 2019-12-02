@@ -191,11 +191,17 @@ namespace systemResourceAlerter
                 if (!alertInProgress)
                 {
                     alertBegin = now;
+                    labelEditText(lblStatusBar, "Alert in progress!");
                 }
                 alertInProgress = true;
             } 
             else
             {
+                if (alertInProgress)
+                {
+                    labelEditText(lblStatusBar, "Alert cleared!");
+                }
+
                 alertInProgress = false;
                 alertBegin = DateTime.MinValue;
             }
@@ -246,11 +252,15 @@ namespace systemResourceAlerter
                 SmtpServer.Send(mail);
                 // MessageBox.Show("mail Send");
                 Console.WriteLine("mail Send");
+
+                labelEditText(lblStatusBar, "Email sent OK!");
             }
             catch (Exception ex)
             {
                 // MessageBox.Show(ex.ToString());
                 Console.WriteLine(ex.ToString());
+
+                labelEditText(lblStatusBar, "Failed to send email!");
             }
         }
 
