@@ -212,7 +212,7 @@
             this.numMaxHistory.Location = new System.Drawing.Point(111, 122);
             this.numMaxHistory.Name = "numMaxHistory";
             this.numMaxHistory.Size = new System.Drawing.Size(59, 20);
-            this.numMaxHistory.TabIndex = 1;
+            this.numMaxHistory.TabIndex = 3;
             this.numMaxHistory.Value = new decimal(new int[] {
             60,
             0,
@@ -224,7 +224,7 @@
             this.numRamThreshold.Location = new System.Drawing.Point(111, 96);
             this.numRamThreshold.Name = "numRamThreshold";
             this.numRamThreshold.Size = new System.Drawing.Size(59, 20);
-            this.numRamThreshold.TabIndex = 1;
+            this.numRamThreshold.TabIndex = 2;
             this.numRamThreshold.Value = new decimal(new int[] {
             90,
             0,
@@ -327,7 +327,7 @@
             this.chbEmailSsl.Location = new System.Drawing.Point(227, 64);
             this.chbEmailSsl.Name = "chbEmailSsl";
             this.chbEmailSsl.Size = new System.Drawing.Size(46, 17);
-            this.chbEmailSsl.TabIndex = 3;
+            this.chbEmailSsl.TabIndex = 7;
             this.chbEmailSsl.Text = "SSL";
             this.chbEmailSsl.UseVisualStyleBackColor = true;
             // 
@@ -339,7 +339,7 @@
             this.chbEmailLogin.Location = new System.Drawing.Point(10, 86);
             this.chbEmailLogin.Name = "chbEmailLogin";
             this.chbEmailLogin.Size = new System.Drawing.Size(188, 17);
-            this.chbEmailLogin.TabIndex = 2;
+            this.chbEmailLogin.TabIndex = 8;
             this.chbEmailLogin.Text = "This server requires authentication";
             this.chbEmailLogin.UseVisualStyleBackColor = true;
             // 
@@ -350,7 +350,7 @@
             this.txtEmailPassword.Location = new System.Drawing.Point(90, 127);
             this.txtEmailPassword.Name = "txtEmailPassword";
             this.txtEmailPassword.Size = new System.Drawing.Size(183, 20);
-            this.txtEmailPassword.TabIndex = 1;
+            this.txtEmailPassword.TabIndex = 10;
             // 
             // label13
             // 
@@ -368,7 +368,7 @@
             this.txtEmailUser.Location = new System.Drawing.Point(90, 105);
             this.txtEmailUser.Name = "txtEmailUser";
             this.txtEmailUser.Size = new System.Drawing.Size(183, 20);
-            this.txtEmailUser.TabIndex = 1;
+            this.txtEmailUser.TabIndex = 9;
             // 
             // label12
             // 
@@ -395,7 +395,7 @@
             this.txtEmailHost.Location = new System.Drawing.Point(90, 39);
             this.txtEmailHost.Name = "txtEmailHost";
             this.txtEmailHost.Size = new System.Drawing.Size(183, 20);
-            this.txtEmailHost.TabIndex = 1;
+            this.txtEmailHost.TabIndex = 5;
             // 
             // label8
             // 
@@ -413,7 +413,7 @@
             this.txtEmailFrom.Location = new System.Drawing.Point(90, 17);
             this.txtEmailFrom.Name = "txtEmailFrom";
             this.txtEmailFrom.Size = new System.Drawing.Size(183, 20);
-            this.txtEmailFrom.TabIndex = 1;
+            this.txtEmailFrom.TabIndex = 4;
             // 
             // label15
             // 
@@ -434,7 +434,7 @@
             0});
             this.numEmailPort.Name = "numEmailPort";
             this.numEmailPort.Size = new System.Drawing.Size(59, 20);
-            this.numEmailPort.TabIndex = 1;
+            this.numEmailPort.TabIndex = 6;
             this.numEmailPort.Value = new decimal(new int[] {
             25,
             0,
@@ -472,7 +472,7 @@
             this.txtEmailSubject.Location = new System.Drawing.Point(85, 151);
             this.txtEmailSubject.Name = "txtEmailSubject";
             this.txtEmailSubject.Size = new System.Drawing.Size(332, 20);
-            this.txtEmailSubject.TabIndex = 7;
+            this.txtEmailSubject.TabIndex = 18;
             // 
             // label19
             // 
@@ -514,7 +514,7 @@
             0});
             this.numDelayBetweenEmails.Name = "numDelayBetweenEmails";
             this.numDelayBetweenEmails.Size = new System.Drawing.Size(66, 20);
-            this.numDelayBetweenEmails.TabIndex = 3;
+            this.numDelayBetweenEmails.TabIndex = 11;
             this.numDelayBetweenEmails.Value = new decimal(new int[] {
             900,
             0,
@@ -537,7 +537,7 @@
             this.btnReceiverTest.Location = new System.Drawing.Point(423, 101);
             this.btnReceiverTest.Name = "btnReceiverTest";
             this.btnReceiverTest.Size = new System.Drawing.Size(75, 23);
-            this.btnReceiverTest.TabIndex = 1;
+            this.btnReceiverTest.TabIndex = 15;
             this.btnReceiverTest.Text = "Test";
             this.btnReceiverTest.UseVisualStyleBackColor = true;
             this.btnReceiverTest.Click += new System.EventHandler(this.btnReceiverTest_Click);
@@ -548,7 +548,7 @@
             this.btnReceiverDelete.Location = new System.Drawing.Point(423, 72);
             this.btnReceiverDelete.Name = "btnReceiverDelete";
             this.btnReceiverDelete.Size = new System.Drawing.Size(75, 23);
-            this.btnReceiverDelete.TabIndex = 1;
+            this.btnReceiverDelete.TabIndex = 14;
             this.btnReceiverDelete.Text = "Delete";
             this.btnReceiverDelete.UseVisualStyleBackColor = true;
             this.btnReceiverDelete.Click += new System.EventHandler(this.btnReceiverDelete_Click);
@@ -559,7 +559,7 @@
             this.btnReceiverAdd.Location = new System.Drawing.Point(423, 43);
             this.btnReceiverAdd.Name = "btnReceiverAdd";
             this.btnReceiverAdd.Size = new System.Drawing.Size(75, 23);
-            this.btnReceiverAdd.TabIndex = 1;
+            this.btnReceiverAdd.TabIndex = 13;
             this.btnReceiverAdd.Text = "Add...";
             this.btnReceiverAdd.UseVisualStyleBackColor = true;
             this.btnReceiverAdd.Click += new System.EventHandler(this.btnReceiverAdd_Click);
@@ -578,7 +578,7 @@
             this.lsvReceiver.Location = new System.Drawing.Point(7, 43);
             this.lsvReceiver.Name = "lsvReceiver";
             this.lsvReceiver.Size = new System.Drawing.Size(410, 102);
-            this.lsvReceiver.TabIndex = 0;
+            this.lsvReceiver.TabIndex = 12;
             this.lsvReceiver.UseCompatibleStateImageBehavior = false;
             this.lsvReceiver.View = System.Windows.Forms.View.Details;
             // 
@@ -637,7 +637,7 @@
             this.chbAutoStart.Location = new System.Drawing.Point(424, 131);
             this.chbAutoStart.Name = "chbAutoStart";
             this.chbAutoStart.Size = new System.Drawing.Size(73, 17);
-            this.chbAutoStart.TabIndex = 8;
+            this.chbAutoStart.TabIndex = 16;
             this.chbAutoStart.Text = "Auto Start";
             this.chbAutoStart.UseVisualStyleBackColor = true;
             // 
@@ -658,7 +658,7 @@
             this.chbAutoHide.Location = new System.Drawing.Point(424, 153);
             this.chbAutoHide.Name = "chbAutoHide";
             this.chbAutoHide.Size = new System.Drawing.Size(73, 17);
-            this.chbAutoHide.TabIndex = 8;
+            this.chbAutoHide.TabIndex = 17;
             this.chbAutoHide.Text = "Auto Hide";
             this.chbAutoHide.UseVisualStyleBackColor = true;
             // 
@@ -676,7 +676,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(485, 429);
+            this.MinimumSize = new System.Drawing.Size(544, 435);
             this.Name = "Form1";
             this.Text = "System Resources Alerter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
