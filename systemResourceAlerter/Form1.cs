@@ -32,11 +32,9 @@ namespace systemResourceAlerter
                 startEmailAlert();
             }
 
-            notifyIcon1.Visible = true;
+            allowShowUI = !autoHide;
+            notifyIcon1.Visible = autoHide;
         }
-
-        // todo:
-        // tray icon, show hide
 
         string email_host = "";
         int email_port = 25;
@@ -69,6 +67,9 @@ namespace systemResourceAlerter
         double delayBetweenEmails = 900; // seconds
 
         bool autoStart = false;
+        bool autoHide = false;
+
+        bool allowShowUI = false;
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -310,6 +311,7 @@ namespace systemResourceAlerter
             delayBetweenEmails = (int)numDelayBetweenEmails.Value;
 
             autoStart = chbAutoStart.Checked;
+            autoHide = chbAutoHide.Checked;
         }
 
         private void loadSettings()
@@ -328,6 +330,7 @@ namespace systemResourceAlerter
             numRamThreshold.Value = (decimal)ramThreshold;
             numDelayBetweenEmails.Value = (decimal)delayBetweenEmails;
             chbAutoStart.Checked = autoStart;
+            chbAutoHide.Checked = autoHide;
 
             lsvReceiver.Items.Clear();
             foreach (var item in email_to)
@@ -352,6 +355,7 @@ namespace systemResourceAlerter
             Settings.Set("ramThreshold", (int)ramThreshold);
             Settings.Set("delayBetweenEmails", (int)delayBetweenEmails);
             Settings.Set("autoStart", autoStart);
+            Settings.Set("autoHide", autoHide);
 
             Settings.Set("email_to", string.Join(",", email_to));
         }
@@ -372,6 +376,7 @@ namespace systemResourceAlerter
             ramThreshold = Settings.Get("ramThreshold", 90);
             delayBetweenEmails = Settings.Get("delayBetweenEmails", 900);
             autoStart = Settings.Get("autoStart", false);
+            autoHide = Settings.Get("autoHide", false);
 
             string email_tos = Settings.Get("email_to", "");
             foreach (var s in email_tos.Split(new string[] { "," }, StringSplitOptions.None))
@@ -401,6 +406,7 @@ namespace systemResourceAlerter
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
+            allowShowUI = true;
             Show();
             notifyIcon1.Visible = false;
         }
@@ -489,12 +495,6 @@ namespace systemResourceAlerter
             }
         }
 
-        private void btnExit_Click(object sender, EventArgs e)
-        {
-            this.Close();
-        }
-        #endregion
-
         private void stopEmailAlert()
         {
             timer2.Stop();
@@ -506,6 +506,29 @@ namespace systemResourceAlerter
             timer2.Start();
             btnStartStop.Text = "&Stop";
         }
+
+        private void btnHide_Click(object sender, EventArgs e)
+        {
+            hideToTray();
+        }
+
+        private void hideToTray()
+        {
+            allowShowUI = false;
+            Hide();
+            notifyIcon1.Visible = true;
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        protected override void SetVisibleCore(bool value)
+        {
+            base.SetVisibleCore(allowShowUI ? value : allowShowUI);
+        }
+        #endregion
     }
 
 }

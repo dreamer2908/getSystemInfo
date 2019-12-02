@@ -82,6 +82,7 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.chbAutoStart = new System.Windows.Forms.CheckBox();
             this.lblStatusBar = new System.Windows.Forms.Label();
+            this.chbAutoHide = new System.Windows.Forms.CheckBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -105,8 +106,7 @@
             // notifyIcon1
             // 
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
-            this.notifyIcon1.Text = "notifyIcon1";
-            this.notifyIcon1.Visible = true;
+            this.notifyIcon1.Text = "System Resources Alerter";
             this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
             // 
             // groupBox1
@@ -446,6 +446,7 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.chbAutoHide);
             this.groupBox3.Controls.Add(this.chbAutoStart);
             this.groupBox3.Controls.Add(this.txtEmailSubject);
             this.groupBox3.Controls.Add(this.label19);
@@ -605,6 +606,7 @@
             this.btnHide.TabIndex = 5;
             this.btnHide.Text = "&Hide";
             this.btnHide.UseVisualStyleBackColor = true;
+            this.btnHide.Click += new System.EventHandler(this.btnHide_Click);
             // 
             // btnStartStop
             // 
@@ -641,12 +643,24 @@
             // 
             // lblStatusBar
             // 
+            this.lblStatusBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblStatusBar.AutoSize = true;
             this.lblStatusBar.Location = new System.Drawing.Point(20, 371);
             this.lblStatusBar.Name = "lblStatusBar";
             this.lblStatusBar.Size = new System.Drawing.Size(37, 13);
             this.lblStatusBar.TabIndex = 7;
             this.lblStatusBar.Text = "Status";
+            // 
+            // chbAutoHide
+            // 
+            this.chbAutoHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chbAutoHide.AutoSize = true;
+            this.chbAutoHide.Location = new System.Drawing.Point(424, 153);
+            this.chbAutoHide.Name = "chbAutoHide";
+            this.chbAutoHide.Size = new System.Drawing.Size(73, 17);
+            this.chbAutoHide.TabIndex = 8;
+            this.chbAutoHide.Text = "Auto Hide";
+            this.chbAutoHide.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -736,6 +750,7 @@
         private System.Windows.Forms.ColumnHeader columnHeader1;
         private System.Windows.Forms.CheckBox chbAutoStart;
         private System.Windows.Forms.Label lblStatusBar;
+        private System.Windows.Forms.CheckBox chbAutoHide;
     }
 }
 
