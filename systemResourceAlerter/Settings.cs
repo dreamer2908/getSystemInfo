@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Mother_of_Ping_GUI
+namespace systemResourceAlerter
 {
     // by vitalinvent from https://stackoverflow.com/a/31044553
     // with defVal fix and changed filename

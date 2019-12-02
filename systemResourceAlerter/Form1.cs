@@ -10,6 +10,8 @@ using System.Windows.Forms;
 using System.Net.Mail;
 using System.Diagnostics;
 using getSystemInfo_cli;
+using Microsoft.VisualBasic;
+
 
 namespace systemResourceAlerter
 {
@@ -19,28 +21,38 @@ namespace systemResourceAlerter
         {
             InitializeComponent();
 
+            readSettings();
+            loadSettings();
+
             timer1.Interval = 1000;
             timer1.Start();
 
-            timer2.Interval = 60000;
-            timer2.Start();
-            
+            if (autoStart)
+            {
+                startEmailAlert();
+            }
+
             notifyIcon1.Visible = true;
         }
 
-        // todo: GUI, setting
+        // todo:
+        // tray icon, show hide
 
-        string email_host = "172.21.160.13";
+        string email_host = "";
         int email_port = 25;
         bool email_ssl = false;
-        string email_from = "camera-alert@prs-vn.com.hk";
-        string email_user = "camera-alert@prs-vn.com.hk";
-        string email_password = "123456";
-        string email_to = "vn-mis3@pihlgp.com";
-        string email_subject = "Lilin NAV System Resource Usage Alert";
+        string email_from = "";
+        string email_user = "";
+        bool email_login = true;
+        string email_password = "";
+        List<string> email_to = new List<string>();
+        string email_subject = "";
 
         Queue<double> cpuUsageHistory = new Queue<double>();
         Queue<double> ramUsageHistory = new Queue<double>();
+
+        double cpuUsageLast = 0;
+        double ramUsageLast = 0;
 
         PerformanceCounter cpuCounter;
 
@@ -55,6 +67,8 @@ namespace systemResourceAlerter
 
         DateTime lastEmailTimestamp = DateTime.MinValue;
         double delayBetweenEmails = 900; // seconds
+
+        bool autoStart = false;
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -141,6 +155,7 @@ namespace systemResourceAlerter
         {
             double t = getCpuUsage();
             cpuUsageHistory.Enqueue(t);
+            cpuUsageLast = t;
 
             while (cpuUsageHistory.Count > cpuHistoryMax) cpuUsageHistory.Dequeue();
         }
@@ -158,6 +173,7 @@ namespace systemResourceAlerter
         {
             double t = getRamUsage();
             ramUsageHistory.Enqueue(t);
+            ramUsageLast = t;
 
             while (ramUsageHistory.Count > ramHistoryMax) ramUsageHistory.Dequeue();
         }
@@ -168,7 +184,7 @@ namespace systemResourceAlerter
             double avgRAM = queueCalcAverage(ramUsageHistory);
             var now = DateTime.Now;
 
-            if (avgCPU > cpuThreshold || avgRAM > ramThreshold)
+            if ((avgCPU > cpuThreshold && cpuUsageHistory.Count >= cpuHistoryMax) || (avgRAM > ramThreshold && ramUsageHistory.Count >= ramHistoryMax))
             {
                 // set alertBegin if this is the beginning of an alert
                 if (!alertInProgress)
@@ -186,12 +202,28 @@ namespace systemResourceAlerter
         #endregion
 
         #region email
+        // single receipent
         private void sendEmail(string email_to, string email_subject, string email_body)
         {
             sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body);
         }
 
+        // multiple receipents
+        private void sendEmail(List<string> email_to, string email_subject, string email_body)
+        {
+            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body);
+        }
+
+        // single receipent
         private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, string email_to, string email_subject, string email_body)
+        {
+            List<string> to = new List<string>();
+            to.Add(email_to);
+            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, to, email_subject, email_body);
+        }
+
+        // multiple receipents
+        private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, List<string> email_to, string email_subject, string email_body)
         {
             try
             {
@@ -199,7 +231,10 @@ namespace systemResourceAlerter
                 SmtpClient SmtpServer = new SmtpClient(email_host);
 
                 mail.From = new MailAddress(email_from);
-                mail.To.Add(email_to);
+                foreach (string em in email_to)
+                {
+                    mail.To.Add(em);
+                }
                 mail.Subject = email_subject;
                 mail.Body = email_body;
 
@@ -208,23 +243,23 @@ namespace systemResourceAlerter
                 SmtpServer.EnableSsl = email_ssl;
 
                 SmtpServer.Send(mail);
-                MessageBox.Show("mail Send");
+                // MessageBox.Show("mail Send");
                 Console.WriteLine("mail Send");
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.ToString());
+                // MessageBox.Show(ex.ToString());
                 Console.WriteLine(ex.ToString());
             }
         }
 
-        private void sendEmailAlert(bool ignoreDelay=false)
+        private void sendEmailAlert(bool ignoreDelay=false, bool ignoreAlertStatus=false, List<string> custom_to=null)
         {
             // only send email if more than delayBetweenEmails seconds has passed since last email
             // or when delay is asked to be ignored
             double secondSinceLastEmail = (DateTime.Now - lastEmailTimestamp).TotalSeconds;
 
-            if (alertInProgress && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
+            if ((alertInProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
             {
                 string email_body = "At system time: " + getNowString();
                 double avgCPU = queueCalcAverage(cpuUsageHistory);
@@ -236,7 +271,116 @@ namespace systemResourceAlerter
                 email_body += "\n\n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
 
                 lastEmailTimestamp = DateTime.Now;
-                sendEmail(email_to, email_subject, email_body);
+                if (custom_to != null)
+                {
+                    sendEmail(custom_to, email_subject, email_body);
+                }
+                else
+                {
+                    sendEmail(email_to, email_subject, email_body);
+                }
+            }
+        }
+        #endregion
+
+        #region Settings
+        private void applySettings()
+        {
+            email_host = txtEmailHost.Text;
+            email_port = (int)numEmailPort.Value;
+            email_ssl = chbEmailSsl.Checked;
+            email_from = txtEmailFrom.Text;
+            email_user = txtEmailUser.Text;
+            email_login = chbEmailLogin.Checked;
+            email_password = txtEmailPassword.Text;
+            email_subject = txtEmailSubject.Text;
+
+            email_to.Clear();
+            for (int i = 0; i < lsvReceiver.Items.Count; i++)
+            {
+                email_to.Add(lsvReceiver.Items[i].Text);
+            }
+
+            cpuHistoryMax = (int)numMaxHistory.Value;
+            ramHistoryMax = (int)numMaxHistory.Value;
+
+            cpuThreshold = (double)numCpuThreshold.Value;
+            ramThreshold = (double)numRamThreshold.Value;
+
+            delayBetweenEmails = (int)numDelayBetweenEmails.Value;
+
+            autoStart = chbAutoStart.Checked;
+        }
+
+        private void loadSettings()
+        {
+            txtEmailHost.Text = email_host;
+            numEmailPort.Value = email_port;
+            chbEmailSsl.Checked = email_ssl;
+            txtEmailFrom.Text = email_from;
+            txtEmailUser.Text = email_user;
+            chbEmailLogin.Checked = email_login;
+            txtEmailPassword.Text = email_password;
+            txtEmailSubject.Text = email_subject;
+            numMaxHistory.Value = cpuHistoryMax;
+            numMaxHistory.Value = ramHistoryMax;
+            numCpuThreshold.Value = (decimal)cpuThreshold;
+            numRamThreshold.Value = (decimal)ramThreshold;
+            numDelayBetweenEmails.Value = (decimal)delayBetweenEmails;
+            chbAutoStart.Checked = autoStart;
+
+            lsvReceiver.Items.Clear();
+            foreach (var item in email_to)
+            {
+                lsvReceiver.Items.Add(item);
+            }
+        }
+
+        private void writeSettings()
+        {
+            Settings.Set("email_host", email_host);
+            Settings.Set("email_port", email_port);
+            Settings.Set("email_ssl", email_ssl);
+            Settings.Set("email_from", email_from);
+            Settings.Set("email_user", email_user);
+            Settings.Set("email_login", email_login);
+            Settings.Set("email_password", email_password);
+            Settings.Set("email_subject", email_subject);
+            Settings.Set("cpuHistoryMax", cpuHistoryMax);
+            Settings.Set("ramHistoryMax", ramHistoryMax);
+            Settings.Set("cpuThreshold", (int)cpuThreshold);
+            Settings.Set("ramThreshold", (int)ramThreshold);
+            Settings.Set("delayBetweenEmails", (int)delayBetweenEmails);
+            Settings.Set("autoStart", autoStart);
+
+            Settings.Set("email_to", string.Join(",", email_to));
+        }
+
+        private void readSettings()
+        {
+            email_host = Settings.Get("email_host", "");
+            email_port = Settings.Get("email_port", 25);
+            email_ssl = Settings.Get("email_ssl", false);
+            email_from = Settings.Get("email_from", "");
+            email_user = Settings.Get("email_user", "");
+            email_login = Settings.Get("email_login", true);
+            email_password = Settings.Get("email_password", "");
+            email_subject = Settings.Get("email_subject", "");
+            cpuHistoryMax = Settings.Get("cpuHistoryMax", 60);
+            ramHistoryMax = Settings.Get("ramHistoryMax", 60);
+            cpuThreshold = Settings.Get("cpuThreshold", 90);
+            ramThreshold = Settings.Get("ramThreshold", 90);
+            delayBetweenEmails = Settings.Get("delayBetweenEmails", 900);
+            autoStart = Settings.Get("autoStart", false);
+
+            string email_tos = Settings.Get("email_to", "");
+            foreach (var s in email_tos.Split(new string[] { "," }, StringSplitOptions.None))
+            {
+                var trim = s.Trim();
+                if (trim.Length > 0)
+                {
+                    email_to.Add(trim);
+                }
             }
         }
         #endregion
@@ -246,12 +390,13 @@ namespace systemResourceAlerter
         {
             queueCpuUsage();
             queueRamUsage();
+            updateUiStats();
             checkThreshold();
-            sendEmailAlert();
         }
 
         private void timer2_Tick(object sender, EventArgs e)
         {
+            sendEmailAlert();
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
@@ -259,8 +404,108 @@ namespace systemResourceAlerter
             Show();
             notifyIcon1.Visible = false;
         }
+
+        private void updateUiStats()
+        {
+            if (cpuUsageHistory.Count > 0)
+            {
+                double nowCPU = cpuUsageLast;
+                double avgCPU = queueCalcAverage(cpuUsageHistory);
+                labelEditText(lblCpuCurrent, string.Format("{0:0.00}%", nowCPU));
+                labelEditText(lblCpuAvg, string.Format("{0:0.00}%", avgCPU));
+            }
+
+            if (ramUsageHistory.Count > 0)
+            {
+                double nowRAM = ramUsageLast;
+                double avgRAM = queueCalcAverage(ramUsageHistory);
+                labelEditText(lblRamCurrent, string.Format("{0:0.00}%", nowRAM));
+                labelEditText(lblRamAvg, string.Format("{0:0.00}%", avgRAM));
+            }
+        }
+
+        private void labelEditText(Label b, string text)
+        {
+            if (b.InvokeRequired)
+            {
+                // It's on a different thread, so use Invoke.
+                b.BeginInvoke(new MethodInvoker(() =>
+                {
+                    b.Text = text;
+                }));
+            }
+            else
+            {
+                // It's on the same thread, no need for Invoke
+                b.Text = text;
+            }
+        }
+
+        private void btnApply_Click(object sender, EventArgs e)
+        {
+            applySettings();
+            writeSettings();
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            writeSettings();
+        }
+
+        private void btnReceiverAdd_Click(object sender, EventArgs e)
+        {
+            string newEmail = Interaction.InputBox("Enter a new receipent email address", "Add email", "admin@mail.com");
+            lsvReceiver.Items.Add(newEmail);
+        }
+
+        private void btnReceiverDelete_Click(object sender, EventArgs e)
+        {
+            foreach (ListViewItem eachItem in lsvReceiver.SelectedItems)
+            {
+                lsvReceiver.Items.Remove(eachItem);
+            }
+        }
+
+        private void btnReceiverTest_Click(object sender, EventArgs e)
+        {
+            List<string> custom_to = new List<string>();
+            for (int i = 0; i < lsvReceiver.Items.Count; i++)
+            {
+                custom_to.Add(lsvReceiver.Items[i].Text);
+            }
+
+            sendEmailAlert(true, true, custom_to);
+        }
+
+        private void btnStartStop_Click(object sender, EventArgs e)
+        {
+            if (btnStartStop.Text.EndsWith("Start"))
+            {
+                startEmailAlert();
+            }
+            else
+            {
+                stopEmailAlert();
+            }
+        }
+
+        private void btnExit_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
         #endregion
 
+        private void stopEmailAlert()
+        {
+            timer2.Stop();
+            btnStartStop.Text = "&Start";
+        }
+
+        private void startEmailAlert()
+        {
+            timer2.Start();
+            btnStartStop.Text = "&Stop";
+        }
     }
 
 }
