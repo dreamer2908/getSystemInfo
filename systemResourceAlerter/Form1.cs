@@ -74,6 +74,9 @@ namespace systemResourceAlerter
         bool eventLogLevel1 = false;
         bool eventLogLevel2 = false;
         bool eventLogLevel3 = false;
+        bool eventLogLevel4 = false;
+
+        DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -303,6 +306,132 @@ namespace systemResourceAlerter
                 }
             }
         }
+
+        private void sendEmailForwardEventLog(List<string> custom_to = null)
+        {
+            List<myEventEntry> myEventEntries = readEventLog();
+
+            // MessageBox.Show(string.Format("myEventEntries count = {0}", myEventEntries.Count));
+
+            foreach (var me in myEventEntries)
+            {
+                string email_body = "Windows Event Log:\n";
+
+                email_body += string.Format("\nCategory: {0}", me.logType);
+                email_body += string.Format("\nLevel: {0}", me.level);
+                email_body += string.Format("\nTimestamp: {0}", me.timestamp);
+                email_body += string.Format("\nSource: {0}", me.source);
+                email_body += string.Format("\nEvent ID: {0}", me.eventID);
+                email_body += string.Format("\nMessage: \n{0}", me.message);
+
+                // MessageBox.Show(email_body);
+
+                if (custom_to != null)
+                {
+                    sendEmail(custom_to, email_subject_log, email_body);
+                }
+                else
+                {
+                    sendEmail(email_to, email_subject_log, email_body);
+                }
+            }
+        }
+        #endregion
+
+        #region Event Log
+
+        struct myEventEntry
+        {
+            public string logType { get; set; }
+            public string level { get; set; }
+            public DateTime timestamp { get; set; }
+            public string source { get; set; }
+            public int eventID { get; set; }
+            public string message { get; set; }
+            public string computer { get; set; }
+            // EventLogEntry entry { get; set; }
+        }
+
+        private List<myEventEntry> readEventLog()
+        {
+            List<myEventEntry> result = new List<myEventEntry>();
+            DateTime endTime = lastLogEntryTime;
+
+            List<string> logTypes = new List<string>();
+            if (eventLogType1) logTypes.Add("Application");
+            if (eventLogType2) logTypes.Add("Security");
+            // if (eventLogType3) logTypes.Add("Setup"); // Setup category needs a different approach
+            if (eventLogType4) logTypes.Add("System");
+
+            List<EventLogEntryType> logLevels = new List<EventLogEntryType>();
+            if (eventLogLevel1) logLevels.Add(EventLogEntryType.Error);
+            if (eventLogLevel2) logLevels.Add(EventLogEntryType.Warning);
+            if (eventLogLevel3) logLevels.Add(EventLogEntryType.Information);
+            if (eventLogLevel4)
+            {
+                logLevels.Add(EventLogEntryType.SuccessAudit);
+                logLevels.Add(EventLogEntryType.FailureAudit);
+            }
+
+            var logNames = getEventLogNames();
+
+            foreach (string logType in logTypes)
+            {
+                //if (!logNames.Contains(logType))
+                //{
+                //    Console.WriteLine("Log category not found: {0}.", logType);
+                //    continue;
+                //}
+
+                EventLog log = new EventLog(logType);
+                int length = log.Entries.Count;
+
+                // read from the end, get entries younger than startTime
+                for (int e = length - 1; e >= 0; e--)
+                {
+                    EventLogEntry entry = log.Entries[e];
+                    DateTime timestamp = entry.TimeGenerated;
+
+                    if (timestamp > lastLogEntryTime)
+                    {
+                        var level = entry.EntryType;
+
+                        if (logLevels.Contains(level))
+                        {
+                            myEventEntry me = new myEventEntry
+                            {
+                                logType = logType,
+                                level = level.ToString(),
+                                timestamp = timestamp,
+                                source = entry.Source,
+                                eventID = (UInt16)entry.InstanceId,
+                                message = entry.Message,
+                                computer = entry.MachineName
+                            };
+
+                            result.Add(me);
+                        }
+
+                        if (timestamp > endTime) endTime = timestamp;
+                    }
+                    else
+                    {
+                        break; // stop reading this event file when reaching startTime
+                    }
+                }
+            }
+
+            lastLogEntryTime = endTime;
+
+            return result;
+        }
+
+        private List<string> getEventLogNames()
+        {
+            var session = new System.Diagnostics.Eventing.Reader.EventLogSession();
+            List<string> logNames = new List<string>(session.GetLogNames());
+            return logNames;
+        }
         #endregion
 
         #region Settings
@@ -344,6 +473,7 @@ namespace systemResourceAlerter
             eventLogLevel1 = chbEventLogLevel1.Checked;
             eventLogLevel2 = chbEventLogLevel2.Checked;
             eventLogLevel3 = chbEventLogLevel3.Checked;
+            eventLogLevel4 = chbEventLogLevel4.Checked;
         }
 
         private void loadSettings()
@@ -380,6 +510,7 @@ namespace systemResourceAlerter
             chbEventLogLevel1.Checked = eventLogLevel1;
             chbEventLogLevel2.Checked = eventLogLevel2;
             chbEventLogLevel3.Checked = eventLogLevel3;
+            chbEventLogLevel4.Checked = eventLogLevel4;
 
             enableDisableEventControls();
         }
@@ -412,6 +543,7 @@ namespace systemResourceAlerter
             Settings.Set("eventLogLevel1", eventLogLevel1);
             Settings.Set("eventLogLevel2", eventLogLevel2);
             Settings.Set("eventLogLevel3", eventLogLevel3);
+            Settings.Set("eventLogLevel4", eventLogLevel4);
 
 
             Settings.Set("email_subject_log", email_subject_log);
@@ -453,6 +585,7 @@ namespace systemResourceAlerter
             eventLogLevel1 = Settings.Get("eventLogLevel1", false);
             eventLogLevel2 = Settings.Get("eventLogLevel2", false);
             eventLogLevel3 = Settings.Get("eventLogLevel3", false);
+            eventLogLevel4 = Settings.Get("eventLogLevel4", false);
 
             email_subject_log = Settings.Get("email_subject_log", "");
         }
@@ -470,6 +603,7 @@ namespace systemResourceAlerter
         private void timer2_Tick(object sender, EventArgs e)
         {
             sendEmailAlert();
+            sendEmailForwardEventLog();
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
