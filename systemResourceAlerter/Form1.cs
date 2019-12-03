@@ -5,7 +5,7 @@ using System.Windows.Forms;
 using System.Net.Mail;
 using System.Diagnostics;
 using Microsoft.VisualBasic;
-
+using System.Diagnostics.Eventing.Reader;
 
 namespace systemResourceAlerter
 {
@@ -364,9 +364,24 @@ namespace systemResourceAlerter
             if (eventLogType4) logTypes.Add("System");
 
             List<EventLogEntryType> logLevels = new List<EventLogEntryType>();
-            if (eventLogLevel1) logLevels.Add(EventLogEntryType.Error);
-            if (eventLogLevel2) logLevels.Add(EventLogEntryType.Warning);
-            if (eventLogLevel3) logLevels.Add(EventLogEntryType.Information);
+            List<StandardEventLevel> logLevels2 = new List<StandardEventLevel>();
+
+            if (eventLogLevel1)
+            {
+                logLevels.Add(EventLogEntryType.Error);
+                logLevels2.Add(StandardEventLevel.Error);
+            }
+            if (eventLogLevel2)
+            {
+                logLevels.Add(EventLogEntryType.Warning);
+                logLevels2.Add(StandardEventLevel.Warning);
+            }
+            if (eventLogLevel3)
+            {
+                logLevels.Add(EventLogEntryType.Information);
+                logLevels2.Add(StandardEventLevel.Informational);
+                logLevels2.Add(StandardEventLevel.LogAlways);
+            }
             if (eventLogLevel4)
             {
                 logLevels.Add(EventLogEntryType.SuccessAudit);
@@ -375,6 +390,7 @@ namespace systemResourceAlerter
 
             var logNames = getEventLogNames();
 
+            // query for all but Setup category
             foreach (string logType in logTypes)
             {
                 //if (!logNames.Contains(logType))
@@ -407,6 +423,50 @@ namespace systemResourceAlerter
                                 eventID = (UInt16)entry.InstanceId,
                                 message = entry.Message,
                                 computer = entry.MachineName
+                            };
+
+                            result.Add(me);
+                        }
+
+                        if (timestamp > endTime) endTime = timestamp;
+                    }
+                    else
+                    {
+                        break; // stop reading this event file when reaching startTime
+                    }
+                }
+            }
+
+            // now query for Setup category
+            if (eventLogType3)
+            {
+                string logType = "Setup";
+                EventLogQuery query = new EventLogQuery(logType, PathType.LogName);
+                query.ReverseDirection = true; // this tells it to start with newest first
+                EventLogReader reader = new EventLogReader(query);
+
+                EventRecord eventRecord;
+
+                while ((eventRecord = reader.ReadEvent()) != null)
+                {
+                    // each eventRecord is an item from the event log
+                    DateTime timestamp = (DateTime)eventRecord.TimeCreated;
+
+                    if (timestamp > lastLogEntryTime)
+                    {
+                        var level = (StandardEventLevel)eventRecord.Level;
+
+                        if (logLevels2.Contains(level))
+                        {
+                            myEventEntry me = new myEventEntry
+                            {
+                                logType = logType,
+                                level = level.ToString(),
+                                timestamp = timestamp,
+                                source = eventRecord.ProviderName,
+                                eventID = eventRecord.Id,
+                                message = eventRecord.FormatDescription(),
+                                computer = eventRecord.MachineName
                             };
 
                             result.Add(me);
