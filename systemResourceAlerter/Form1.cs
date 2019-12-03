@@ -39,6 +39,7 @@ namespace systemResourceAlerter
         string email_password = "";
         List<string> email_to = new List<string>();
         string email_subject = "";
+        string email_subject_log = "";
 
         Queue<double> cpuUsageHistory = new Queue<double>();
         Queue<double> ramUsageHistory = new Queue<double>();
@@ -64,6 +65,15 @@ namespace systemResourceAlerter
         bool autoHide = false;
 
         bool allowShowUI = false;
+
+        bool forwardEventLogs = false;
+        bool eventLogType1 = false;
+        bool eventLogType2 = false;
+        bool eventLogType3 = false;
+        bool eventLogType4 = false;
+        bool eventLogLevel1 = false;
+        bool eventLogLevel2 = false;
+        bool eventLogLevel3 = false;
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -323,6 +333,17 @@ namespace systemResourceAlerter
 
             autoStart = chbAutoStart.Checked;
             autoHide = chbAutoHide.Checked;
+
+            email_subject_log = txtEmailSubjectLog.Text;
+
+            forwardEventLogs = chbForwardEventLogs.Checked;
+            eventLogType1 = chbEventLogType1.Checked;
+            eventLogType2 = chbEventLogType2.Checked;
+            eventLogType3 = chbEventLogType3.Checked;
+            eventLogType4 = chbEventLogType4.Checked;
+            eventLogLevel1 = chbEventLogLevel1.Checked;
+            eventLogLevel2 = chbEventLogLevel2.Checked;
+            eventLogLevel3 = chbEventLogLevel3.Checked;
         }
 
         private void loadSettings()
@@ -348,6 +369,19 @@ namespace systemResourceAlerter
             {
                 lsvReceiver.Items.Add(item);
             }
+
+            txtEmailSubjectLog.Text = email_subject_log;
+
+            chbForwardEventLogs.Checked = forwardEventLogs;
+            chbEventLogType1.Checked = eventLogType1;
+            chbEventLogType2.Checked = eventLogType2;
+            chbEventLogType3.Checked = eventLogType3;
+            chbEventLogType4.Checked = eventLogType4;
+            chbEventLogLevel1.Checked = eventLogLevel1;
+            chbEventLogLevel2.Checked = eventLogLevel2;
+            chbEventLogLevel3.Checked = eventLogLevel3;
+
+            enableDisableEventControls();
         }
 
         private void writeSettings()
@@ -369,6 +403,18 @@ namespace systemResourceAlerter
             Settings.Set("autoHide", autoHide);
 
             Settings.Set("email_to", string.Join(",", email_to));
+
+            Settings.Set("forwardEventLogs", forwardEventLogs);
+            Settings.Set("eventLogType1", eventLogType1);
+            Settings.Set("eventLogType2", eventLogType2);
+            Settings.Set("eventLogType3", eventLogType3);
+            Settings.Set("eventLogType4", eventLogType4);
+            Settings.Set("eventLogLevel1", eventLogLevel1);
+            Settings.Set("eventLogLevel2", eventLogLevel2);
+            Settings.Set("eventLogLevel3", eventLogLevel3);
+
+
+            Settings.Set("email_subject_log", email_subject_log);
         }
 
         private void readSettings()
@@ -398,6 +444,17 @@ namespace systemResourceAlerter
                     email_to.Add(trim);
                 }
             }
+
+            forwardEventLogs = Settings.Get("forwardEventLogs", false);
+            eventLogType1 = Settings.Get("eventLogType1", false);
+            eventLogType2 = Settings.Get("eventLogType2", false);
+            eventLogType3 = Settings.Get("eventLogType3", false);
+            eventLogType4 = Settings.Get("eventLogType4", false);
+            eventLogLevel1 = Settings.Get("eventLogLevel1", false);
+            eventLogLevel2 = Settings.Get("eventLogLevel2", false);
+            eventLogLevel3 = Settings.Get("eventLogLevel3", false);
+
+            email_subject_log = Settings.Get("email_subject_log", "");
         }
         #endregion
 
@@ -538,6 +595,17 @@ namespace systemResourceAlerter
         protected override void SetVisibleCore(bool value)
         {
             base.SetVisibleCore(allowShowUI ? value : allowShowUI);
+        }
+
+        private void chbForwardEventLogs_CheckedChanged(object sender, EventArgs e)
+        {
+            enableDisableEventControls();
+        }
+
+        private void enableDisableEventControls()
+        {
+            chbEventLogType1.Enabled = chbEventLogType2.Enabled = chbEventLogType3.Enabled = chbEventLogType4.Enabled = chbForwardEventLogs.Checked;
+            chbEventLogLevel1.Enabled = chbEventLogLevel2.Enabled = chbEventLogLevel3.Enabled = chbForwardEventLogs.Checked;
         }
         #endregion
     }

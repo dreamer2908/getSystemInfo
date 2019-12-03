@@ -65,6 +65,8 @@
             this.label15 = new System.Windows.Forms.Label();
             this.numEmailPort = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.chbAutoHide = new System.Windows.Forms.CheckBox();
+            this.chbAutoStart = new System.Windows.Forms.CheckBox();
             this.txtEmailSubject = new System.Windows.Forms.TextBox();
             this.label19 = new System.Windows.Forms.Label();
             this.label18 = new System.Windows.Forms.Label();
@@ -80,9 +82,20 @@
             this.btnHide = new System.Windows.Forms.Button();
             this.btnStartStop = new System.Windows.Forms.Button();
             this.btnApply = new System.Windows.Forms.Button();
-            this.chbAutoStart = new System.Windows.Forms.CheckBox();
             this.lblStatusBar = new System.Windows.Forms.Label();
-            this.chbAutoHide = new System.Windows.Forms.CheckBox();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chbForwardEventLogs = new System.Windows.Forms.CheckBox();
+            this.label20 = new System.Windows.Forms.Label();
+            this.chbEventLogType1 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogType2 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogType3 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogType4 = new System.Windows.Forms.CheckBox();
+            this.label21 = new System.Windows.Forms.Label();
+            this.chbEventLogLevel1 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogLevel2 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogLevel3 = new System.Windows.Forms.CheckBox();
+            this.label22 = new System.Windows.Forms.Label();
+            this.txtEmailSubjectLog = new System.Windows.Forms.TextBox();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -91,6 +104,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numEmailPort)).BeginInit();
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDelayBetweenEmails)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -448,6 +462,8 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.groupBox3.Controls.Add(this.chbAutoHide);
             this.groupBox3.Controls.Add(this.chbAutoStart);
+            this.groupBox3.Controls.Add(this.txtEmailSubjectLog);
+            this.groupBox3.Controls.Add(this.label22);
             this.groupBox3.Controls.Add(this.txtEmailSubject);
             this.groupBox3.Controls.Add(this.label19);
             this.groupBox3.Controls.Add(this.label18);
@@ -458,31 +474,53 @@
             this.groupBox3.Controls.Add(this.btnReceiverDelete);
             this.groupBox3.Controls.Add(this.btnReceiverAdd);
             this.groupBox3.Controls.Add(this.lsvReceiver);
-            this.groupBox3.Location = new System.Drawing.Point(13, 177);
+            this.groupBox3.Location = new System.Drawing.Point(13, 273);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(504, 178);
+            this.groupBox3.Size = new System.Drawing.Size(504, 181);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Email";
+            // 
+            // chbAutoHide
+            // 
+            this.chbAutoHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chbAutoHide.AutoSize = true;
+            this.chbAutoHide.Location = new System.Drawing.Point(424, 153);
+            this.chbAutoHide.Name = "chbAutoHide";
+            this.chbAutoHide.Size = new System.Drawing.Size(73, 17);
+            this.chbAutoHide.TabIndex = 17;
+            this.chbAutoHide.Text = "Auto Hide";
+            this.chbAutoHide.UseVisualStyleBackColor = true;
+            // 
+            // chbAutoStart
+            // 
+            this.chbAutoStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chbAutoStart.AutoSize = true;
+            this.chbAutoStart.Location = new System.Drawing.Point(424, 131);
+            this.chbAutoStart.Name = "chbAutoStart";
+            this.chbAutoStart.Size = new System.Drawing.Size(73, 17);
+            this.chbAutoStart.TabIndex = 16;
+            this.chbAutoStart.Text = "Auto Start";
+            this.chbAutoStart.UseVisualStyleBackColor = true;
             // 
             // txtEmailSubject
             // 
             this.txtEmailSubject.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmailSubject.Location = new System.Drawing.Point(85, 151);
+            this.txtEmailSubject.Location = new System.Drawing.Point(168, 129);
             this.txtEmailSubject.Name = "txtEmailSubject";
-            this.txtEmailSubject.Size = new System.Drawing.Size(332, 20);
+            this.txtEmailSubject.Size = new System.Drawing.Size(249, 20);
             this.txtEmailSubject.TabIndex = 18;
             // 
             // label19
             // 
             this.label19.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.label19.AutoSize = true;
-            this.label19.Location = new System.Drawing.Point(7, 154);
+            this.label19.Location = new System.Drawing.Point(7, 132);
             this.label19.Name = "label19";
-            this.label19.Size = new System.Drawing.Size(74, 13);
+            this.label19.Size = new System.Drawing.Size(149, 13);
             this.label19.TabIndex = 6;
-            this.label19.Text = "Email Subject:";
+            this.label19.Text = "Email Subject (for Resources):";
             // 
             // label18
             // 
@@ -577,7 +615,7 @@
             this.lsvReceiver.HideSelection = false;
             this.lsvReceiver.Location = new System.Drawing.Point(7, 43);
             this.lsvReceiver.Name = "lsvReceiver";
-            this.lsvReceiver.Size = new System.Drawing.Size(410, 102);
+            this.lsvReceiver.Size = new System.Drawing.Size(410, 80);
             this.lsvReceiver.TabIndex = 12;
             this.lsvReceiver.UseCompatibleStateImageBehavior = false;
             this.lsvReceiver.View = System.Windows.Forms.View.Details;
@@ -589,7 +627,7 @@
             // btnExit
             // 
             this.btnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExit.Location = new System.Drawing.Point(441, 361);
+            this.btnExit.Location = new System.Drawing.Point(441, 460);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
             this.btnExit.TabIndex = 6;
@@ -600,7 +638,7 @@
             // btnHide
             // 
             this.btnHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHide.Location = new System.Drawing.Point(360, 361);
+            this.btnHide.Location = new System.Drawing.Point(360, 460);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(75, 23);
             this.btnHide.TabIndex = 5;
@@ -611,7 +649,7 @@
             // btnStartStop
             // 
             this.btnStartStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStartStop.Location = new System.Drawing.Point(279, 361);
+            this.btnStartStop.Location = new System.Drawing.Point(279, 460);
             this.btnStartStop.Name = "btnStartStop";
             this.btnStartStop.Size = new System.Drawing.Size(75, 23);
             this.btnStartStop.TabIndex = 4;
@@ -622,7 +660,7 @@
             // btnApply
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(198, 361);
+            this.btnApply.Location = new System.Drawing.Point(198, 460);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 3;
@@ -630,43 +668,161 @@
             this.btnApply.UseVisualStyleBackColor = true;
             this.btnApply.Click += new System.EventHandler(this.btnApply_Click);
             // 
-            // chbAutoStart
-            // 
-            this.chbAutoStart.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chbAutoStart.AutoSize = true;
-            this.chbAutoStart.Location = new System.Drawing.Point(424, 131);
-            this.chbAutoStart.Name = "chbAutoStart";
-            this.chbAutoStart.Size = new System.Drawing.Size(73, 17);
-            this.chbAutoStart.TabIndex = 16;
-            this.chbAutoStart.Text = "Auto Start";
-            this.chbAutoStart.UseVisualStyleBackColor = true;
-            // 
             // lblStatusBar
             // 
             this.lblStatusBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblStatusBar.AutoSize = true;
-            this.lblStatusBar.Location = new System.Drawing.Point(20, 371);
+            this.lblStatusBar.Location = new System.Drawing.Point(20, 470);
             this.lblStatusBar.Name = "lblStatusBar";
             this.lblStatusBar.Size = new System.Drawing.Size(37, 13);
             this.lblStatusBar.TabIndex = 7;
             this.lblStatusBar.Text = "Status";
             // 
-            // chbAutoHide
+            // groupBox4
             // 
-            this.chbAutoHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.chbAutoHide.AutoSize = true;
-            this.chbAutoHide.Location = new System.Drawing.Point(424, 153);
-            this.chbAutoHide.Name = "chbAutoHide";
-            this.chbAutoHide.Size = new System.Drawing.Size(73, 17);
-            this.chbAutoHide.TabIndex = 17;
-            this.chbAutoHide.Text = "Auto Hide";
-            this.chbAutoHide.UseVisualStyleBackColor = true;
+            this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.chbEventLogType4);
+            this.groupBox4.Controls.Add(this.chbEventLogLevel3);
+            this.groupBox4.Controls.Add(this.chbEventLogLevel2);
+            this.groupBox4.Controls.Add(this.chbEventLogType3);
+            this.groupBox4.Controls.Add(this.chbEventLogLevel1);
+            this.groupBox4.Controls.Add(this.chbEventLogType2);
+            this.groupBox4.Controls.Add(this.label21);
+            this.groupBox4.Controls.Add(this.chbEventLogType1);
+            this.groupBox4.Controls.Add(this.label20);
+            this.groupBox4.Controls.Add(this.chbForwardEventLogs);
+            this.groupBox4.Location = new System.Drawing.Point(13, 177);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(503, 90);
+            this.groupBox4.TabIndex = 8;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Windows Event Logs";
+            // 
+            // chbForwardEventLogs
+            // 
+            this.chbForwardEventLogs.AutoSize = true;
+            this.chbForwardEventLogs.Location = new System.Drawing.Point(10, 19);
+            this.chbForwardEventLogs.Name = "chbForwardEventLogs";
+            this.chbForwardEventLogs.Size = new System.Drawing.Size(155, 17);
+            this.chbForwardEventLogs.TabIndex = 0;
+            this.chbForwardEventLogs.Text = "Forward event logs to email";
+            this.chbForwardEventLogs.UseVisualStyleBackColor = true;
+            this.chbForwardEventLogs.CheckedChanged += new System.EventHandler(this.chbForwardEventLogs_CheckedChanged);
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(33, 44);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(39, 13);
+            this.label20.TabIndex = 1;
+            this.label20.Text = "Types:";
+            // 
+            // chbEventLogType1
+            // 
+            this.chbEventLogType1.AutoSize = true;
+            this.chbEventLogType1.Location = new System.Drawing.Point(111, 43);
+            this.chbEventLogType1.Name = "chbEventLogType1";
+            this.chbEventLogType1.Size = new System.Drawing.Size(78, 17);
+            this.chbEventLogType1.TabIndex = 2;
+            this.chbEventLogType1.Text = "Application";
+            this.chbEventLogType1.UseVisualStyleBackColor = true;
+            // 
+            // chbEventLogType2
+            // 
+            this.chbEventLogType2.AutoSize = true;
+            this.chbEventLogType2.Location = new System.Drawing.Point(197, 43);
+            this.chbEventLogType2.Name = "chbEventLogType2";
+            this.chbEventLogType2.Size = new System.Drawing.Size(64, 17);
+            this.chbEventLogType2.TabIndex = 2;
+            this.chbEventLogType2.Text = "Security";
+            this.chbEventLogType2.UseVisualStyleBackColor = true;
+            // 
+            // chbEventLogType3
+            // 
+            this.chbEventLogType3.AutoSize = true;
+            this.chbEventLogType3.Location = new System.Drawing.Point(283, 43);
+            this.chbEventLogType3.Name = "chbEventLogType3";
+            this.chbEventLogType3.Size = new System.Drawing.Size(54, 17);
+            this.chbEventLogType3.TabIndex = 2;
+            this.chbEventLogType3.Text = "Setup";
+            this.chbEventLogType3.UseVisualStyleBackColor = true;
+            // 
+            // chbEventLogType4
+            // 
+            this.chbEventLogType4.AutoSize = true;
+            this.chbEventLogType4.Location = new System.Drawing.Point(369, 43);
+            this.chbEventLogType4.Name = "chbEventLogType4";
+            this.chbEventLogType4.Size = new System.Drawing.Size(60, 17);
+            this.chbEventLogType4.TabIndex = 2;
+            this.chbEventLogType4.Text = "System";
+            this.chbEventLogType4.UseVisualStyleBackColor = true;
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(33, 67);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(36, 13);
+            this.label21.TabIndex = 1;
+            this.label21.Text = "Level:";
+            // 
+            // chbEventLogLevel1
+            // 
+            this.chbEventLogLevel1.AutoSize = true;
+            this.chbEventLogLevel1.Location = new System.Drawing.Point(111, 66);
+            this.chbEventLogLevel1.Name = "chbEventLogLevel1";
+            this.chbEventLogLevel1.Size = new System.Drawing.Size(48, 17);
+            this.chbEventLogLevel1.TabIndex = 2;
+            this.chbEventLogLevel1.Text = "Error";
+            this.chbEventLogLevel1.UseVisualStyleBackColor = true;
+            // 
+            // chbEventLogLevel2
+            // 
+            this.chbEventLogLevel2.AutoSize = true;
+            this.chbEventLogLevel2.Location = new System.Drawing.Point(197, 66);
+            this.chbEventLogLevel2.Name = "chbEventLogLevel2";
+            this.chbEventLogLevel2.Size = new System.Drawing.Size(66, 17);
+            this.chbEventLogLevel2.TabIndex = 2;
+            this.chbEventLogLevel2.Text = "Warning";
+            this.chbEventLogLevel2.UseVisualStyleBackColor = true;
+            // 
+            // chbEventLogLevel3
+            // 
+            this.chbEventLogLevel3.AutoSize = true;
+            this.chbEventLogLevel3.Location = new System.Drawing.Point(283, 66);
+            this.chbEventLogLevel3.Name = "chbEventLogLevel3";
+            this.chbEventLogLevel3.Size = new System.Drawing.Size(78, 17);
+            this.chbEventLogLevel3.TabIndex = 2;
+            this.chbEventLogLevel3.Text = "Information";
+            this.chbEventLogLevel3.UseVisualStyleBackColor = true;
+            // 
+            // label22
+            // 
+            this.label22.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(7, 158);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(121, 13);
+            this.label22.TabIndex = 6;
+            this.label22.Text = "Email Subject (for Logs):";
+            // 
+            // txtEmailSubjectLog
+            // 
+            this.txtEmailSubjectLog.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtEmailSubjectLog.Location = new System.Drawing.Point(168, 155);
+            this.txtEmailSubjectLog.Name = "txtEmailSubjectLog";
+            this.txtEmailSubjectLog.Size = new System.Drawing.Size(249, 20);
+            this.txtEmailSubjectLog.TabIndex = 18;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(528, 396);
+            this.ClientSize = new System.Drawing.Size(528, 495);
+            this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.lblStatusBar);
             this.Controls.Add(this.btnApply);
             this.Controls.Add(this.btnStartStop);
@@ -691,6 +847,8 @@
             this.groupBox3.ResumeLayout(false);
             this.groupBox3.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDelayBetweenEmails)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -751,6 +909,19 @@
         private System.Windows.Forms.CheckBox chbAutoStart;
         private System.Windows.Forms.Label lblStatusBar;
         private System.Windows.Forms.CheckBox chbAutoHide;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.CheckBox chbForwardEventLogs;
+        private System.Windows.Forms.CheckBox chbEventLogType4;
+        private System.Windows.Forms.CheckBox chbEventLogType3;
+        private System.Windows.Forms.CheckBox chbEventLogType2;
+        private System.Windows.Forms.CheckBox chbEventLogType1;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.CheckBox chbEventLogLevel3;
+        private System.Windows.Forms.CheckBox chbEventLogLevel2;
+        private System.Windows.Forms.CheckBox chbEventLogLevel1;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TextBox txtEmailSubjectLog;
+        private System.Windows.Forms.Label label22;
     }
 }
 
