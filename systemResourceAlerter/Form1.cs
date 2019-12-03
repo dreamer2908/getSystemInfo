@@ -273,7 +273,14 @@ namespace systemResourceAlerter
 
                 email_body += "\n\n" + string.Format("Average CPU usage over {1} seconds period is {0:0.00}%.", avgCPU, cpuUsageHistory.Count);
                 email_body += "\n" + string.Format("Average RAM usage over {1} seconds period is {0:0.00}%.", avgRAM, ramUsageHistory.Count);
-                email_body += "\n\n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
+
+                if (alertInProgress)
+                {
+                    email_body += "\n\n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
+                } else
+                {
+                    email_body += "\n\n" + string.Format("No alert detected.\n");
+                }
 
                 lastEmailTimestamp = DateTime.Now;
                 if (custom_to != null)
