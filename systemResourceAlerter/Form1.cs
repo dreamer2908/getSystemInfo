@@ -6,6 +6,7 @@ using System.Net.Mail;
 using System.Diagnostics;
 using Microsoft.VisualBasic;
 using System.Diagnostics.Eventing.Reader;
+using System.Threading;
 
 namespace systemResourceAlerter
 {
@@ -77,6 +78,8 @@ namespace systemResourceAlerter
         bool eventLogLevel4 = false;
 
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
+
+        Mutex mutexEventForward = new Mutex();
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -309,6 +312,8 @@ namespace systemResourceAlerter
 
         private void sendEmailForwardEventLog(List<string> custom_to = null)
         {
+            mutexEventForward.WaitOne();
+
             List<myEventEntry> myEventEntries = readEventLog();
 
             // MessageBox.Show(string.Format("myEventEntries count = {0}", myEventEntries.Count));
@@ -335,6 +340,8 @@ namespace systemResourceAlerter
                     sendEmail(email_to, email_subject_log, email_body);
                 }
             }
+
+            mutexEventForward.ReleaseMutex();
         }
         #endregion
 
