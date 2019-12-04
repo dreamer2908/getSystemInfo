@@ -670,7 +670,10 @@ namespace systemResourceAlerter
         private void timer2_Tick(object sender, EventArgs e)
         {
             sendEmailAlert();
-            sendEmailForwardEventLog();
+            if (forwardEventLogs)
+            {
+                sendEmailForwardEventLog();
+            }
         }
 
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
