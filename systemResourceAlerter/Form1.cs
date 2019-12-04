@@ -413,34 +413,42 @@ namespace systemResourceAlerter
                 // read from the end, get entries younger than startTime
                 for (int e = length - 1; e >= 0; e--)
                 {
-                    EventLogEntry entry = log.Entries[e];
-                    DateTime timestamp = entry.TimeGenerated;
-
-                    if (timestamp > lastLogEntryTime)
+                    try
                     {
-                        var level = entry.EntryType;
+                        EventLogEntry entry = log.Entries[e];
+                        DateTime timestamp = entry.TimeGenerated;
 
-                        if (logLevels.Contains(level))
+                        if (timestamp > lastLogEntryTime)
                         {
-                            myEventEntry me = new myEventEntry
+                            var level = entry.EntryType;
+
+                            if (logLevels.Contains(level))
                             {
-                                category = logCat,
-                                level = level.ToString(),
-                                timestamp = timestamp,
-                                source = entry.Source,
-                                eventID = (UInt16)entry.InstanceId,
-                                message = entry.Message,
-                                computer = entry.MachineName
-                            };
+                                myEventEntry me = new myEventEntry
+                                {
+                                    category = logCat,
+                                    level = level.ToString(),
+                                    timestamp = timestamp,
+                                    source = entry.Source,
+                                    eventID = (UInt16)entry.InstanceId,
+                                    message = entry.Message,
+                                    computer = entry.MachineName
+                                };
 
-                            result.Add(me);
+                                result.Add(me);
+                            }
+
+                            if (timestamp > endTime) endTime = timestamp;
                         }
-
-                        if (timestamp > endTime) endTime = timestamp;
+                        else
+                        {
+                            break; // stop reading this event file when reaching startTime
+                        }
                     }
-                    else
+                    catch (System.ArgumentException ex)
                     {
-                        break; // stop reading this event file when reaching startTime
+                        Console.WriteLine("Error reading event log entry: {0}", ex);
+                        break;
                     }
                 }
             }
