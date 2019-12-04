@@ -68,10 +68,10 @@ namespace systemResourceAlerter
         bool allowShowUI = false;
 
         bool forwardEventLogs = false;
-        bool eventLogType1 = false;
-        bool eventLogType2 = false;
-        bool eventLogType3 = false;
-        bool eventLogType4 = false;
+        bool eventLogCategory1 = false;
+        bool eventLogCategory2 = false;
+        bool eventLogCategory3 = false;
+        bool eventLogCategory4 = false;
         bool eventLogLevel1 = false;
         bool eventLogLevel2 = false;
         bool eventLogLevel3 = false;
@@ -322,9 +322,10 @@ namespace systemResourceAlerter
             {
                 string email_body = "Windows Event Log:\n";
 
-                email_body += string.Format("\nCategory: {0}", me.logType);
+                email_body += string.Format("\nCategory: {0}", me.category);
                 email_body += string.Format("\nLevel: {0}", me.level);
                 email_body += string.Format("\nTimestamp: {0}", me.timestamp);
+                email_body += string.Format("\nComputer: {0}", me.computer);
                 email_body += string.Format("\nSource: {0}", me.source);
                 email_body += string.Format("\nEvent ID: {0}", me.eventID);
                 email_body += string.Format("\nMessage: \n{0}", me.message);
@@ -349,7 +350,7 @@ namespace systemResourceAlerter
 
         struct myEventEntry
         {
-            public string logType { get; set; }
+            public string category { get; set; }
             public string level { get; set; }
             public DateTime timestamp { get; set; }
             public string source { get; set; }
@@ -364,11 +365,11 @@ namespace systemResourceAlerter
             List<myEventEntry> result = new List<myEventEntry>();
             DateTime endTime = lastLogEntryTime;
 
-            List<string> logTypes = new List<string>();
-            if (eventLogType1) logTypes.Add("Application");
-            if (eventLogType2) logTypes.Add("Security");
-            // if (eventLogType3) logTypes.Add("Setup"); // Setup category needs a different approach
-            if (eventLogType4) logTypes.Add("System");
+            List<string> logCategories = new List<string>();
+            if (eventLogCategory1) logCategories.Add("Application");
+            if (eventLogCategory2) logCategories.Add("Security");
+            // if (eventLogCategory3) logTypes.Add("Setup"); // Setup category needs a different approach
+            if (eventLogCategory4) logCategories.Add("System");
 
             List<EventLogEntryType> logLevels = new List<EventLogEntryType>();
             List<StandardEventLevel> logLevels2 = new List<StandardEventLevel>();
@@ -398,7 +399,7 @@ namespace systemResourceAlerter
             var logNames = getEventLogNames();
 
             // query for all but Setup category
-            foreach (string logType in logTypes)
+            foreach (string logCat in logCategories)
             {
                 //if (!logNames.Contains(logType))
                 //{
@@ -406,7 +407,7 @@ namespace systemResourceAlerter
                 //    continue;
                 //}
 
-                EventLog log = new EventLog(logType);
+                EventLog log = new EventLog(logCat);
                 int length = log.Entries.Count;
 
                 // read from the end, get entries younger than startTime
@@ -423,7 +424,7 @@ namespace systemResourceAlerter
                         {
                             myEventEntry me = new myEventEntry
                             {
-                                logType = logType,
+                                category = logCat,
                                 level = level.ToString(),
                                 timestamp = timestamp,
                                 source = entry.Source,
@@ -445,10 +446,10 @@ namespace systemResourceAlerter
             }
 
             // now query for Setup category
-            if (eventLogType3)
+            if (eventLogCategory3)
             {
-                string logType = "Setup";
-                EventLogQuery query = new EventLogQuery(logType, PathType.LogName);
+                string logCategoryName = "Setup";
+                EventLogQuery query = new EventLogQuery(logCategoryName, PathType.LogName);
                 query.ReverseDirection = true; // this tells it to start with newest first
                 EventLogReader reader = new EventLogReader(query);
 
@@ -467,7 +468,7 @@ namespace systemResourceAlerter
                         {
                             myEventEntry me = new myEventEntry
                             {
-                                logType = logType,
+                                category = logCategoryName,
                                 level = level.ToString(),
                                 timestamp = timestamp,
                                 source = eventRecord.ProviderName,
@@ -533,10 +534,10 @@ namespace systemResourceAlerter
             email_subject_log = txtEmailSubjectLog.Text;
 
             forwardEventLogs = chbForwardEventLogs.Checked;
-            eventLogType1 = chbEventLogType1.Checked;
-            eventLogType2 = chbEventLogType2.Checked;
-            eventLogType3 = chbEventLogType3.Checked;
-            eventLogType4 = chbEventLogType4.Checked;
+            eventLogCategory1 = chbEventLogCategory1.Checked;
+            eventLogCategory2 = chbEventLogCategory2.Checked;
+            eventLogCategory3 = chbEventLogCategory3.Checked;
+            eventLogCategory4 = chbEventLogCategory4.Checked;
             eventLogLevel1 = chbEventLogLevel1.Checked;
             eventLogLevel2 = chbEventLogLevel2.Checked;
             eventLogLevel3 = chbEventLogLevel3.Checked;
@@ -570,10 +571,10 @@ namespace systemResourceAlerter
             txtEmailSubjectLog.Text = email_subject_log;
 
             chbForwardEventLogs.Checked = forwardEventLogs;
-            chbEventLogType1.Checked = eventLogType1;
-            chbEventLogType2.Checked = eventLogType2;
-            chbEventLogType3.Checked = eventLogType3;
-            chbEventLogType4.Checked = eventLogType4;
+            chbEventLogCategory1.Checked = eventLogCategory1;
+            chbEventLogCategory2.Checked = eventLogCategory2;
+            chbEventLogCategory3.Checked = eventLogCategory3;
+            chbEventLogCategory4.Checked = eventLogCategory4;
             chbEventLogLevel1.Checked = eventLogLevel1;
             chbEventLogLevel2.Checked = eventLogLevel2;
             chbEventLogLevel3.Checked = eventLogLevel3;
@@ -603,10 +604,10 @@ namespace systemResourceAlerter
             Settings.Set("email_to", string.Join(",", email_to));
 
             Settings.Set("forwardEventLogs", forwardEventLogs);
-            Settings.Set("eventLogType1", eventLogType1);
-            Settings.Set("eventLogType2", eventLogType2);
-            Settings.Set("eventLogType3", eventLogType3);
-            Settings.Set("eventLogType4", eventLogType4);
+            Settings.Set("eventLogCategory1", eventLogCategory1);
+            Settings.Set("eventLogCategory2", eventLogCategory2);
+            Settings.Set("eventLogCategory3", eventLogCategory3);
+            Settings.Set("eventLogCategory4", eventLogCategory4);
             Settings.Set("eventLogLevel1", eventLogLevel1);
             Settings.Set("eventLogLevel2", eventLogLevel2);
             Settings.Set("eventLogLevel3", eventLogLevel3);
@@ -645,10 +646,10 @@ namespace systemResourceAlerter
             }
 
             forwardEventLogs = Settings.Get("forwardEventLogs", false);
-            eventLogType1 = Settings.Get("eventLogType1", false);
-            eventLogType2 = Settings.Get("eventLogType2", false);
-            eventLogType3 = Settings.Get("eventLogType3", false);
-            eventLogType4 = Settings.Get("eventLogType4", false);
+            eventLogCategory1 = Settings.Get("eventLogCategory1", false);
+            eventLogCategory2 = Settings.Get("eventLogCategory2", false);
+            eventLogCategory3 = Settings.Get("eventLogCategory3", false);
+            eventLogCategory4 = Settings.Get("eventLogCategory4", false);
             eventLogLevel1 = Settings.Get("eventLogLevel1", false);
             eventLogLevel2 = Settings.Get("eventLogLevel2", false);
             eventLogLevel3 = Settings.Get("eventLogLevel3", false);
@@ -808,7 +809,7 @@ namespace systemResourceAlerter
 
         private void enableDisableEventControls()
         {
-            chbEventLogType1.Enabled = chbEventLogType2.Enabled = chbEventLogType3.Enabled = chbEventLogType4.Enabled = chbForwardEventLogs.Checked;
+            chbEventLogCategory1.Enabled = chbEventLogCategory2.Enabled = chbEventLogCategory3.Enabled = chbEventLogCategory4.Enabled = chbForwardEventLogs.Checked;
             chbEventLogLevel1.Enabled = chbEventLogLevel2.Enabled = chbEventLogLevel3.Enabled = chbForwardEventLogs.Checked;
         }
         #endregion
