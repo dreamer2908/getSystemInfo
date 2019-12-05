@@ -818,7 +818,7 @@ namespace systemResourceAlerter
         private void enableDisableEventControls()
         {
             chbEventLogCategory1.Enabled = chbEventLogCategory2.Enabled = chbEventLogCategory3.Enabled = chbEventLogCategory4.Enabled = chbForwardEventLogs.Checked;
-            chbEventLogLevel1.Enabled = chbEventLogLevel2.Enabled = chbEventLogLevel3.Enabled = chbForwardEventLogs.Checked;
+            chbEventLogLevel1.Enabled = chbEventLogLevel2.Enabled = chbEventLogLevel3.Enabled = chbEventLogLevel4.Enabled = chbForwardEventLogs.Checked;
         }
         #endregion
     }
