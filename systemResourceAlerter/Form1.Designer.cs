@@ -97,6 +97,7 @@
             this.chbEventLogCategory1 = new System.Windows.Forms.CheckBox();
             this.label20 = new System.Windows.Forms.Label();
             this.chbForwardEventLogs = new System.Windows.Forms.CheckBox();
+            this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -225,6 +226,11 @@
             // numMaxHistory
             // 
             this.numMaxHistory.Location = new System.Drawing.Point(111, 122);
+            this.numMaxHistory.Maximum = new decimal(new int[] {
+            86400,
+            0,
+            0,
+            0});
             this.numMaxHistory.Name = "numMaxHistory";
             this.numMaxHistory.Size = new System.Drawing.Size(59, 20);
             this.numMaxHistory.TabIndex = 3;
@@ -829,6 +835,10 @@
             this.chbForwardEventLogs.UseVisualStyleBackColor = true;
             this.chbForwardEventLogs.CheckedChanged += new System.EventHandler(this.chbForwardEventLogs_CheckedChanged);
             // 
+            // backgroundWorker1
+            // 
+            this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -935,6 +945,7 @@
         private System.Windows.Forms.TextBox txtEmailSubjectLog;
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.CheckBox chbEventLogLevel4;
+        private System.ComponentModel.BackgroundWorker backgroundWorker1;
     }
 }
 

@@ -19,7 +19,6 @@ namespace systemResourceAlerter
             readSettings();
             loadSettings();
 
-            timer1.Interval = 1000;
             timer1.Start();
 
             if (autoStart)
@@ -80,6 +79,8 @@ namespace systemResourceAlerter
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
 
         Mutex mutexEventForward = new Mutex();
+
+        string statusBarText = "No status.";
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -260,17 +261,18 @@ namespace systemResourceAlerter
                 SmtpServer.EnableSsl = email_ssl;
 
                 SmtpServer.Send(mail);
+                SmtpServer.Dispose();
                 // MessageBox.Show("mail Send");
                 Console.WriteLine("mail Send");
 
-                labelEditText(lblStatusBar, "Email sent OK!");
+                statusBarText = "Email sent OK!";
             }
             catch (Exception ex)
             {
                 // MessageBox.Show(ex.ToString());
                 Console.WriteLine(ex.ToString());
 
-                labelEditText(lblStatusBar, "Failed to send email!");
+                statusBarText = "Failed to send email!";
             }
         }
 
@@ -679,9 +681,9 @@ namespace systemResourceAlerter
         private void timer2_Tick(object sender, EventArgs e)
         {
             sendEmailAlert();
-            if (forwardEventLogs)
+            if (forwardEventLogs && !backgroundWorker1.IsBusy)
             {
-                sendEmailForwardEventLog();
+                backgroundWorker1.RunWorkerAsync();
             }
         }
 
@@ -709,6 +711,8 @@ namespace systemResourceAlerter
                 labelEditText(lblRamCurrent, string.Format("{0:0.00}%", nowRAM));
                 labelEditText(lblRamAvg, string.Format("{0:0.00}%", avgRAM));
             }
+
+            labelEditText(lblStatusBar, statusBarText);
         }
 
         private void labelEditText(Label b, string text)
@@ -819,6 +823,11 @@ namespace systemResourceAlerter
         {
             chbEventLogCategory1.Enabled = chbEventLogCategory2.Enabled = chbEventLogCategory3.Enabled = chbEventLogCategory4.Enabled = chbForwardEventLogs.Checked;
             chbEventLogLevel1.Enabled = chbEventLogLevel2.Enabled = chbEventLogLevel3.Enabled = chbEventLogLevel4.Enabled = chbForwardEventLogs.Checked;
+        }
+
+        private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
+        {
+            sendEmailForwardEventLog();
         }
         #endregion
     }
