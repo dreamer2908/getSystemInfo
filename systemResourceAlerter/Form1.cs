@@ -243,36 +243,39 @@ namespace systemResourceAlerter
         // multiple receipents
         private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, List<string> email_to, string email_subject, string email_body)
         {
-            try
+            using (SmtpClient SmtpServer = new SmtpClient(email_host))
             {
-                MailMessage mail = new MailMessage();
-                SmtpClient SmtpServer = new SmtpClient(email_host);
-
-                mail.From = new MailAddress(email_from);
-                foreach (string em in email_to)
+                using (MailMessage mail = new MailMessage())
                 {
-                    mail.To.Add(em);
+                    try
+                    {
+                        mail.From = new MailAddress(email_from);
+                        foreach (string em in email_to)
+                        {
+                            mail.To.Add(em);
+                        }
+                        mail.Subject = email_subject;
+                        mail.Body = email_body;
+
+                        SmtpServer.Port = email_port;
+                        SmtpServer.Credentials = new System.Net.NetworkCredential(email_user, email_password);
+                        SmtpServer.EnableSsl = email_ssl;
+
+                        SmtpServer.Send(mail);
+
+                        // MessageBox.Show("mail Send");
+                        Console.WriteLine("mail Send");
+
+                        statusBarText = "Email sent OK!";
+                    }
+                    catch (Exception ex)
+                    {
+                        // MessageBox.Show(ex.ToString());
+                        Console.WriteLine(ex.ToString());
+
+                        statusBarText = "Failed to send email!";
+                    }
                 }
-                mail.Subject = email_subject;
-                mail.Body = email_body;
-
-                SmtpServer.Port = email_port;
-                SmtpServer.Credentials = new System.Net.NetworkCredential(email_user, email_password);
-                SmtpServer.EnableSsl = email_ssl;
-
-                SmtpServer.Send(mail);
-                SmtpServer.Dispose();
-                // MessageBox.Show("mail Send");
-                Console.WriteLine("mail Send");
-
-                statusBarText = "Email sent OK!";
-            }
-            catch (Exception ex)
-            {
-                // MessageBox.Show(ex.ToString());
-                Console.WriteLine(ex.ToString());
-
-                statusBarText = "Failed to send email!";
             }
         }
 
@@ -409,48 +412,52 @@ namespace systemResourceAlerter
                 //    continue;
                 //}
 
-                EventLog log = new EventLog(logCat);
-                int length = log.Entries.Count;
-
-                // read from the end, get entries younger than startTime
-                for (int e = length - 1; e >= 0; e--)
+                using (EventLog log = new EventLog(logCat))
                 {
-                    try
+                    int length = log.Entries.Count;
+
+                    // read from the end, get entries younger than startTime
+                    for (int e = length - 1; e >= 0; e--)
                     {
-                        EventLogEntry entry = log.Entries[e];
-                        DateTime timestamp = entry.TimeGenerated;
-
-                        if (timestamp > lastLogEntryTime)
+                        try
                         {
-                            var level = entry.EntryType;
-
-                            if (logLevels.Contains(level))
+                            using (EventLogEntry entry = log.Entries[e])
                             {
-                                myEventEntry me = new myEventEntry
+                                DateTime timestamp = entry.TimeGenerated;
+
+                                if (timestamp > lastLogEntryTime)
                                 {
-                                    category = logCat,
-                                    level = level.ToString(),
-                                    timestamp = timestamp,
-                                    source = entry.Source,
-                                    eventID = (UInt16)entry.InstanceId,
-                                    message = entry.Message,
-                                    computer = entry.MachineName
-                                };
+                                    var level = entry.EntryType;
 
-                                result.Add(me);
+                                    if (logLevels.Contains(level))
+                                    {
+                                        myEventEntry me = new myEventEntry
+                                        {
+                                            category = logCat,
+                                            level = level.ToString(),
+                                            timestamp = timestamp,
+                                            source = entry.Source,
+                                            eventID = (UInt16)entry.InstanceId,
+                                            message = entry.Message,
+                                            computer = entry.MachineName
+                                        };
+
+                                        result.Add(me);
+                                    }
+
+                                    if (timestamp > endTime) endTime = timestamp;
+                                }
+                                else
+                                {
+                                    break; // stop reading this event file when reaching startTime
+                                }
                             }
-
-                            if (timestamp > endTime) endTime = timestamp;
                         }
-                        else
+                        catch (System.ArgumentException ex)
                         {
-                            break; // stop reading this event file when reaching startTime
+                            Console.WriteLine("Error reading event log entry: {0}", ex);
+                            break;
                         }
-                    }
-                    catch (System.ArgumentException ex)
-                    {
-                        Console.WriteLine("Error reading event log entry: {0}", ex);
-                        break;
                     }
                 }
             }
@@ -461,40 +468,45 @@ namespace systemResourceAlerter
                 string logCategoryName = "Setup";
                 EventLogQuery query = new EventLogQuery(logCategoryName, PathType.LogName);
                 query.ReverseDirection = true; // this tells it to start with newest first
-                EventLogReader reader = new EventLogReader(query);
 
-                EventRecord eventRecord;
-
-                while ((eventRecord = reader.ReadEvent()) != null)
+                using (EventLogReader reader = new EventLogReader(query))
                 {
-                    // each eventRecord is an item from the event log
-                    DateTime timestamp = (DateTime)eventRecord.TimeCreated;
+                    EventRecord eventRecord;
 
-                    if (timestamp > lastLogEntryTime)
+                    while ((eventRecord = reader.ReadEvent()) != null)
                     {
-                        var level = (StandardEventLevel)eventRecord.Level;
-
-                        if (logLevels2.Contains(level))
+                        using (eventRecord)
                         {
-                            myEventEntry me = new myEventEntry
+                            // each eventRecord is an item from the event log
+                            DateTime timestamp = (DateTime)eventRecord.TimeCreated;
+
+                            if (timestamp > lastLogEntryTime)
                             {
-                                category = logCategoryName,
-                                level = level.ToString(),
-                                timestamp = timestamp,
-                                source = eventRecord.ProviderName,
-                                eventID = eventRecord.Id,
-                                message = eventRecord.FormatDescription(),
-                                computer = eventRecord.MachineName
-                            };
+                                var level = (StandardEventLevel)eventRecord.Level;
 
-                            result.Add(me);
+                                if (logLevels2.Contains(level))
+                                {
+                                    myEventEntry me = new myEventEntry
+                                    {
+                                        category = logCategoryName,
+                                        level = level.ToString(),
+                                        timestamp = timestamp,
+                                        source = eventRecord.ProviderName,
+                                        eventID = eventRecord.Id,
+                                        message = eventRecord.FormatDescription(),
+                                        computer = eventRecord.MachineName
+                                    };
+
+                                    result.Add(me);
+                                }
+
+                                if (timestamp > endTime) endTime = timestamp;
+                            }
+                            else
+                            {
+                                break; // stop reading this event file when reaching startTime
+                            }
                         }
-
-                        if (timestamp > endTime) endTime = timestamp;
-                    }
-                    else
-                    {
-                        break; // stop reading this event file when reaching startTime
                     }
                 }
             }
