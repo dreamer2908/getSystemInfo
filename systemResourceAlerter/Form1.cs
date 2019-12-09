@@ -7,6 +7,8 @@ using System.Diagnostics;
 using Microsoft.VisualBasic;
 using System.Diagnostics.Eventing.Reader;
 using System.Threading;
+using Microsoft.VisualBasic.CompilerServices;
+using System.Text;
 
 namespace systemResourceAlerter
 {
@@ -91,12 +93,7 @@ namespace systemResourceAlerter
         List<string> eventLogTaskWhiteList = new List<string>();
         List<string> eventLogTaskBlackList = new List<string>();
 
-        List<string> eventLogSourceWhiteList_tmp = null;
-        List<string> eventLogSourceBlackList_tmp = null;
-        List<string> eventLogIdsWhiteList_tmp = null;
-        List<string> eventLogIdsBlackList_tmp = null;
-        List<string> eventLogTaskWhiteList_tmp = null;
-        List<string> eventLogTaskBlackList_tmp = null;
+        bool showTestButton = false;
 
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
 
@@ -348,15 +345,7 @@ namespace systemResourceAlerter
 
             foreach (var me in myEventEntries)
             {
-                string email_body = "Windows Event Log:\r\n";
-
-                email_body += string.Format("\r\nCategory: {0}", me.category);
-                email_body += string.Format("\r\nLevel: {0}", me.level);
-                email_body += string.Format("\r\nTimestamp: {0}", me.timestamp);
-                email_body += string.Format("\r\nComputer: {0}", me.computer);
-                email_body += string.Format("\r\nSource: {0}", me.source);
-                email_body += string.Format("\r\nEvent ID: {0}", me.eventID);
-                email_body += string.Format("\r\nMessage: \r\n{0}", me.message);
+                string email_body = writeEmailBody(me);
 
                 // MessageBox.Show(email_body);
 
@@ -372,6 +361,25 @@ namespace systemResourceAlerter
 
             mutexEventForward.ReleaseMutex();
         }
+
+        private static string writeEmailBody(myEventEntry me)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            sb.AppendLine("Windows Event Log:");
+            sb.AppendLine();
+            sb.AppendLine(string.Format("Category: {0}", me.category));
+            sb.AppendLine(string.Format("Level: {0}", me.level));
+            sb.AppendLine(string.Format("Timestamp: {0}", me.timestamp));
+            sb.AppendLine(string.Format("Computer: {0}", me.computer));
+            sb.AppendLine(string.Format("Source: {0}", me.source));
+            sb.AppendLine(string.Format("Event ID: {0}", me.eventID));
+            sb.AppendLine(string.Format("Task Category: {0}", me.taskCategory));
+            sb.AppendLine("Message: ");
+            sb.AppendLine(me.message);
+
+            return sb.ToString();
+        }
         #endregion
 
         #region Event Log
@@ -385,6 +393,7 @@ namespace systemResourceAlerter
             public int eventID { get; set; }
             public string message { get; set; }
             public string computer { get; set; }
+            public string taskCategory { get; set; }
             // EventLogEntry entry { get; set; }
         }
 
@@ -462,10 +471,13 @@ namespace systemResourceAlerter
                                             source = entry.Source,
                                             eventID = (UInt16)entry.InstanceId,
                                             message = entry.Message,
-                                            computer = entry.MachineName
+                                            computer = entry.MachineName,
+                                            taskCategory = entry.Category
                                         };
 
-                                        result.Add(me);
+                                        bool accept = acceptRejectEventLog(me);
+
+                                        if (accept) result.Add(me);
                                     }
 
                                     if (timestamp > endTime) endTime = timestamp;
@@ -517,10 +529,13 @@ namespace systemResourceAlerter
                                         source = eventRecord.ProviderName,
                                         eventID = eventRecord.Id,
                                         message = eventRecord.FormatDescription(),
-                                        computer = eventRecord.MachineName
+                                        computer = eventRecord.MachineName,
+                                        taskCategory = eventRecord.TaskDisplayName
                                     };
 
-                                    result.Add(me);
+                                    bool accept = acceptRejectEventLog(me);
+
+                                    if (accept) result.Add(me);
                                 }
 
                                 if (timestamp > endTime) endTime = timestamp;
@@ -537,6 +552,54 @@ namespace systemResourceAlerter
             lastLogEntryTime = endTime;
 
             return result;
+        }
+
+        private bool acceptRejectEventLog(myEventEntry me)
+        {
+            // reject the log if its source doesn't match the white list, or it matches the black list
+            if (eventLogSourceWhiteListEnable && !textMatchWildcardList(eventLogSourceWhiteList, me.source))
+            {
+                return false;
+            }
+            if (eventLogSourceBlackListEnable && textMatchWildcardList(eventLogSourceBlackList, me.source))
+            {
+                return false;
+            }
+
+            // reject the log if its ID doesn't match the white list, or it matches the black list
+            if (eventLogIdsWhiteListEnable && !textMatchWildcardList(eventLogIdsWhiteList, me.eventID.ToString()))
+            {
+                return false;
+            }
+            if (eventLogIdsBlackListEnable && textMatchWildcardList(eventLogIdsBlackList, me.eventID.ToString()))
+            {
+                return false;
+            }
+
+            // reject the log if its task category doesn't match the white list, or it matches the black list
+            if (eventLogTaskWhiteListEnable && !textMatchWildcardList(eventLogTaskWhiteList, me.taskCategory))
+            {
+                return false;
+            }
+            if (eventLogTaskBlackListEnable && textMatchWildcardList(eventLogTaskBlackList, me.taskCategory))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private bool textMatchWildcardList(List<string> list, string text)
+        {
+            foreach(string wildcard in list)
+            {
+                if (LikeOperator.LikeString(text, wildcard, Microsoft.VisualBasic.CompareMethod.Text))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         private List<string> getEventLogNames()
@@ -640,6 +703,8 @@ namespace systemResourceAlerter
             chbEventLogIdsBlackList.Checked = eventLogIdsBlackListEnable;
             chbEventLogTaskWhiteList.Checked = eventLogTaskWhiteListEnable;
             chbEventLogTaskBlackList.Checked = eventLogTaskBlackListEnable;
+
+            btnTestEventLog.Visible = showTestButton;
         }
 
         private void writeSettings()
@@ -688,6 +753,8 @@ namespace systemResourceAlerter
             Settings.Set("eventLogIdsBlackList", string.Join(",", eventLogIdsBlackList));
             Settings.Set("eventLogTaskWhiteList", string.Join(",", eventLogTaskWhiteList));
             Settings.Set("eventLogTaskBlackList", string.Join(",", eventLogTaskBlackList));
+
+            Settings.Set("showTestButton", showTestButton);
         }
 
         private void readSettings()
@@ -736,6 +803,8 @@ namespace systemResourceAlerter
             splitMultivalueSettingStringToList(Settings.Get("eventLogIdsBlackList", ""), separatorComma, eventLogIdsBlackList);
             splitMultivalueSettingStringToList(Settings.Get("eventLogTaskWhiteList", ""), separatorComma, eventLogTaskWhiteList);
             splitMultivalueSettingStringToList(Settings.Get("eventLogTaskBlackList", ""), separatorComma, eventLogTaskBlackList);
+
+            showTestButton = Settings.Get("showTestButton", false);
         }
 
         private string[] separatorComma = new string[] { "," };
@@ -956,6 +1025,38 @@ namespace systemResourceAlerter
             editBlackWhiteList(ref eventLogTaskBlackList);
         }
         #endregion
+
+        private void btnTestEventLog_Click(object sender, EventArgs e)
+        {
+            applySettings();
+
+            lastLogEntryTime = DateTime.Now.Subtract(new TimeSpan(24, 00, 0));
+
+            List<myEventEntry> myEventEntries = readEventLog();
+
+            string message = string.Format("myEventEntries count = {0}", myEventEntries.Count);
+            MessageBox.Show(message);
+
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine(message);
+            string separator = "=======================================================";
+
+            for (int i = 0; i < myEventEntries.Count; i++)
+            {
+                myEventEntry me = myEventEntries[i];
+                string email_body = writeEmailBody(me);
+
+                sb.AppendLine();
+                sb.AppendLine(separator);
+                sb.AppendLine();
+                sb.AppendLine(email_body);
+            }
+
+            string testResultFilename = string.Format("eventLogTestResult_{0}.txt", getNowStringForFilename());
+            System.IO.File.WriteAllText(testResultFilename, sb.ToString());
+
+            MessageBox.Show(string.Format("myEventEntries written to file {0}", testResultFilename));
+        }
     }
 
 }
