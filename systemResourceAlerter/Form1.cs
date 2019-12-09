@@ -93,6 +93,11 @@ namespace systemResourceAlerter
         List<string> eventLogTaskWhiteList = new List<string>();
         List<string> eventLogTaskBlackList = new List<string>();
 
+        bool eventLogMessageWhiteListEnable = false;
+        bool eventLogMessageBlackListEnable = false;
+        List<string> eventLogMessageWhiteList = new List<string>();
+        List<string> eventLogMessageBlackList = new List<string>();
+
         bool showTestButton = false;
 
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
@@ -586,6 +591,16 @@ namespace systemResourceAlerter
                 return false;
             }
 
+            // reject the log if its message doesn't match the white list, or it matches the black list
+            if (eventLogMessageWhiteListEnable && !textMatchWildcardList(eventLogMessageWhiteList, me.message))
+            {
+                return false;
+            }
+            if (eventLogMessageBlackListEnable && textMatchWildcardList(eventLogMessageBlackList, me.message))
+            {
+                return false;
+            }
+
             return true;
         }
 
@@ -657,6 +672,8 @@ namespace systemResourceAlerter
             eventLogIdsBlackListEnable = chbEventLogIdsBlackList.Checked;
             eventLogTaskWhiteListEnable = chbEventLogTaskWhiteList.Checked;
             eventLogTaskBlackListEnable = chbEventLogTaskBlackList.Checked;
+            eventLogMessageWhiteListEnable = chbEventLogMessageWhiteList.Checked;
+            eventLogMessageBlackListEnable = chbEventLogMessageBlackList.Checked;
         }
 
         private void loadSettings()
@@ -703,6 +720,8 @@ namespace systemResourceAlerter
             chbEventLogIdsBlackList.Checked = eventLogIdsBlackListEnable;
             chbEventLogTaskWhiteList.Checked = eventLogTaskWhiteListEnable;
             chbEventLogTaskBlackList.Checked = eventLogTaskBlackListEnable;
+            chbEventLogMessageWhiteList.Checked = eventLogMessageWhiteListEnable;
+            chbEventLogMessageBlackList.Checked = eventLogMessageBlackListEnable;
 
             btnTestEventLog.Visible = showTestButton;
         }
@@ -746,6 +765,8 @@ namespace systemResourceAlerter
             Settings.Set("eventLogIdsBlackListEnable", eventLogIdsBlackListEnable);
             Settings.Set("eventLogTaskWhiteListEnable", eventLogTaskWhiteListEnable);
             Settings.Set("eventLogTaskBlackListEnable", eventLogTaskBlackListEnable);
+            Settings.Set("eventLogMessageWhiteListEnable", eventLogMessageWhiteListEnable);
+            Settings.Set("eventLogMessageBlackListEnable", eventLogMessageBlackListEnable);
 
             Settings.Set("eventLogSourceWhiteList", string.Join(",", eventLogSourceWhiteList));
             Settings.Set("eventLogSourceBlackList", string.Join(",", eventLogSourceBlackList));
@@ -753,6 +774,8 @@ namespace systemResourceAlerter
             Settings.Set("eventLogIdsBlackList", string.Join(",", eventLogIdsBlackList));
             Settings.Set("eventLogTaskWhiteList", string.Join(",", eventLogTaskWhiteList));
             Settings.Set("eventLogTaskBlackList", string.Join(",", eventLogTaskBlackList));
+            Settings.Set("eventLogMessageWhiteList", string.Join(",", eventLogMessageWhiteList));
+            Settings.Set("eventLogMessageBlackList", string.Join(",", eventLogMessageBlackList));
 
             Settings.Set("showTestButton", showTestButton);
         }
@@ -796,6 +819,8 @@ namespace systemResourceAlerter
             eventLogIdsBlackListEnable = Settings.Get("eventLogIdsBlackListEnable", false);
             eventLogTaskWhiteListEnable = Settings.Get("eventLogTaskWhiteListEnable", false);
             eventLogTaskBlackListEnable = Settings.Get("eventLogTaskBlackListEnable", false);
+            eventLogMessageWhiteListEnable = Settings.Get("eventLogMessageWhiteListEnable", false);
+            eventLogMessageBlackListEnable = Settings.Get("eventLogMessageBlackListEnable", false);
 
             splitMultivalueSettingStringToList(Settings.Get("eventLogSourceWhiteList", ""), separatorComma, eventLogSourceWhiteList);
             splitMultivalueSettingStringToList(Settings.Get("eventLogSourceBlackList", ""), separatorComma, eventLogSourceBlackList);
@@ -803,6 +828,8 @@ namespace systemResourceAlerter
             splitMultivalueSettingStringToList(Settings.Get("eventLogIdsBlackList", ""), separatorComma, eventLogIdsBlackList);
             splitMultivalueSettingStringToList(Settings.Get("eventLogTaskWhiteList", ""), separatorComma, eventLogTaskWhiteList);
             splitMultivalueSettingStringToList(Settings.Get("eventLogTaskBlackList", ""), separatorComma, eventLogTaskBlackList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogMessageWhiteList", ""), separatorComma, eventLogMessageWhiteList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogMessageBlackList", ""), separatorComma, eventLogMessageBlackList);
 
             showTestButton = Settings.Get("showTestButton", false);
         }
@@ -1024,7 +1051,16 @@ namespace systemResourceAlerter
         {
             editBlackWhiteList(ref eventLogTaskBlackList);
         }
-        #endregion
+
+        private void lnkEventLogMessageWhiteList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogMessageWhiteList);
+        }
+
+        private void lnkEventLogMessageBlackList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogMessageBlackList);
+        }
 
         private void btnTestEventLog_Click(object sender, EventArgs e)
         {
@@ -1057,6 +1093,7 @@ namespace systemResourceAlerter
 
             MessageBox.Show(string.Format("myEventEntries written to file {0}", testResultFilename));
         }
+        #endregion
     }
 
 }
