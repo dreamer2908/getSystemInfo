@@ -255,6 +255,7 @@ namespace systemResourceAlerter
                             mail.To.Add(em);
                         }
                         mail.Subject = email_subject;
+                        mail.IsBodyHtml = false;
                         mail.Body = email_body;
 
                         SmtpServer.Port = email_port;
@@ -325,15 +326,15 @@ namespace systemResourceAlerter
 
             foreach (var me in myEventEntries)
             {
-                string email_body = "Windows Event Log:\n";
+                string email_body = "Windows Event Log:\r\n";
 
-                email_body += string.Format("\nCategory: {0}", me.category);
-                email_body += string.Format("\nLevel: {0}", me.level);
-                email_body += string.Format("\nTimestamp: {0}", me.timestamp);
-                email_body += string.Format("\nComputer: {0}", me.computer);
-                email_body += string.Format("\nSource: {0}", me.source);
-                email_body += string.Format("\nEvent ID: {0}", me.eventID);
-                email_body += string.Format("\nMessage: \n{0}", me.message);
+                email_body += string.Format("\r\nCategory: {0}", me.category);
+                email_body += string.Format("\r\nLevel: {0}", me.level);
+                email_body += string.Format("\r\nTimestamp: {0}", me.timestamp);
+                email_body += string.Format("\r\nComputer: {0}", me.computer);
+                email_body += string.Format("\r\nSource: {0}", me.source);
+                email_body += string.Format("\r\nEvent ID: {0}", me.eventID);
+                email_body += string.Format("\r\nMessage: \r\n{0}", me.message);
 
                 // MessageBox.Show(email_body);
 
