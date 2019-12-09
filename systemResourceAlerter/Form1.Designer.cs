@@ -589,11 +589,11 @@
             // 
             this.label16.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label16.AutoSize = true;
-            this.label16.Location = new System.Drawing.Point(261, 20);
+            this.label16.Location = new System.Drawing.Point(222, 20);
             this.label16.Name = "label16";
-            this.label16.Size = new System.Drawing.Size(112, 13);
+            this.label16.Size = new System.Drawing.Size(156, 13);
             this.label16.TabIndex = 2;
-            this.label16.Text = "Delay between alerts: ";
+            this.label16.Text = "Delay between resource alerts: ";
             // 
             // btnReceiverTest
             // 
