@@ -76,6 +76,28 @@ namespace systemResourceAlerter
         bool eventLogLevel3 = false;
         bool eventLogLevel4 = false;
 
+        bool eventLogSourceWhiteListEnable = false;
+        bool eventLogSourceBlackListEnable = false;
+        List<string> eventLogSourceWhiteList = new List<string>();
+        List<string> eventLogSourceBlackList = new List<string>();
+
+        bool eventLogIdsWhiteListEnable = false;
+        bool eventLogIdsBlackListEnable = false;
+        List<string> eventLogIdsWhiteList = new List<string>();
+        List<string> eventLogIdsBlackList = new List<string>();
+
+        bool eventLogTaskWhiteListEnable = false;
+        bool eventLogTaskBlackListEnable = false;
+        List<string> eventLogTaskWhiteList = new List<string>();
+        List<string> eventLogTaskBlackList = new List<string>();
+
+        List<string> eventLogSourceWhiteList_tmp = null;
+        List<string> eventLogSourceBlackList_tmp = null;
+        List<string> eventLogIdsWhiteList_tmp = null;
+        List<string> eventLogIdsBlackList_tmp = null;
+        List<string> eventLogTaskWhiteList_tmp = null;
+        List<string> eventLogTaskBlackList_tmp = null;
+
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
 
         Mutex mutexEventForward = new Mutex();
@@ -565,6 +587,13 @@ namespace systemResourceAlerter
             eventLogLevel2 = chbEventLogLevel2.Checked;
             eventLogLevel3 = chbEventLogLevel3.Checked;
             eventLogLevel4 = chbEventLogLevel4.Checked;
+
+            eventLogSourceWhiteListEnable = chbEventLogSourceWhiteList.Checked;
+            eventLogSourceBlackListEnable = chbEventLogSourceBlackList.Checked;
+            eventLogIdsWhiteListEnable = chbEventLogIdsWhiteList.Checked;
+            eventLogIdsBlackListEnable = chbEventLogIdsBlackList.Checked;
+            eventLogTaskWhiteListEnable = chbEventLogTaskWhiteList.Checked;
+            eventLogTaskBlackListEnable = chbEventLogTaskBlackList.Checked;
         }
 
         private void loadSettings()
@@ -604,6 +633,13 @@ namespace systemResourceAlerter
             chbEventLogLevel4.Checked = eventLogLevel4;
 
             enableDisableEventControls();
+
+            chbEventLogSourceWhiteList.Checked = eventLogSourceWhiteListEnable;
+            chbEventLogSourceBlackList.Checked = eventLogSourceBlackListEnable;
+            chbEventLogIdsWhiteList.Checked = eventLogIdsWhiteListEnable;
+            chbEventLogIdsBlackList.Checked = eventLogIdsBlackListEnable;
+            chbEventLogTaskWhiteList.Checked = eventLogTaskWhiteListEnable;
+            chbEventLogTaskBlackList.Checked = eventLogTaskBlackListEnable;
         }
 
         private void writeSettings()
@@ -638,6 +674,20 @@ namespace systemResourceAlerter
 
 
             Settings.Set("email_subject_log", email_subject_log);
+
+            Settings.Set("eventLogSourceWhiteListEnable", eventLogSourceWhiteListEnable);
+            Settings.Set("eventLogSourceBlackListEnable", eventLogSourceBlackListEnable);
+            Settings.Set("eventLogIdsWhiteListEnable", eventLogIdsWhiteListEnable);
+            Settings.Set("eventLogIdsBlackListEnable", eventLogIdsBlackListEnable);
+            Settings.Set("eventLogTaskWhiteListEnable", eventLogTaskWhiteListEnable);
+            Settings.Set("eventLogTaskBlackListEnable", eventLogTaskBlackListEnable);
+
+            Settings.Set("eventLogSourceWhiteList", string.Join(",", eventLogSourceWhiteList));
+            Settings.Set("eventLogSourceBlackList", string.Join(",", eventLogSourceBlackList));
+            Settings.Set("eventLogIdsWhiteList", string.Join(",", eventLogIdsWhiteList));
+            Settings.Set("eventLogIdsBlackList", string.Join(",", eventLogIdsBlackList));
+            Settings.Set("eventLogTaskWhiteList", string.Join(",", eventLogTaskWhiteList));
+            Settings.Set("eventLogTaskBlackList", string.Join(",", eventLogTaskBlackList));
         }
 
         private void readSettings()
@@ -659,14 +709,7 @@ namespace systemResourceAlerter
             autoHide = Settings.Get("autoHide", false);
 
             string email_tos = Settings.Get("email_to", "");
-            foreach (var s in email_tos.Split(new string[] { "," }, StringSplitOptions.None))
-            {
-                var trim = s.Trim();
-                if (trim.Length > 0)
-                {
-                    email_to.Add(trim);
-                }
-            }
+            splitMultivalueSettingStringToList(email_tos, separatorComma, email_to);
 
             forwardEventLogs = Settings.Get("forwardEventLogs", false);
             eventLogCategory1 = Settings.Get("eventLogCategory1", false);
@@ -679,6 +722,35 @@ namespace systemResourceAlerter
             eventLogLevel4 = Settings.Get("eventLogLevel4", false);
 
             email_subject_log = Settings.Get("email_subject_log", "");
+
+            eventLogSourceWhiteListEnable = Settings.Get("eventLogSourceWhiteListEnable", false);
+            eventLogSourceBlackListEnable = Settings.Get("eventLogSourceBlackListEnable", false);
+            eventLogIdsWhiteListEnable = Settings.Get("eventLogIdsWhiteListEnable", false);
+            eventLogIdsBlackListEnable = Settings.Get("eventLogIdsBlackListEnable", false);
+            eventLogTaskWhiteListEnable = Settings.Get("eventLogTaskWhiteListEnable", false);
+            eventLogTaskBlackListEnable = Settings.Get("eventLogTaskBlackListEnable", false);
+
+            splitMultivalueSettingStringToList(Settings.Get("eventLogSourceWhiteList", ""), separatorComma, eventLogSourceWhiteList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogSourceBlackList", ""), separatorComma, eventLogSourceBlackList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogIdsWhiteList", ""), separatorComma, eventLogIdsWhiteList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogIdsBlackList", ""), separatorComma, eventLogIdsBlackList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogTaskWhiteList", ""), separatorComma, eventLogTaskWhiteList);
+            splitMultivalueSettingStringToList(Settings.Get("eventLogTaskBlackList", ""), separatorComma, eventLogTaskBlackList);
+        }
+
+        private string[] separatorComma = new string[] { "," };
+        private void splitMultivalueSettingStringToList(string source, string[] separator, List<string> target)
+        {
+            target.Clear();
+            string[] array = source.Split(separator, StringSplitOptions.None);
+            for (int i = 0; i < array.Length; i++)
+            {
+                string sub = array[i].Trim();
+                if (sub.Length > 0)
+                {
+                    target.Add(sub);
+                }
+            }
         }
         #endregion
 
@@ -841,6 +913,47 @@ namespace systemResourceAlerter
         private void backgroundWorker1_DoWork(object sender, System.ComponentModel.DoWorkEventArgs e)
         {
             sendEmailForwardEventLog();
+        }
+
+        private void editBlackWhiteList(ref List<string> list)
+        {
+            var options = new Form2();
+            options.loadList(list);
+
+            if (options.ShowDialog() == DialogResult.OK)
+            {
+                list = options.saveList();
+            }
+        }
+
+        private void lnkEventLogSourceWhiteList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogSourceWhiteList);
+        }
+
+        private void lnkEventLogSourceBlackList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogSourceBlackList);
+        }
+
+        private void lnkEventLogIdsWhiteList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogIdsWhiteList);
+        }
+
+        private void lnkEventLogIdsBlackList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogIdsBlackList);
+        }
+
+        private void lnkEventLogTaskWhiteList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogTaskWhiteList);
+        }
+
+        private void lnkEventLogTaskBlackList_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            editBlackWhiteList(ref eventLogTaskBlackList);
         }
         #endregion
     }
