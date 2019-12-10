@@ -572,7 +572,7 @@ namespace systemResourceAlerter
             }
 
             // reject the log if its ID doesn't match the white list, or it matches the black list
-            if (eventLogIdsWhiteListEnable && !textMatchWildcardList(eventLogIdsWhiteList, me.eventID.ToString()))
+            if (eventLogIdsWhiteListEnable && !textMatchWildcardList(eventLogIdsWhiteList, me.eventID.ToString(), false))
             {
                 return false;
             }
@@ -604,10 +604,13 @@ namespace systemResourceAlerter
             return true;
         }
 
-        private bool textMatchWildcardList(List<string> list, string text)
+        private bool textMatchWildcardList(List<string> list, string text, bool autoWarpInStar = true)
         {
-            foreach(string wildcard in list)
+            for (int i = 0; i < list.Count; i++)
             {
+                string wildcard = list[i];
+                if (autoWarpInStar) wildcard = "*" + wildcard + "*";
+
                 if (LikeOperator.LikeString(text, wildcard, Microsoft.VisualBasic.CompareMethod.Text))
                 {
                     return true;
