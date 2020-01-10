@@ -86,9 +86,12 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.lblStatusBar = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnTestEventLog = new System.Windows.Forms.Button();
+            this.lnkEventLogMessageBlackList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogTaskBlackList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogIdsBlackList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogSourceBlackList = new System.Windows.Forms.LinkLabel();
+            this.lnkEventLogMessageWhiteList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogTaskWhiteList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogIdsWhiteList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogSourceWhiteList = new System.Windows.Forms.LinkLabel();
@@ -98,14 +101,17 @@
             this.chbEventLogLevel2 = new System.Windows.Forms.CheckBox();
             this.chbEventLogCategory3 = new System.Windows.Forms.CheckBox();
             this.chbEventLogLevel1 = new System.Windows.Forms.CheckBox();
+            this.chbEventLogMessageBlackList = new System.Windows.Forms.CheckBox();
             this.chbEventLogTaskBlackList = new System.Windows.Forms.CheckBox();
             this.chbEventLogIdsBlackList = new System.Windows.Forms.CheckBox();
             this.chbEventLogSourceBlackList = new System.Windows.Forms.CheckBox();
             this.chbEventLogCategory2 = new System.Windows.Forms.CheckBox();
             this.label21 = new System.Windows.Forms.Label();
+            this.chbEventLogMessageWhiteList = new System.Windows.Forms.CheckBox();
             this.chbEventLogTaskWhiteList = new System.Windows.Forms.CheckBox();
             this.chbEventLogIdsWhiteList = new System.Windows.Forms.CheckBox();
             this.chbEventLogSourceWhiteList = new System.Windows.Forms.CheckBox();
+            this.label26 = new System.Windows.Forms.Label();
             this.chbEventLogCategory1 = new System.Windows.Forms.CheckBox();
             this.label25 = new System.Windows.Forms.Label();
             this.label24 = new System.Windows.Forms.Label();
@@ -113,12 +119,9 @@
             this.label20 = new System.Windows.Forms.Label();
             this.chbForwardEventLogs = new System.Windows.Forms.CheckBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.btnTestEventLog = new System.Windows.Forms.Button();
-            this.label26 = new System.Windows.Forms.Label();
-            this.chbEventLogMessageWhiteList = new System.Windows.Forms.CheckBox();
-            this.chbEventLogMessageBlackList = new System.Windows.Forms.CheckBox();
-            this.lnkEventLogMessageWhiteList = new System.Windows.Forms.LinkLabel();
-            this.lnkEventLogMessageBlackList = new System.Windows.Forms.LinkLabel();
+            this.chbDailySystemInfoEmailEnable = new System.Windows.Forms.CheckBox();
+            this.txtDailySystemInfoEmailTime = new System.Windows.Forms.TextBox();
+            this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -489,8 +492,10 @@
             this.groupBox3.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox3.Controls.Add(this.chbDailySystemInfoEmailEnable);
             this.groupBox3.Controls.Add(this.chbAutoHide);
             this.groupBox3.Controls.Add(this.chbAutoStart);
+            this.groupBox3.Controls.Add(this.txtDailySystemInfoEmailTime);
             this.groupBox3.Controls.Add(this.txtEmailSubjectLog);
             this.groupBox3.Controls.Add(this.label22);
             this.groupBox3.Controls.Add(this.txtEmailSubject);
@@ -505,7 +510,7 @@
             this.groupBox3.Controls.Add(this.lsvReceiver);
             this.groupBox3.Location = new System.Drawing.Point(13, 368);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(504, 181);
+            this.groupBox3.Size = new System.Drawing.Size(504, 210);
             this.groupBox3.TabIndex = 2;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Email";
@@ -675,7 +680,7 @@
             // btnExit
             // 
             this.btnExit.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnExit.Location = new System.Drawing.Point(441, 555);
+            this.btnExit.Location = new System.Drawing.Point(441, 584);
             this.btnExit.Name = "btnExit";
             this.btnExit.Size = new System.Drawing.Size(75, 23);
             this.btnExit.TabIndex = 6;
@@ -686,7 +691,7 @@
             // btnHide
             // 
             this.btnHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnHide.Location = new System.Drawing.Point(360, 555);
+            this.btnHide.Location = new System.Drawing.Point(360, 584);
             this.btnHide.Name = "btnHide";
             this.btnHide.Size = new System.Drawing.Size(75, 23);
             this.btnHide.TabIndex = 5;
@@ -697,7 +702,7 @@
             // btnStartStop
             // 
             this.btnStartStop.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnStartStop.Location = new System.Drawing.Point(279, 555);
+            this.btnStartStop.Location = new System.Drawing.Point(279, 584);
             this.btnStartStop.Name = "btnStartStop";
             this.btnStartStop.Size = new System.Drawing.Size(75, 23);
             this.btnStartStop.TabIndex = 4;
@@ -708,7 +713,7 @@
             // btnApply
             // 
             this.btnApply.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnApply.Location = new System.Drawing.Point(198, 555);
+            this.btnApply.Location = new System.Drawing.Point(198, 584);
             this.btnApply.Name = "btnApply";
             this.btnApply.Size = new System.Drawing.Size(75, 23);
             this.btnApply.TabIndex = 3;
@@ -720,7 +725,7 @@
             // 
             this.lblStatusBar.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.lblStatusBar.AutoSize = true;
-            this.lblStatusBar.Location = new System.Drawing.Point(20, 565);
+            this.lblStatusBar.Location = new System.Drawing.Point(20, 594);
             this.lblStatusBar.Name = "lblStatusBar";
             this.lblStatusBar.Size = new System.Drawing.Size(37, 13);
             this.lblStatusBar.TabIndex = 7;
@@ -769,6 +774,28 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Windows Event Logs";
             // 
+            // btnTestEventLog
+            // 
+            this.btnTestEventLog.Location = new System.Drawing.Point(388, 112);
+            this.btnTestEventLog.Name = "btnTestEventLog";
+            this.btnTestEventLog.Size = new System.Drawing.Size(75, 23);
+            this.btnTestEventLog.TabIndex = 4;
+            this.btnTestEventLog.Text = "Test";
+            this.btnTestEventLog.UseVisualStyleBackColor = true;
+            this.btnTestEventLog.Visible = false;
+            this.btnTestEventLog.Click += new System.EventHandler(this.btnTestEventLog_Click);
+            // 
+            // lnkEventLogMessageBlackList
+            // 
+            this.lnkEventLogMessageBlackList.AutoSize = true;
+            this.lnkEventLogMessageBlackList.Location = new System.Drawing.Point(213, 159);
+            this.lnkEventLogMessageBlackList.Name = "lnkEventLogMessageBlackList";
+            this.lnkEventLogMessageBlackList.Size = new System.Drawing.Size(49, 13);
+            this.lnkEventLogMessageBlackList.TabIndex = 3;
+            this.lnkEventLogMessageBlackList.TabStop = true;
+            this.lnkEventLogMessageBlackList.Text = "Black list";
+            this.lnkEventLogMessageBlackList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkEventLogMessageBlackList_LinkClicked);
+            // 
             // lnkEventLogTaskBlackList
             // 
             this.lnkEventLogTaskBlackList.AutoSize = true;
@@ -801,6 +828,17 @@
             this.lnkEventLogSourceBlackList.TabStop = true;
             this.lnkEventLogSourceBlackList.Text = "Black list";
             this.lnkEventLogSourceBlackList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkEventLogSourceBlackList_LinkClicked);
+            // 
+            // lnkEventLogMessageWhiteList
+            // 
+            this.lnkEventLogMessageWhiteList.AutoSize = true;
+            this.lnkEventLogMessageWhiteList.Location = new System.Drawing.Point(127, 159);
+            this.lnkEventLogMessageWhiteList.Name = "lnkEventLogMessageWhiteList";
+            this.lnkEventLogMessageWhiteList.Size = new System.Drawing.Size(50, 13);
+            this.lnkEventLogMessageWhiteList.TabIndex = 3;
+            this.lnkEventLogMessageWhiteList.TabStop = true;
+            this.lnkEventLogMessageWhiteList.Text = "White list";
+            this.lnkEventLogMessageWhiteList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkEventLogMessageWhiteList_LinkClicked);
             // 
             // lnkEventLogTaskWhiteList
             // 
@@ -895,6 +933,15 @@
             this.chbEventLogLevel1.Text = "Error";
             this.chbEventLogLevel1.UseVisualStyleBackColor = true;
             // 
+            // chbEventLogMessageBlackList
+            // 
+            this.chbEventLogMessageBlackList.AutoSize = true;
+            this.chbEventLogMessageBlackList.Location = new System.Drawing.Point(197, 158);
+            this.chbEventLogMessageBlackList.Name = "chbEventLogMessageBlackList";
+            this.chbEventLogMessageBlackList.Size = new System.Drawing.Size(15, 14);
+            this.chbEventLogMessageBlackList.TabIndex = 2;
+            this.chbEventLogMessageBlackList.UseVisualStyleBackColor = true;
+            // 
             // chbEventLogTaskBlackList
             // 
             this.chbEventLogTaskBlackList.AutoSize = true;
@@ -941,6 +988,15 @@
             this.label21.TabIndex = 1;
             this.label21.Text = "Levels:";
             // 
+            // chbEventLogMessageWhiteList
+            // 
+            this.chbEventLogMessageWhiteList.AutoSize = true;
+            this.chbEventLogMessageWhiteList.Location = new System.Drawing.Point(111, 158);
+            this.chbEventLogMessageWhiteList.Name = "chbEventLogMessageWhiteList";
+            this.chbEventLogMessageWhiteList.Size = new System.Drawing.Size(15, 14);
+            this.chbEventLogMessageWhiteList.TabIndex = 2;
+            this.chbEventLogMessageWhiteList.UseVisualStyleBackColor = true;
+            // 
             // chbEventLogTaskWhiteList
             // 
             this.chbEventLogTaskWhiteList.AutoSize = true;
@@ -967,6 +1023,15 @@
             this.chbEventLogSourceWhiteList.Size = new System.Drawing.Size(15, 14);
             this.chbEventLogSourceWhiteList.TabIndex = 2;
             this.chbEventLogSourceWhiteList.UseVisualStyleBackColor = true;
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(33, 159);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(53, 13);
+            this.label26.TabIndex = 1;
+            this.label26.Text = "Message:";
             // 
             // chbEventLogCategory1
             // 
@@ -1029,71 +1094,35 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             // 
-            // btnTestEventLog
+            // chbDailySystemInfoEmailEnable
             // 
-            this.btnTestEventLog.Location = new System.Drawing.Point(388, 112);
-            this.btnTestEventLog.Name = "btnTestEventLog";
-            this.btnTestEventLog.Size = new System.Drawing.Size(75, 23);
-            this.btnTestEventLog.TabIndex = 4;
-            this.btnTestEventLog.Text = "Test";
-            this.btnTestEventLog.UseVisualStyleBackColor = true;
-            this.btnTestEventLog.Visible = false;
-            this.btnTestEventLog.Click += new System.EventHandler(this.btnTestEventLog_Click);
+            this.chbDailySystemInfoEmailEnable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chbDailySystemInfoEmailEnable.AutoSize = true;
+            this.chbDailySystemInfoEmailEnable.Location = new System.Drawing.Point(10, 184);
+            this.chbDailySystemInfoEmailEnable.Name = "chbDailySystemInfoEmailEnable";
+            this.chbDailySystemInfoEmailEnable.Size = new System.Drawing.Size(214, 17);
+            this.chbDailySystemInfoEmailEnable.TabIndex = 19;
+            this.chbDailySystemInfoEmailEnable.Text = "Send general system information daily at";
+            this.chbDailySystemInfoEmailEnable.UseVisualStyleBackColor = true;
             // 
-            // label26
+            // txtDailySystemInfoEmailTime
             // 
-            this.label26.AutoSize = true;
-            this.label26.Location = new System.Drawing.Point(33, 159);
-            this.label26.Name = "label26";
-            this.label26.Size = new System.Drawing.Size(53, 13);
-            this.label26.TabIndex = 1;
-            this.label26.Text = "Message:";
+            this.txtDailySystemInfoEmailTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtDailySystemInfoEmailTime.Location = new System.Drawing.Point(230, 181);
+            this.txtDailySystemInfoEmailTime.Name = "txtDailySystemInfoEmailTime";
+            this.txtDailySystemInfoEmailTime.Size = new System.Drawing.Size(70, 20);
+            this.txtDailySystemInfoEmailTime.TabIndex = 18;
             // 
-            // chbEventLogMessageWhiteList
+            // timer3
             // 
-            this.chbEventLogMessageWhiteList.AutoSize = true;
-            this.chbEventLogMessageWhiteList.Location = new System.Drawing.Point(111, 158);
-            this.chbEventLogMessageWhiteList.Name = "chbEventLogMessageWhiteList";
-            this.chbEventLogMessageWhiteList.Size = new System.Drawing.Size(15, 14);
-            this.chbEventLogMessageWhiteList.TabIndex = 2;
-            this.chbEventLogMessageWhiteList.UseVisualStyleBackColor = true;
-            // 
-            // chbEventLogMessageBlackList
-            // 
-            this.chbEventLogMessageBlackList.AutoSize = true;
-            this.chbEventLogMessageBlackList.Location = new System.Drawing.Point(197, 158);
-            this.chbEventLogMessageBlackList.Name = "chbEventLogMessageBlackList";
-            this.chbEventLogMessageBlackList.Size = new System.Drawing.Size(15, 14);
-            this.chbEventLogMessageBlackList.TabIndex = 2;
-            this.chbEventLogMessageBlackList.UseVisualStyleBackColor = true;
-            // 
-            // lnkEventLogMessageWhiteList
-            // 
-            this.lnkEventLogMessageWhiteList.AutoSize = true;
-            this.lnkEventLogMessageWhiteList.Location = new System.Drawing.Point(127, 159);
-            this.lnkEventLogMessageWhiteList.Name = "lnkEventLogMessageWhiteList";
-            this.lnkEventLogMessageWhiteList.Size = new System.Drawing.Size(50, 13);
-            this.lnkEventLogMessageWhiteList.TabIndex = 3;
-            this.lnkEventLogMessageWhiteList.TabStop = true;
-            this.lnkEventLogMessageWhiteList.Text = "White list";
-            this.lnkEventLogMessageWhiteList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkEventLogMessageWhiteList_LinkClicked);
-            // 
-            // lnkEventLogMessageBlackList
-            // 
-            this.lnkEventLogMessageBlackList.AutoSize = true;
-            this.lnkEventLogMessageBlackList.Location = new System.Drawing.Point(213, 159);
-            this.lnkEventLogMessageBlackList.Name = "lnkEventLogMessageBlackList";
-            this.lnkEventLogMessageBlackList.Size = new System.Drawing.Size(49, 13);
-            this.lnkEventLogMessageBlackList.TabIndex = 3;
-            this.lnkEventLogMessageBlackList.TabStop = true;
-            this.lnkEventLogMessageBlackList.Text = "Black list";
-            this.lnkEventLogMessageBlackList.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.lnkEventLogMessageBlackList_LinkClicked);
+            this.timer3.Interval = 15000;
+            this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(528, 590);
+            this.ClientSize = new System.Drawing.Size(528, 619);
             this.Controls.Add(this.groupBox4);
             this.Controls.Add(this.lblStatusBar);
             this.Controls.Add(this.btnApply);
@@ -1104,7 +1133,7 @@
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.MinimumSize = new System.Drawing.Size(544, 629);
+            this.MinimumSize = new System.Drawing.Size(544, 658);
             this.Name = "Form1";
             this.Text = "System Resources Alerter";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Form1_FormClosing);
@@ -1217,6 +1246,9 @@
         private System.Windows.Forms.CheckBox chbEventLogMessageBlackList;
         private System.Windows.Forms.CheckBox chbEventLogMessageWhiteList;
         private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.CheckBox chbDailySystemInfoEmailEnable;
+        private System.Windows.Forms.TextBox txtDailySystemInfoEmailTime;
+        private System.Windows.Forms.Timer timer3;
     }
 }
 

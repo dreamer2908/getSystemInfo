@@ -277,7 +277,7 @@ namespace getSystemInfo_cli
             return result;
         }
 
-        private static int executeTask(string executable, string argument, bool hideConsole, out string output)
+        public static int executeTask(string executable, string argument, bool hideConsole, out string output)
         {
             Process proc = new Process();
             proc.StartInfo.FileName = executable;

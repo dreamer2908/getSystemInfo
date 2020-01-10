@@ -28,6 +28,8 @@ namespace systemResourceAlerter
                 startEmailAlert();
             }
 
+            timer3.Start();
+
             allowShowUI = !autoHide;
             notifyIcon1.Visible = autoHide;
         }
@@ -105,6 +107,9 @@ namespace systemResourceAlerter
         Mutex mutexEventForward = new Mutex();
 
         string statusBarText = "No status.";
+
+        bool dailySystemInfoEmailEnable = false;
+        string dailySystemInfoEmailTime = string.Empty;
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -385,6 +390,14 @@ namespace systemResourceAlerter
 
             return sb.ToString();
         }
+
+        private void sendDailySystemInfoEmail()
+        {
+            string email_body = getSystemInfo();
+            // MessageBox.Show(email_body);
+
+            sendEmail(email_to, email_subject, email_body);
+        }
         #endregion
 
         #region Event Log
@@ -628,6 +641,39 @@ namespace systemResourceAlerter
         }
         #endregion
 
+        #region General System Info
+
+        readonly string scheduler_timeFormat = "HH:mm";
+        string scheduler_lastTime = string.Empty;
+
+        private void schedulerLoop()
+        {
+            if (!dailySystemInfoEmailEnable) return;
+
+            string now = DateTime.Now.ToString(scheduler_timeFormat);
+            if (now == scheduler_lastTime) return; // skip this loop if it's still the same minute
+            scheduler_lastTime = now;
+
+            // MessageBox.Show("now = " + now);
+
+            if (now == dailySystemInfoEmailTime)
+            {
+                // MessageBox.Show("scheduler running");
+                statusBarText = "Scheduler running";
+                sendDailySystemInfoEmail();
+            }
+        }
+
+        private string getSystemInfo()
+        {
+            string output = string.Empty;
+
+            getSystemInfo_cli.systemInfo.executeTask("getSystemResources.exe", "", true, out output);
+
+            return output;
+        }
+        #endregion
+
         #region Settings
         private void applySettings()
         {
@@ -677,6 +723,9 @@ namespace systemResourceAlerter
             eventLogTaskBlackListEnable = chbEventLogTaskBlackList.Checked;
             eventLogMessageWhiteListEnable = chbEventLogMessageWhiteList.Checked;
             eventLogMessageBlackListEnable = chbEventLogMessageBlackList.Checked;
+
+            dailySystemInfoEmailEnable = chbDailySystemInfoEmailEnable.Checked;
+            dailySystemInfoEmailTime = txtDailySystemInfoEmailTime.Text;
         }
 
         private void loadSettings()
@@ -727,6 +776,9 @@ namespace systemResourceAlerter
             chbEventLogMessageBlackList.Checked = eventLogMessageBlackListEnable;
 
             btnTestEventLog.Visible = showTestButton;
+
+            chbDailySystemInfoEmailEnable.Checked = dailySystemInfoEmailEnable;
+            txtDailySystemInfoEmailTime.Text = dailySystemInfoEmailTime;
         }
 
         private void writeSettings()
@@ -781,6 +833,9 @@ namespace systemResourceAlerter
             Settings.Set("eventLogMessageBlackList", string.Join(",", eventLogMessageBlackList));
 
             Settings.Set("showTestButton", showTestButton);
+
+            Settings.Set("dailySystemInfoEmailEnable", dailySystemInfoEmailEnable);
+            Settings.Set("dailySystemInfoEmailTime", dailySystemInfoEmailTime);
         }
 
         private void readSettings()
@@ -835,6 +890,9 @@ namespace systemResourceAlerter
             splitMultivalueSettingStringToList(Settings.Get("eventLogMessageBlackList", ""), separatorComma, eventLogMessageBlackList);
 
             showTestButton = Settings.Get("showTestButton", false);
+
+            dailySystemInfoEmailTime = Settings.Get("dailySystemInfoEmailTime", "");
+            dailySystemInfoEmailEnable = Settings.Get("dailySystemInfoEmailEnable", false);
         }
 
         private string[] separatorComma = new string[] { "," };
@@ -1095,6 +1153,14 @@ namespace systemResourceAlerter
             System.IO.File.WriteAllText(testResultFilename, sb.ToString());
 
             MessageBox.Show(string.Format("myEventEntries written to file {0}", testResultFilename));
+
+            sendDailySystemInfoEmail();
+            MessageBox.Show("Sent general system information to email!");
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            schedulerLoop();
         }
         #endregion
     }
