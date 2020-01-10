@@ -158,6 +158,27 @@ namespace systemResourceAlerter
                 return s.ToString(@"hh\:mm\:ss");
             }
         }
+
+        private string convertTextToHtml(string input)
+        {
+            string[] lines = splitLines(input);
+
+            StringBuilder sb = new StringBuilder();
+
+            foreach (string text in lines)
+            {
+                string encoded = System.Net.WebUtility.HtmlEncode(text);
+                sb.AppendLine("<pre>" + encoded + "</pre>");
+            }
+
+            return sb.ToString();
+        }
+
+        private string[] splitLines(string text)
+        {
+            string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            return lines;
+        }
         #endregion
 
         #region CPU & RAM
@@ -284,8 +305,8 @@ namespace systemResourceAlerter
                             mail.To.Add(em);
                         }
                         mail.Subject = email_subject;
-                        mail.IsBodyHtml = false;
-                        mail.Body = email_body;
+                        mail.IsBodyHtml = true;
+                        mail.Body = convertTextToHtml(email_body);
 
                         SmtpServer.Port = email_port;
                         SmtpServer.Credentials = new System.Net.NetworkCredential(email_user, email_password);
