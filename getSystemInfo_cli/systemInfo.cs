@@ -446,7 +446,10 @@ namespace getSystemInfo_cli
                 {
                     string fPnpInstanceID = rk.GetValue("PnpInstanceID", "").ToString();
                     int fMediaSubType = Convert.ToInt32(rk.GetValue("MediaSubType", 0));
-                    if (fPnpInstanceID.Length > 3 && (fPnpInstanceID.Substring(0, 3) == "PCI" || fPnpInstanceID.Substring(0, 3) == "USB"))
+
+                    // filter real network cards. the device instance path should have "PCI" or "USB" at the beginning or sometimes in the middle (rare)
+                    // virtual interface' device instance path start with "ROOT"
+                    if (fPnpInstanceID.Length > 3 && (fPnpInstanceID.Substring(0, 3) == "PCI" || fPnpInstanceID.Substring(0, 3) == "USB" || fPnpInstanceID.Contains("PCI")))
                     {
                         sruct_networkInterfaceInfo thisOne = new sruct_networkInterfaceInfo
                         {
