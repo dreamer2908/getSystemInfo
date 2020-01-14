@@ -660,6 +660,18 @@ namespace getSystemInfo_cli
             return getTotalSpace(getSystem_systemDrive());
         }
 
+        public static TimeSpan getSystem_uptime()
+        {
+            ManagementObject mo = new ManagementObject(@"\\.\root\cimv2:Win32_OperatingSystem=@");
+            DateTime lastBootUp = ManagementDateTimeConverter.ToDateTime(mo["LastBootUpTime"].ToString());
+            TimeSpan uptime = DateTime.Now.ToUniversalTime() - lastBootUp.ToUniversalTime();
+            return uptime;
+        }
+        public static string getSystem_uptime_str()
+        {
+            var uptime = getSystem_uptime();
+            return string.Format("{0:dd\\:hh\\:mm\\:ss}", uptime);
+        }
         #endregion
 
         #region getProgram

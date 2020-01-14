@@ -44,6 +44,8 @@ namespace getSystemResources
             sbAppendWriteLine("Domain Name: {0}", systemInfo.getSystem_domain());
 
             sbAppendWriteLine("Current Username: {0}", System.Security.Principal.WindowsIdentity.GetCurrent().Name);
+
+            sbAppendWriteLine("System Up Time: {0}", systemInfo.getSystem_uptime_str());
             #endregion
 
             #region CPU
