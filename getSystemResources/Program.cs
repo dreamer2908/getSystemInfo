@@ -31,6 +31,7 @@ namespace getSystemResources
             #region System
             sbAppendWriteLine("Mainboard Manufacturer: {0}", systemInfo.getMobo_manufacturer());
             sbAppendWriteLine("Mainboard Model: {0}", systemInfo.getMobo_model());
+            sbAppendWriteLine("Computer Serial Number: {0}", systemInfo.getMobo_serialNumber());
 
             sbAppendWriteLine("System Manufacturer: {0}", systemInfo.getSystem_manufacturer());
             sbAppendWriteLine("System Model: {0}", systemInfo.getSystem_model());

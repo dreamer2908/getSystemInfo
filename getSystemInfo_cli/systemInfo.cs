@@ -223,6 +223,11 @@ namespace getSystemInfo_cli
             return lookupValue_first("Win32_BaseBoard", "Product");
         }
 
+        public static string getMobo_serialNumber()
+        {
+            return lookupValue_first("Win32_BIOS", "SerialNumber");
+        }
+
         #endregion
 
         #region getHDD
