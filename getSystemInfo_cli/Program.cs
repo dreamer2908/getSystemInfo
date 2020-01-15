@@ -47,8 +47,9 @@ namespace getSystemInfo_cli
 
             try
             {
-                Console.WriteLine("systemInfo.getVideo_monitor1");
-                systemInfo.getVideo_monitor1();
+                Console.WriteLine("systemInfo.getVideo_monitor_wrapper");
+                var monitors = systemInfo.getVideo_monitor_wrapper();
+                misc.printStringArray(monitors.ToArray());
             }
             catch (Exception e)
             {

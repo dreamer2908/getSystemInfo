@@ -241,6 +241,18 @@ namespace getSystemResources
             }
             #endregion
 
+            #region Monitor
+            var gpu = systemInfo.getVideo_adapter();
+            sbAppendWriteLine("Display Adapter: {0}", gpu.Count);
+            sbAppendWriteLine(gpu.ToArray());
+
+            var monitors = systemInfo.getVideo_monitor_wrapper();
+            sbAppendWriteLine("Monitor Count: {0}", monitors.Count);
+            sbAppendWriteLine(monitors.ToArray());
+
+            #endregion
+
+
             File.WriteAllText(Path.Combine(Application.StartupPath.ToString(), string.Format("system_info_{0}.txt", getNowStringForFilename())), sb.ToString());
 
             Console.WriteLine("Done.");
@@ -286,6 +298,16 @@ namespace getSystemResources
         {
             Console.WriteLine(text, arg);
             sb.AppendLine(string.Format(text, arg));
+        }
+
+        public static void sbAppendWriteLine(string[] arr)
+        {
+            for (int i = 0; i < arr.Length; i++)
+            {
+                string s = arr[i];
+                string line = ("    " + i.ToString() + ": " + s);
+                sbAppendWriteLine(line);
+            }
         }
     }
 }
