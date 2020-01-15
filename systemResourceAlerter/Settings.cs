@@ -10,8 +10,8 @@ namespace systemResourceAlerter
 
     public static class Settings
     {
-        private static string SECTION = typeof(Settings).Namespace;//"SETTINGS";
-        private static string settingsPath = Application.StartupPath.ToString() + "\\settings.ini";
+        public static string SECTION = typeof(Settings).Namespace;//"SETTINGS";
+        public static string settingsPath = Application.StartupPath.ToString() + "\\settings.ini";
         [DllImport("kernel32")]
         private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
         [DllImport("kernel32")]
