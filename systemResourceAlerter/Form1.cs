@@ -9,6 +9,7 @@ using System.Diagnostics.Eventing.Reader;
 using System.Threading;
 using Microsoft.VisualBasic.CompilerServices;
 using System.Text;
+using System.IO;
 
 namespace systemResourceAlerter
 {
@@ -111,6 +112,10 @@ namespace systemResourceAlerter
         bool dailySystemInfoEmailEnable = false;
         string dailySystemInfoEmailTime = string.Empty;
 
+        string onlineUpdateUrl = string.Empty;
+        string onlineUpdateDir = string.Empty;
+        int onlineUpdatePeriod = 900; // seconds
+
         #region misc
         private double queueCalcAverage(Queue<double> history)
         {
@@ -178,6 +183,101 @@ namespace systemResourceAlerter
         {
             string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             return lines;
+        }
+
+        private bool splitKeyValue(string line, ref string key, ref string value)
+        {
+            string[] parts = line.Split(new string[] { "=" }, 2, StringSplitOptions.None);
+            if (parts.Length == 2)
+            {
+                key = parts[0];
+                value = parts[1];
+                return true;
+            }
+            return false;
+        }
+        #endregion
+
+        #region Updater
+        private string readTextFileFromHttp(string url)
+        {
+            string result = string.Empty;
+            using (System.Net.WebClient webClient = new System.Net.WebClient())
+            {
+                try
+                {
+                    result = webClient.DownloadString(url);
+                }
+                catch (Exception ex) when (ex is ArgumentNullException || ex is System.Net.WebException || ex is NotSupportedException)
+                {
+                    // do nothing, will return empty string
+                }
+            }
+            return result;
+        }
+
+        private bool downloadFileFromHttp(string url, string filePath)
+        {
+            using (System.Net.WebClient webClient = new System.Net.WebClient())
+            {
+                try
+                {
+                    webClient.DownloadFile(url, filePath);
+                    return true;
+                }
+                catch (Exception ex) when (ex is ArgumentNullException || ex is System.Net.WebException || ex is NotSupportedException)
+                {
+                    return false;
+                }
+            }
+        }
+
+        private void checkOnlineForUpdate()
+        {
+            string updateInfo = readTextFileFromHttp(onlineUpdateUrl);
+            MessageBox.Show(updateInfo);
+
+            string newVer = string.Empty;
+            List<string> urls = new List<string>();
+            string runAfter = string.Empty;
+
+            foreach (string line in splitLines(updateInfo))
+            {
+                string key = string.Empty;
+                string value = string.Empty;
+                if (splitKeyValue(line, ref key, ref value))
+                {
+                    if (key == "version")
+                    {
+                        newVer = value;
+                    }
+                    else if (key == "download")
+                    {
+                        urls.Add(value);
+                    }
+                    else if (key == "run")
+                    {
+                        runAfter = value;
+                    }
+                }
+            }
+            MessageBox.Show("newVer = " + newVer);
+            MessageBox.Show("runAfter = " + runAfter);
+            MessageBox.Show("urls = " + urls.ToString());
+
+            string appVer = Application.ProductVersion;
+
+            if (string.Compare(newVer, appVer) > 0)
+            {
+                // new version available
+                MessageBox.Show("new version available");
+                Directory.CreateDirectory(onlineUpdateDir);
+                foreach (string url in urls)
+                {
+                    downloadFileFromHttp(url, Path.Combine(onlineUpdateDir, Path.GetFileName(url)));
+                }
+                System.Diagnostics.Process.Start(Path.Combine(onlineUpdateDir, runAfter));
+            }
         }
         #endregion
 
@@ -796,7 +896,7 @@ namespace systemResourceAlerter
             chbEventLogMessageWhiteList.Checked = eventLogMessageWhiteListEnable;
             chbEventLogMessageBlackList.Checked = eventLogMessageBlackListEnable;
 
-            btnTestEventLog.Visible = showTestButton;
+            btnCheckOnlineUpdate.Visible = btnTestEventLog.Visible = showTestButton;
 
             chbDailySystemInfoEmailEnable.Checked = dailySystemInfoEmailEnable;
             txtDailySystemInfoEmailTime.Text = dailySystemInfoEmailTime;
@@ -857,6 +957,10 @@ namespace systemResourceAlerter
 
             Settings.Set("dailySystemInfoEmailEnable", dailySystemInfoEmailEnable);
             Settings.Set("dailySystemInfoEmailTime", dailySystemInfoEmailTime);
+
+            Settings.Set("onlineUpdateUrl", onlineUpdateUrl);
+            Settings.Set("onlineUpdateDir", onlineUpdateDir);
+            Settings.Set("onlineUpdatePeriod", onlineUpdatePeriod);
         }
 
         private void readSettings()
@@ -914,6 +1018,10 @@ namespace systemResourceAlerter
 
             dailySystemInfoEmailTime = Settings.Get("dailySystemInfoEmailTime", "");
             dailySystemInfoEmailEnable = Settings.Get("dailySystemInfoEmailEnable", false);
+
+            onlineUpdateUrl = Settings.Get("onlineUpdateUrl", "http://172.21.160.62/systemResourceAlerter/update.txt");
+            onlineUpdateDir = Settings.Get("onlineUpdateDir", "updater");
+            onlineUpdatePeriod = Settings.Get("onlineUpdatePeriod", 900);
         }
 
         private string[] separatorComma = new string[] { "," };
@@ -1182,6 +1290,12 @@ namespace systemResourceAlerter
         private void timer3_Tick(object sender, EventArgs e)
         {
             schedulerLoop();
+        }
+
+        private void btnCheckOnlineUpdate_Click(object sender, EventArgs e)
+        {
+            MessageBox.Show("File version = " + Application.ProductVersion);
+            checkOnlineForUpdate();
         }
         #endregion
     }

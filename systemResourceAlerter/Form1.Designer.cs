@@ -65,8 +65,10 @@
             this.label15 = new System.Windows.Forms.Label();
             this.numEmailPort = new System.Windows.Forms.NumericUpDown();
             this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.chbDailySystemInfoEmailEnable = new System.Windows.Forms.CheckBox();
             this.chbAutoHide = new System.Windows.Forms.CheckBox();
             this.chbAutoStart = new System.Windows.Forms.CheckBox();
+            this.txtDailySystemInfoEmailTime = new System.Windows.Forms.TextBox();
             this.txtEmailSubjectLog = new System.Windows.Forms.TextBox();
             this.label22 = new System.Windows.Forms.Label();
             this.txtEmailSubject = new System.Windows.Forms.TextBox();
@@ -119,9 +121,9 @@
             this.label20 = new System.Windows.Forms.Label();
             this.chbForwardEventLogs = new System.Windows.Forms.CheckBox();
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
-            this.chbDailySystemInfoEmailEnable = new System.Windows.Forms.CheckBox();
-            this.txtDailySystemInfoEmailTime = new System.Windows.Forms.TextBox();
             this.timer3 = new System.Windows.Forms.Timer(this.components);
+            this.timer4 = new System.Windows.Forms.Timer(this.components);
+            this.btnCheckOnlineUpdate = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -515,6 +517,17 @@
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Email";
             // 
+            // chbDailySystemInfoEmailEnable
+            // 
+            this.chbDailySystemInfoEmailEnable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chbDailySystemInfoEmailEnable.AutoSize = true;
+            this.chbDailySystemInfoEmailEnable.Location = new System.Drawing.Point(10, 184);
+            this.chbDailySystemInfoEmailEnable.Name = "chbDailySystemInfoEmailEnable";
+            this.chbDailySystemInfoEmailEnable.Size = new System.Drawing.Size(214, 17);
+            this.chbDailySystemInfoEmailEnable.TabIndex = 19;
+            this.chbDailySystemInfoEmailEnable.Text = "Send general system information daily at";
+            this.chbDailySystemInfoEmailEnable.UseVisualStyleBackColor = true;
+            // 
             // chbAutoHide
             // 
             this.chbAutoHide.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -536,6 +549,14 @@
             this.chbAutoStart.TabIndex = 16;
             this.chbAutoStart.Text = "Auto Start";
             this.chbAutoStart.UseVisualStyleBackColor = true;
+            // 
+            // txtDailySystemInfoEmailTime
+            // 
+            this.txtDailySystemInfoEmailTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.txtDailySystemInfoEmailTime.Location = new System.Drawing.Point(230, 181);
+            this.txtDailySystemInfoEmailTime.Name = "txtDailySystemInfoEmailTime";
+            this.txtDailySystemInfoEmailTime.Size = new System.Drawing.Size(70, 20);
+            this.txtDailySystemInfoEmailTime.TabIndex = 18;
             // 
             // txtEmailSubjectLog
             // 
@@ -735,6 +756,7 @@
             // 
             this.groupBox4.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.groupBox4.Controls.Add(this.btnCheckOnlineUpdate);
             this.groupBox4.Controls.Add(this.btnTestEventLog);
             this.groupBox4.Controls.Add(this.lnkEventLogMessageBlackList);
             this.groupBox4.Controls.Add(this.lnkEventLogTaskBlackList);
@@ -1094,29 +1116,25 @@
             // 
             this.backgroundWorker1.DoWork += new System.ComponentModel.DoWorkEventHandler(this.backgroundWorker1_DoWork);
             // 
-            // chbDailySystemInfoEmailEnable
-            // 
-            this.chbDailySystemInfoEmailEnable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chbDailySystemInfoEmailEnable.AutoSize = true;
-            this.chbDailySystemInfoEmailEnable.Location = new System.Drawing.Point(10, 184);
-            this.chbDailySystemInfoEmailEnable.Name = "chbDailySystemInfoEmailEnable";
-            this.chbDailySystemInfoEmailEnable.Size = new System.Drawing.Size(214, 17);
-            this.chbDailySystemInfoEmailEnable.TabIndex = 19;
-            this.chbDailySystemInfoEmailEnable.Text = "Send general system information daily at";
-            this.chbDailySystemInfoEmailEnable.UseVisualStyleBackColor = true;
-            // 
-            // txtDailySystemInfoEmailTime
-            // 
-            this.txtDailySystemInfoEmailTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtDailySystemInfoEmailTime.Location = new System.Drawing.Point(230, 181);
-            this.txtDailySystemInfoEmailTime.Name = "txtDailySystemInfoEmailTime";
-            this.txtDailySystemInfoEmailTime.Size = new System.Drawing.Size(70, 20);
-            this.txtDailySystemInfoEmailTime.TabIndex = 18;
-            // 
             // timer3
             // 
             this.timer3.Interval = 15000;
             this.timer3.Tick += new System.EventHandler(this.timer3_Tick);
+            // 
+            // timer4
+            // 
+            this.timer4.Interval = 900000;
+            // 
+            // btnCheckOnlineUpdate
+            // 
+            this.btnCheckOnlineUpdate.Location = new System.Drawing.Point(388, 142);
+            this.btnCheckOnlineUpdate.Name = "btnCheckOnlineUpdate";
+            this.btnCheckOnlineUpdate.Size = new System.Drawing.Size(75, 23);
+            this.btnCheckOnlineUpdate.TabIndex = 5;
+            this.btnCheckOnlineUpdate.Text = "Update";
+            this.btnCheckOnlineUpdate.UseVisualStyleBackColor = true;
+            this.btnCheckOnlineUpdate.Visible = false;
+            this.btnCheckOnlineUpdate.Click += new System.EventHandler(this.btnCheckOnlineUpdate_Click);
             // 
             // Form1
             // 
@@ -1249,6 +1267,8 @@
         private System.Windows.Forms.CheckBox chbDailySystemInfoEmailEnable;
         private System.Windows.Forms.TextBox txtDailySystemInfoEmailTime;
         private System.Windows.Forms.Timer timer3;
+        private System.Windows.Forms.Timer timer4;
+        private System.Windows.Forms.Button btnCheckOnlineUpdate;
     }
 }
 
