@@ -67,7 +67,9 @@ namespace getSystemInfo_cli
                         oneResult[i] = mo.Properties[wantedValues[i]].Value.ToString();
                     }
                     catch (Exception)
-                    { }
+                    {
+                        oneResult[i] = string.Empty;
+                    }
                 }
                 results.Add(oneResult);
             }
@@ -392,6 +394,56 @@ namespace getSystemInfo_cli
         //{
         //    monitorInfo_david.search();
         //}
+
+
+        public static List<string> getVideo_monitor_wrapper()
+        {
+            List<string> result = new List<string>();
+
+            // first try GetAllMonitorsFriendlyNames to get monitors' real name
+            try
+            {
+                foreach (string s in screenInterrogatory.GetAllMonitorsFriendlyNames())
+                {
+                    result.Add(s);
+                    // Console.WriteLine(s);
+                }
+            }
+            catch (System.ComponentModel.Win32Exception)
+            {
+                // GetAllMonitorsFriendlyNames got this exception when in RDP session
+            }
+
+            // if it can't get anything, query for generic names
+            if (result.Count == 0)
+            {
+                foreach (string s in getVideo_monitor0())
+                {
+                    result.Add(s);
+                    // Console.WriteLine(s);
+                }
+            }
+
+            return result;
+        }
+
+        // query Win32_DesktopMonitor to get monitors
+        // ignore ones without PNPDeviceID, as they're not real monitor and thus unwanted
+        // results are usually only Generic *** Monitor
+        public static List<string> getVideo_monitor0()
+        {
+            List<string> result = new List<string>();
+            var genericMons = lookupValue_all("Win32_DesktopMonitor", new string[] { "Name", "PNPDeviceID" });
+            foreach (var genericMon in genericMons)
+            {
+                // misc.printStringArray(genericMon);
+                if (genericMon[1].Length > 0)
+                {
+                    result.Add(genericMon[0]);
+                }
+            }
+            return result;
+        }
 
         #endregion
 
