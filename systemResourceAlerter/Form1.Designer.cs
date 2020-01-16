@@ -1124,6 +1124,7 @@
             // timer4
             // 
             this.timer4.Interval = 900000;
+            this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
             // btnCheckOnlineUpdate
             // 

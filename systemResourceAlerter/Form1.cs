@@ -19,6 +19,8 @@ namespace systemResourceAlerter
         {
             InitializeComponent();
 
+            Directory.SetCurrentDirectory(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath));
+
             readSettings();
             loadSettings();
 
@@ -114,7 +116,7 @@ namespace systemResourceAlerter
 
         string onlineUpdateUrl = string.Empty;
         string onlineUpdateDir = string.Empty;
-        int onlineUpdatePeriod = 900; // seconds
+        int onlineUpdatePeriod = 900; // seconds. set this to 0 or negative to disable update
 
         #region misc
         private double queueCalcAverage(Queue<double> history)
@@ -232,10 +234,13 @@ namespace systemResourceAlerter
             }
         }
 
-        private void checkOnlineForUpdate()
+        private void checkOnlineForUpdate(bool debug=false)
         {
             string updateInfo = readTextFileFromHttp(onlineUpdateUrl);
-            MessageBox.Show(updateInfo);
+            if (debug)
+            {
+                MessageBox.Show(updateInfo);
+            }
 
             string newVer = string.Empty;
             List<string> urls = new List<string>();
@@ -261,22 +266,31 @@ namespace systemResourceAlerter
                     }
                 }
             }
-            MessageBox.Show("newVer = " + newVer);
-            MessageBox.Show("runAfter = " + runAfter);
-            MessageBox.Show("urls = " + urls.ToString());
+
+            if (debug)
+            {
+                MessageBox.Show("newVer = " + newVer);
+                MessageBox.Show("runAfter = " + runAfter);
+                MessageBox.Show("urls = " + String.Join("\n", urls));
+            }
 
             string appVer = Application.ProductVersion;
 
             if (string.Compare(newVer, appVer) > 0)
             {
                 // new version available
-                MessageBox.Show("new version available");
+                if (debug)
+                {
+                    MessageBox.Show("new version available");
+                }
+
                 Directory.CreateDirectory(onlineUpdateDir);
                 foreach (string url in urls)
                 {
                     downloadFileFromHttp(url, Path.Combine(onlineUpdateDir, Path.GetFileName(url)));
                 }
                 System.Diagnostics.Process.Start(Path.Combine(onlineUpdateDir, runAfter));
+                Application.Exit();
             }
         }
         #endregion
@@ -1022,6 +1036,13 @@ namespace systemResourceAlerter
             onlineUpdateUrl = Settings.Get("onlineUpdateUrl", "http://172.21.160.62/systemResourceAlerter/update.txt");
             onlineUpdateDir = Settings.Get("onlineUpdateDir", "updater");
             onlineUpdatePeriod = Settings.Get("onlineUpdatePeriod", 900);
+
+            if (onlineUpdatePeriod > 0)
+            {
+                timer4.Interval = onlineUpdatePeriod * 1000;
+                timer4.Stop();
+                timer4.Start();
+            }
         }
 
         private string[] separatorComma = new string[] { "," };
@@ -1295,6 +1316,11 @@ namespace systemResourceAlerter
         private void btnCheckOnlineUpdate_Click(object sender, EventArgs e)
         {
             MessageBox.Show("File version = " + Application.ProductVersion);
+            checkOnlineForUpdate(true);
+        }
+
+        private void timer4_Tick(object sender, EventArgs e)
+        {
             checkOnlineForUpdate();
         }
         #endregion

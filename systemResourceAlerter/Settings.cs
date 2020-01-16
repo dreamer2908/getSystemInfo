@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using System.IO;
 
 namespace systemResourceAlerter
 {
@@ -11,7 +12,7 @@ namespace systemResourceAlerter
     public static class Settings
     {
         public static string SECTION = typeof(Settings).Namespace;//"SETTINGS";
-        public static string settingsPath = Application.StartupPath.ToString() + "\\settings.ini";
+        public static string settingsPath = Path.Combine(Path.GetDirectoryName(new Uri(System.Reflection.Assembly.GetExecutingAssembly().CodeBase).LocalPath), "settings.ini");
         [DllImport("kernel32")]
         private static extern long WritePrivateProfileString(string section, string key, string val, string filePath);
         [DllImport("kernel32")]

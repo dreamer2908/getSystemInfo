@@ -27,6 +27,7 @@ namespace getSystemResources
             //}
 
             sbAppendWriteLine("System Time: " + getNowString());
+            sbAppendWriteLine("Application Version: " + Application.ProductVersion);
 
             #region System
             sbAppendWriteLine("Mainboard Manufacturer: {0}", systemInfo.getMobo_manufacturer());
