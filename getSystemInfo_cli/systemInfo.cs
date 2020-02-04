@@ -283,15 +283,16 @@ namespace getSystemInfo_cli
             string devAddr = addr.ToLower().Replace("\\\\.\\physicaldrive", "/dev/pd");
             // Console.WriteLine(devAddr);
             string result = string.Empty;
+            string error = string.Empty;
 
-            int exitCode = executeTask("smartctl.exe", "-a " + devAddr, true, out result);
+            int exitCode = executeTask("smartctl.exe", "-a " + devAddr, true, out result, out error);
             // Console.WriteLine(exitCode);
             // Console.WriteLine(result);
 
-            return result;
+            return (result != null) ? result : error;
         }
 
-        public static int executeTask(string executable, string argument, bool hideConsole, out string output)
+        public static int executeTask(string executable, string argument, bool hideConsole, out string output, out string error)
         {
             Process proc = new Process();
             proc.StartInfo.FileName = executable;
@@ -312,17 +313,27 @@ namespace getSystemInfo_cli
             proc.OutputDataReceived += (sender, args) => sb.AppendLine(args.Data);
             proc.ErrorDataReceived += (sender, args) => sb.AppendLine(args.Data);
 
-            proc.Start();
+            try
+            {
+                proc.Start();
 
-            // start capturing console output
-            proc.BeginOutputReadLine();
-            proc.BeginErrorReadLine();
+                // start capturing console output
+                proc.BeginOutputReadLine();
+                proc.BeginErrorReadLine();
 
-            proc.WaitForExit();
+                proc.WaitForExit();
 
-            output = sb.ToString().Trim();
+                output = sb.ToString().Trim();
+                error = null;
 
-            return proc.ExitCode;
+                return proc.ExitCode;
+            }
+            catch (System.ComponentModel.Win32Exception e) // mostly for file not found
+            {
+                output = null;
+                error = e.ToString();
+                return -1;
+            }
         }
 
         #endregion

@@ -258,7 +258,17 @@ namespace getSystemResources
             #endregion
 
             sbAppendWriteLine("End Time: " + getNowString());
-            File.WriteAllText(Path.Combine(Application.StartupPath.ToString(), string.Format("system_info_{0}.txt", getNowStringForFilename())), sb.ToString());
+            string outputFilePath = Path.Combine(Application.StartupPath.ToString(), string.Format("system_info_{0}.txt", getNowStringForFilename()));
+            try
+            {
+                File.WriteAllText(outputFilePath, sb.ToString());
+                Console.WriteLine("Log File: {0}", outputFilePath);
+            }
+            catch (IOException e)
+            {
+                Console.WriteLine("Can't write to log file:");
+                Console.WriteLine(addPaddingToLines(e.ToString(), "    "));
+            }
 
             Console.WriteLine("Done.");
             // Console.ReadLine();
