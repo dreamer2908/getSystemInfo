@@ -59,7 +59,7 @@ namespace getSystemResources
             sbAppendWriteLine("CPU Socket Count: {0}", allCPUs.Count);
             for (int i = 0; i < allCPUs.Count; i++)
             {
-                sbAppendWriteLine("CPU #{0}", i);
+                sbAppendWriteLine("CPU #{0}", i+1);
                 sbAppendWriteLine("    CPU Name: {0}", allCPUs[i][0]);
                 sbAppendWriteLine("    CPU Core Count: {0}", allCPUs[i][1]);
                 sbAppendWriteLine("    CPU Thread Count: {0}", allCPUs[i][2]);
@@ -310,7 +310,7 @@ namespace getSystemResources
             for (int i = 0; i < arr.Length; i++)
             {
                 string s = arr[i];
-                string line = ("    " + i.ToString() + ": " + s);
+                string line = ("    " + (i+1).ToString() + ": " + s);
                 sbAppendWriteLine(line);
             }
         }
