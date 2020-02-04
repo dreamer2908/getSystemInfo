@@ -257,7 +257,7 @@ namespace getSystemResources
 
             #endregion
 
-
+            sbAppendWriteLine("End Time: " + getNowString());
             File.WriteAllText(Path.Combine(Application.StartupPath.ToString(), string.Format("system_info_{0}.txt", getNowStringForFilename())), sb.ToString());
 
             Console.WriteLine("Done.");
