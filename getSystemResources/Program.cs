@@ -41,11 +41,15 @@ namespace getSystemResources
             // Console.WriteLine(misc.byteToHumanSize(systemInfo.getSystem_systemDriveTotalSpace()));
 
             sbAppendWriteLine("System OS: {0}", systemInfo.getSystem_OS());
+            sbAppendWriteLine("System OS Root Path: {0}", Directory.GetParent(Environment.GetFolderPath(Environment.SpecialFolder.System)));
             sbAppendWriteLine("System Language: {0}", systemInfo.getSystem_language());
             sbAppendWriteLine("Computer Name: {0}", systemInfo.getSystem_name());
             sbAppendWriteLine("Domain Name: {0}", systemInfo.getSystem_domain());
 
             sbAppendWriteLine("Current Username: {0}", System.Security.Principal.WindowsIdentity.GetCurrent().Name);
+            var loggonUsers = systemInfo.getSystem_listLoggonUsers().ToArray();
+            sbAppendWriteLine("Logged on Users: {0}", loggonUsers.Length);
+            sbAppendWriteLine(loggonUsers);
 
             sbAppendWriteLine("System Up Time: {0}", systemInfo.getSystem_uptime_str());
             #endregion

@@ -98,5 +98,18 @@ namespace getSystemInfo_cli
                 Console.WriteLine(i.ToString() + ": " + s);
             }
         }
+
+        public static List<string> getDistinct_stringList(List<string> list)
+        {
+            List<string> result = new List<string>();
+            foreach(string s in list)
+            {
+                if (!result.Contains(s))
+                {
+                    result.Add(s);
+                }
+            }
+            return result;
+        }
     }
 }

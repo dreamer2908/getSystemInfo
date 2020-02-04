@@ -91,6 +91,13 @@ namespace getSystemInfo_cli
             return count;
         }
 
+        public static ManagementObjectCollection runWmiQuery(string queryString)
+        {
+            ManagementObjectSearcher query = new ManagementObjectSearcher(queryString);
+            ManagementObjectCollection moc = query.Get();
+            return moc;
+        }
+
         #endregion
 
         #region getCPU
@@ -674,6 +681,30 @@ namespace getSystemInfo_cli
             }
 
             return result2;
+        }
+
+        public static List<string> getSystem_listLoggonUsers()
+        {
+            List<string> result = new List<string>();
+
+            var processList = runWmiQuery("Select * from Win32_Process Where Name = \"Explorer.exe\" ");
+
+            foreach (ManagementObject obj in processList)
+            {
+                string owner = string.Empty;
+                string[] argList = new string[] { string.Empty, string.Empty };
+                int returnVal = Convert.ToInt32(obj.InvokeMethod("GetOwner", argList));
+                if (returnVal == 0)
+                {
+                    // DOMAIN\user
+                    owner = argList[1] + "\\" + argList[0];
+                    // Console.WriteLine(owner);
+                    result.Add(owner);
+                }
+            }
+
+            // remove duplicates and return
+            return misc.getDistinct_stringList(result);
         }
 
         // note that it won't work with network share drive
