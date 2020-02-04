@@ -802,8 +802,9 @@ namespace systemResourceAlerter
         private string getSystemInfo()
         {
             string output = string.Empty;
+            string error = string.Empty;
 
-            getSystemInfo_cli.systemInfo.executeTask("getSystemResources.exe", "", true, out output);
+            getSystemInfo_cli.systemInfo.executeTask("getSystemResources.exe", "", true, out output, out error);
 
             return output;
         }
