@@ -488,9 +488,9 @@ namespace systemResourceAlerter
 
             // MessageBox.Show(string.Format("myEventEntries count = {0}", myEventEntries.Count));
 
-            foreach (var me in myEventEntries)
+            if (myEventEntries.Count > 0)
             {
-                string email_body = writeEmailBody(me);
+                string email_body = writeEventForwardEmailBody(myEventEntries);
 
                 // MessageBox.Show(email_body);
 
@@ -507,7 +507,21 @@ namespace systemResourceAlerter
             mutexEventForward.ReleaseMutex();
         }
 
-        private static string writeEmailBody(myEventEntry me)
+        private static string eventSeparator = Environment.NewLine + Environment.NewLine + "####################################################################" + Environment.NewLine + Environment.NewLine;
+
+        private static string writeEventForwardEmailBody(List<myEventEntry> myEventEntries)
+        {
+            List<String> body = new List<string>();
+
+            foreach (var me in myEventEntries)
+            {
+                body.Add(writeEventForwardEmailBody(me));
+            }
+
+            return string.Join(eventSeparator, body);
+        }
+
+        private static string writeEventForwardEmailBody(myEventEntry me)
         {
             StringBuilder sb = new StringBuilder();
 
@@ -1292,7 +1306,7 @@ namespace systemResourceAlerter
             for (int i = 0; i < myEventEntries.Count; i++)
             {
                 myEventEntry me = myEventEntries[i];
-                string email_body = writeEmailBody(me);
+                string email_body = writeEventForwardEmailBody(me);
 
                 sb.AppendLine();
                 sb.AppendLine(separator);
