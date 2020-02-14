@@ -168,7 +168,7 @@ namespace systemResourceAlerter
 
         private string convertTextToHtml(string input)
         {
-            string[] lines = splitLines(input);
+            string[] lines = customSplitLines(input);
 
             StringBuilder sb = new StringBuilder();
 
@@ -185,6 +185,46 @@ namespace systemResourceAlerter
         {
             string[] lines = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
             return lines;
+        }
+
+        private static string[] customSplitLines(string text)
+        {
+            List<string> result = new List<string>();
+
+            string empty = " "; // workaround for Outlook ignoring totally empty line
+
+            string thisLine = empty;
+            int i = 0;
+            while (i < text.Length)
+            {
+                if (text[i] == '\n')
+                {
+                    result.Add(thisLine);
+                    thisLine = empty;
+                    i++;
+                }
+                else if (text[i] == '\r')
+                {
+                    result.Add(thisLine);
+                    thisLine = empty;
+
+                    if (text[i+1] == '\n')
+                    {
+                        i += 2;
+                    }
+                    else
+                    {
+                        i += 1;
+                    }
+                }
+                else
+                {
+                    thisLine = thisLine + text[i].ToString();
+                    i++;
+                }
+            }
+
+            return result.ToArray();
         }
 
         private bool splitKeyValue(string line, ref string key, ref string value)
