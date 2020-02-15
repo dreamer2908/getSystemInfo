@@ -492,7 +492,7 @@ namespace systemResourceAlerter
 
             if ((alertInProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
             {
-                string email_body = "At system time: " + getNowString();
+                string email_body = emailHeadline + "At system time: " + getNowString();
                 double avgCPU = queueCalcAverage(cpuUsageHistory);
                 double avgRAM = queueCalcAverage(ramUsageHistory);
                 var alertDuration = (DateTime.Now - alertBegin);
@@ -530,7 +530,7 @@ namespace systemResourceAlerter
 
             if (myEventEntries.Count > 0)
             {
-                string email_body = writeEventForwardEmailBody(myEventEntries);
+                string email_body = emailHeadline + writeEventForwardEmailBody(myEventEntries);
 
                 // MessageBox.Show(email_body);
 
@@ -547,11 +547,14 @@ namespace systemResourceAlerter
             mutexEventForward.ReleaseMutex();
         }
 
+        private static string emailHeadline = "*** This is a system generated email, do not reply to this email id ***\n \n";
         private static string eventSeparator = "\n \n####################################################################\n \n";
 
         private static string writeEventForwardEmailBody(List<myEventEntry> myEventEntries)
         {
             List<String> body = new List<string>();
+
+            body.Add(string.Format("Event Count: {0}", myEventEntries.Count));
 
             foreach (var me in myEventEntries)
             {
@@ -582,7 +585,7 @@ namespace systemResourceAlerter
 
         private void sendDailySystemInfoEmail()
         {
-            string email_body = getSystemInfo();
+            string email_body = emailHeadline + getSystemInfo();
             // MessageBox.Show(email_body);
 
             sendEmail(email_to, email_subject, email_body);
