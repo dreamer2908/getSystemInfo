@@ -10,6 +10,7 @@ using System.Threading;
 using Microsoft.VisualBasic.CompilerServices;
 using System.Text;
 using System.IO;
+using System.Drawing;
 
 namespace systemResourceAlerter
 {
@@ -425,27 +426,27 @@ namespace systemResourceAlerter
 
         #region email
         // single receipent
-        private void sendEmail(string email_to, string email_subject, string email_body)
+        private void sendEmail(string email_to, string email_subject, string email_body, List<string> attachments = null)
         {
-            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body);
+            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body, attachments);
         }
 
         // multiple receipents
-        private void sendEmail(List<string> email_to, string email_subject, string email_body)
+        private void sendEmail(List<string> email_to, string email_subject, string email_body, List<string> attachments = null)
         {
-            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body);
+            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, email_to, email_subject, email_body, attachments);
         }
 
         // single receipent
-        private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, string email_to, string email_subject, string email_body)
+        private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, string email_to, string email_subject, string email_body, List<string> attachments = null)
         {
             List<string> to = new List<string>();
             to.Add(email_to);
-            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, to, email_subject, email_body);
+            sendEmail(email_host, email_port, email_ssl, email_from, email_user, email_password, to, email_subject, email_body, attachments);
         }
 
         // multiple receipents
-        private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, List<string> email_to, string email_subject, string email_body)
+        private void sendEmail(string email_host, int email_port, bool email_ssl, string email_from, string email_user, string email_password, List<string> email_to, string email_subject, string email_body, List<string> attachments = null)
         {
             using (SmtpClient SmtpServer = new SmtpClient(email_host))
             {
@@ -461,6 +462,16 @@ namespace systemResourceAlerter
                         mail.Subject = email_subject;
                         mail.IsBodyHtml = true;
                         mail.Body = convertTextToHtml(email_body);
+
+                        // attach files
+                        if (attachments != null)
+                        {
+                            foreach (var filename in attachments)
+                            {
+                                mail.Attachments.Add(new Attachment(filename));
+                                // MessageBox.Show("Added attachment to email");
+                            }
+                        }
 
                         SmtpServer.Port = email_port;
                         SmtpServer.Credentials = new System.Net.NetworkCredential(email_user, email_password);
@@ -588,7 +599,16 @@ namespace systemResourceAlerter
             string email_body = emailHeadline + getSystemInfo();
             // MessageBox.Show(email_body);
 
-            sendEmail(email_to, email_subject, email_body);
+            // try to take screenshot, attach it to email if ok
+            string imgFilename = "screenshot.png";
+            List<string> attachments = new List<string>();
+            if (takeScreenShot(imgFilename))
+            {
+                attachments.Add(imgFilename);
+                // MessageBox.Show("Added image to attachment name list");
+            }
+
+            sendEmail(email_to, email_subject, email_body, attachments);
         }
         #endregion
 
@@ -864,6 +884,40 @@ namespace systemResourceAlerter
             getSystemInfo_cli.systemInfo.executeTask("getSystemResources.exe", "", true, out output, out error);
 
             return output;
+        }
+
+        // return true on success, false on any exception
+        private static bool takeScreenShot(string output = "screenshot.png")
+        {
+            int screenLeft = SystemInformation.VirtualScreen.Left;
+            int screenTop = SystemInformation.VirtualScreen.Top;
+            int screenWidth = SystemInformation.VirtualScreen.Width;
+            int screenHeight = SystemInformation.VirtualScreen.Height;
+
+            // Create a bitmap of the appropriate size to receive the full-screen screenshot.
+            using (Bitmap bitmap = new Bitmap(screenWidth, screenHeight))
+            {
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    try
+                    {
+                        g.CopyFromScreen(screenLeft, screenTop, 0, 0, bitmap.Size);
+                        bitmap.Save(output);  // saves the image to file, format guessed from filename
+                    }
+                    catch (Exception ex) when (
+                        ex is System.ComponentModel.Win32Exception ||
+                        ex is ArgumentNullException ||
+                        ex is System.Runtime.InteropServices.ExternalException
+                    )
+                    {
+                        // Win32Exception when the session is locked
+                        // ArgumentNullException when output filename is invalid
+                        // ExternalException when it fails to output file for whatever reason
+                        return false;
+                    }
+                }
+            }
+            return true;
         }
         #endregion
 
