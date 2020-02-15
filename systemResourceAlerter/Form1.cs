@@ -168,7 +168,7 @@ namespace systemResourceAlerter
 
         private string convertTextToHtml(string input)
         {
-            string[] lines = customSplitLines(input);
+            string[] lines = splitLines(input);
 
             StringBuilder sb = new StringBuilder();
 
@@ -497,15 +497,15 @@ namespace systemResourceAlerter
                 double avgRAM = queueCalcAverage(ramUsageHistory);
                 var alertDuration = (DateTime.Now - alertBegin);
 
-                email_body += "\n\n" + string.Format("Average CPU usage over {1} seconds period is {0:0.00}%.", avgCPU, cpuUsageHistory.Count);
+                email_body += "\n \n" + string.Format("Average CPU usage over {1} seconds period is {0:0.00}%.", avgCPU, cpuUsageHistory.Count);
                 email_body += "\n" + string.Format("Average RAM usage over {1} seconds period is {0:0.00}%.", avgRAM, ramUsageHistory.Count);
 
                 if (alertInProgress)
                 {
-                    email_body += "\n\n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
+                    email_body += "\n \n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
                 } else
                 {
-                    email_body += "\n\n" + string.Format("No alert detected.\n");
+                    email_body += "\n \n" + string.Format("No alert detected.\n");
                 }
 
                 lastEmailTimestamp = DateTime.Now;
@@ -547,7 +547,7 @@ namespace systemResourceAlerter
             mutexEventForward.ReleaseMutex();
         }
 
-        private static string eventSeparator = Environment.NewLine + Environment.NewLine + "####################################################################" + Environment.NewLine + Environment.NewLine;
+        private static string eventSeparator = "\n \n####################################################################\n \n";
 
         private static string writeEventForwardEmailBody(List<myEventEntry> myEventEntries)
         {
@@ -566,7 +566,7 @@ namespace systemResourceAlerter
             StringBuilder sb = new StringBuilder();
 
             sb.AppendLine("Windows Event Log:");
-            sb.AppendLine();
+            sb.AppendLine(" ");
             sb.AppendLine(string.Format("Category: {0}", me.category));
             sb.AppendLine(string.Format("Level: {0}", me.level));
             sb.AppendLine(string.Format("Timestamp: {0}", me.timestamp));
@@ -574,7 +574,7 @@ namespace systemResourceAlerter
             sb.AppendLine(string.Format("Source: {0}", me.source));
             sb.AppendLine(string.Format("Event ID: {0}", me.eventID));
             sb.AppendLine(string.Format("Task Category: {0}", me.taskCategory));
-            sb.AppendLine("Message: ");
+            sb.AppendLine("Message:\n ");
             sb.AppendLine(me.message);
 
             return sb.ToString();
