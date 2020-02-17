@@ -596,17 +596,24 @@ namespace systemResourceAlerter
 
         private void sendDailySystemInfoEmail()
         {
-            string email_body = emailHeadline + getSystemInfo();
-            // MessageBox.Show(email_body);
-
             // try to take screenshot, attach it to email if ok
             string imgFilename = "screenshot.png";
             List<string> attachments = new List<string>();
-            if (takeScreenShot(imgFilename))
+            string screenshotMsg;
+            bool screenshotOk = takeScreenShot(imgFilename);
+            if (screenshotOk)
             {
                 attachments.Add(imgFilename);
                 // MessageBox.Show("Added image to attachment name list");
+                screenshotMsg = "Automatic screenshot available. See the attachment.\n \n";
             }
+            else
+            {
+                screenshotMsg = "Automatic screenshot failed. Session locked?\n \n";
+            }
+
+            string email_body = emailHeadline + screenshotMsg + getSystemInfo();
+            // MessageBox.Show(email_body);
 
             sendEmail(email_to, email_subject, email_body, attachments);
         }
