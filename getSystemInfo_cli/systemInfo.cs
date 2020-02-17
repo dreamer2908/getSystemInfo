@@ -478,6 +478,7 @@ namespace getSystemInfo_cli
         {
             public string name;
             public string description;
+            public string PnpInstanceID;
             public string MAC;
             public bool isUp;
             public bool isDhcpEnabled;
@@ -508,7 +509,7 @@ namespace getSystemInfo_cli
 
             return false;
         }
-        public static List<sruct_networkInterfaceInfo> getNetwork_interfaces()
+        public static List<sruct_networkInterfaceInfo> getNetwork_interfaces(bool dontFilterInstanceID = false)
         {
             List<sruct_networkInterfaceInfo> result = new List<sruct_networkInterfaceInfo>();
 
@@ -525,7 +526,10 @@ namespace getSystemInfo_cli
 
                     // filter real network cards. the device instance path should have "PCI" or "USB" at the beginning or sometimes in the middle (rare)
                     // virtual interface' device instance path start with "ROOT"
-                    if (fPnpInstanceID.Length > 3 && (fPnpInstanceID.StartsWith("PCI") || fPnpInstanceID.StartsWith("USB") || fPnpInstanceID.Contains("PCI") || fPnpInstanceID.StartsWith("COMPOSITEBUS")))
+                    // some virtual devices should be accepted:
+                    // - Broadcom Team (BASP Virtual Adapter): ROOT\BRCM_BLFM\<number>
+                    // - Microsoft Network Adapter Multiplexor Driver: COMPOSITEBUS\MS_IMPLAT_MP\{uuid}
+                    if (fPnpInstanceID.Length > 0 && (dontFilterInstanceID || fPnpInstanceID.StartsWith("PCI") || fPnpInstanceID.StartsWith("USB") || fPnpInstanceID.Contains("PCI") || fPnpInstanceID.StartsWith("COMPOSITEBUS") || fPnpInstanceID.StartsWith("ROOT\\BRCM_BLFM\\")))
                     {
                         bool isDhcpEnabled;
                         try
@@ -540,6 +544,7 @@ namespace getSystemInfo_cli
                         {
                             name = adapter.Name,
                             description = adapter.Description,
+                            PnpInstanceID = fPnpInstanceID,
                             MAC = adapter.GetPhysicalAddress().ToString(),
                             isUp = (adapter.OperationalStatus == OperationalStatus.Up),
                             isDhcpEnabled = isDhcpEnabled,

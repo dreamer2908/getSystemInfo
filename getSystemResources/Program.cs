@@ -183,6 +183,7 @@ namespace getSystemResources
                 sbAppendWriteLine("Network Interface #{0}:", i + 1);
                 sbAppendWriteLine("    Name: {0}", network.name);
                 sbAppendWriteLine("    Description: {0}", network.description);
+                sbAppendWriteLine("    Device Instance Path: {0}", network.PnpInstanceID);
                 sbAppendWriteLine("    MAC Address: {0}", network.MAC);
                 sbAppendWriteLine("    Status: {0}", network.isUp ? "Up" : "Down");
                 sbAppendWriteLine("    Speed: {0}", misc.bpsToHumanSize(network.speed));
