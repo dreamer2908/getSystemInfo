@@ -11,6 +11,7 @@ using Microsoft.VisualBasic.CompilerServices;
 using System.Text;
 using System.IO;
 using System.Drawing;
+using System.Globalization;
 
 namespace systemResourceAlerter
 {
@@ -107,6 +108,7 @@ namespace systemResourceAlerter
         bool showTestButton = false;
 
         DateTime lastLogEntryTime = DateTime.Now; // .Subtract(new TimeSpan(1, 00, 0));
+        TimeSpan lastLogEntryTime_maxDistance = new TimeSpan(24, 00, 0);
 
         Mutex mutexEventForward = new Mutex();
 
@@ -141,14 +143,42 @@ namespace systemResourceAlerter
             return DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
         }
 
+        public static string datetimeCommonFormatString = "yyyy-MM-dd HH:mm:ss";
         public static string getNowString()
         {
-            return DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+            return formatDateTime(DateTime.Now);
         }
 
         public static string formatDateTime(DateTime d)
         {
-            return d.ToString("yyyy-MM-dd HH:mm:ss");
+            return d.ToString(datetimeCommonFormatString);
+        }
+
+        public static DateTime parseDateTime(string s)
+        {
+            try
+            {
+                return DateTime.ParseExact(s, datetimeCommonFormatString, CultureInfo.InvariantCulture);
+            }
+            catch (FormatException)
+            {
+                return DateTime.MinValue;
+            }
+        }
+
+        public static DateTime parseDateTime(string s, TimeSpan maxDistanceFromNow)
+        {
+            var d = parseDateTime(s);
+            var now = DateTime.Now;
+            if (now - d > maxDistanceFromNow)
+            {
+                d = now.Subtract(maxDistanceFromNow);
+            }
+            else if (d - now > maxDistanceFromNow)
+            {
+                d = now.Add(maxDistanceFromNow);
+            }
+            return d;
         }
 
         public static string formatTimeSpan(TimeSpan s)
@@ -787,6 +817,7 @@ namespace systemResourceAlerter
             }
 
             lastLogEntryTime = endTime;
+            writeLastLogEntryTimeToSetting();
 
             return result;
         }
@@ -1094,6 +1125,8 @@ namespace systemResourceAlerter
             Settings.Set("onlineUpdateUrl", onlineUpdateUrl);
             Settings.Set("onlineUpdateDir", onlineUpdateDir);
             Settings.Set("onlineUpdatePeriod", onlineUpdatePeriod);
+
+            writeLastLogEntryTimeToSetting();
         }
 
         private void readSettings()
@@ -1162,6 +1195,9 @@ namespace systemResourceAlerter
                 timer4.Stop();
                 timer4.Start();
             }
+
+            string timeTmp = Settings.Get("lastLogEntryTime", string.Empty);
+            lastLogEntryTime = parseDateTime(timeTmp, lastLogEntryTime_maxDistance);
         }
 
         private string[] separatorComma = new string[] { "," };
@@ -1177,6 +1213,11 @@ namespace systemResourceAlerter
                     target.Add(sub);
                 }
             }
+        }
+
+        private void writeLastLogEntryTimeToSetting()
+        {
+            Settings.Set("lastLogEntryTime", formatDateTime(lastLogEntryTime));
         }
         #endregion
 
