@@ -781,7 +781,7 @@ namespace getSystemInfo_cli
         #region getProgram
 
         // get software list
-        private static string varToString(object v) => v != null ? v.ToString() : string.Empty;
+        private static string varToString(object v) => v != null ? v.ToString().Trim() : string.Empty;
         private static long varToLong(object v)
         {
             return v != null ? long.Parse(v.ToString()) : 0;
@@ -790,32 +790,56 @@ namespace getSystemInfo_cli
         {
             List<string[]> result = new List<string[]>();
 
-            string uninstallKey = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
-            using (RegistryKey rk = Registry.LocalMachine.OpenSubKey(uninstallKey))
+            List<RegistryKey> rks = new List<RegistryKey>();
+
+            string uninstallKeyUser = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            string uninstallKey32 = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
+            string uninstallKey64 = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
+            rks.Add(Registry.CurrentUser.OpenSubKey(uninstallKeyUser));
+            rks.Add(Registry.LocalMachine.OpenSubKey(uninstallKey32));
+            try
+            {
+                rks.Add(Registry.LocalMachine.OpenSubKey(uninstallKey64));
+            }
+            catch (Exception) { }
+
+            foreach (RegistryKey rk in rks)
             {
                 foreach (string skName in rk.GetSubKeyNames())
                 {
                     using (RegistryKey sk = rk.OpenSubKey(skName))
                     {
                         // note that these value might be not available, i.e null is returned
-                        var displayName = sk.GetValue("DisplayName");
-                        var publisher = sk.GetValue("Publisher");
-                        var installDate = sk.GetValue("InstallDate");
-                        var size = sk.GetValue("EstimatedSize");
-                        var version = sk.GetValue("DisplayVersion");
+                        var displayName = varToString(sk.GetValue("DisplayName"));
+                        var publisher = varToString(sk.GetValue("Publisher"));
+                        var installDate = varToString(sk.GetValue("InstallDate"));
+                        var size = varToLong(sk.GetValue("EstimatedSize"));
+                        var version = varToString(sk.GetValue("DisplayVersion"));
+                        var uninstallString = varToString(sk.GetValue("UninstallString"));
+                        var releaseType = varToString(sk.GetValue("ReleaseType"));
+                        var systemComponent = varToString(sk.GetValue("SystemComponent"));
+                        var systemComponentLong = varToLong(sk.GetValue("SystemComponent"));
+                        var parentName = varToString(sk.GetValue("ParentDisplayName"));
 
-                        // ignore nameless programs
-                        if (displayName == null)
+                        // ignore nameless programs and system components to match Control Panel's behaviour
+                        // see https://stackoverflow.com/questions/15524161/
+                        if (string.IsNullOrEmpty(displayName)
+                            || string.IsNullOrEmpty(uninstallString)
+                            || !string.IsNullOrEmpty(releaseType)
+                            || !string.IsNullOrEmpty(parentName)
+                            || (!string.IsNullOrEmpty(systemComponent) && systemComponent != 0.ToString())
+                            )
                             continue;
 
-                        string[] thisOne = new string[6];
+                        string[] thisOne = new string[7];
 
                         thisOne[0] = skName;
-                        thisOne[1] = varToString(displayName);
-                        thisOne[2] = varToString(publisher);
-                        thisOne[3] = varToString(installDate);
-                        thisOne[4] = misc.byteToHumanSize(varToLong(size));
-                        thisOne[5] = varToString(version);
+                        thisOne[1] = displayName;
+                        thisOne[2] = publisher;
+                        thisOne[3] = installDate;
+                        thisOne[4] = misc.byteToHumanSize(size);
+                        thisOne[5] = version;
+                        thisOne[6] = uninstallString;
 
                         result.Add(thisOne);
 
@@ -840,6 +864,8 @@ namespace getSystemInfo_cli
                         //Console.WriteLine("==============================");
                     }
                 }
+
+                rk.Close();
             }
 
             return result;
