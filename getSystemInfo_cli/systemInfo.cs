@@ -236,24 +236,40 @@ namespace getSystemInfo_cli
 
         #endregion
 
-        #region getRAM
+        #region get Memory
 
-        // TODO: get RAM usage
+        // visible memory size = how much memory the system can use (the same as in Task Manager), usually a bit less than total physical capacity
+        public static long getMemory_visibleSize()
+        {
+            long visibleSizeInKiB = stringToLong(lookupValue_first("Win32_OperatingSystem", "TotalVisibleMemorySize"));
+            // TotalVisibleMemorySize is in KiB
+            // return in bytes
+            return visibleSizeInKiB * 1024;
+        }
+
+        // free memory size, the same as in Task Manager
+        public static long getMemory_freeSize()
+        {
+            long freeSizeInKiB = stringToLong(lookupValue_first("Win32_OperatingSystem", "FreePhysicalMemory"));
+            // FreePhysicalMemory is in KiB
+            // return in bytes
+            return freeSizeInKiB * 1024;
+        }
 
         // count number of installed ram sticks
-        public static string getRAM_stickCount()
+        public static string getMemory_stickCount()
         {
             return lookupValue_count("Win32_PhysicalMemory", "Capacity").ToString();
         }
 
         // count number of physical ram slot
-        public static string getRAM_slotCount()
+        public static string getMemory_slotCount()
         {
             return lookupValue_first("Win32_PhysicalMemoryArray", "MemoryDevices");
         }
 
         // get total physical memory
-        public static long getRAM_totalCapacity()
+        public static long getMemory_totalCapacity()
         {
             List<string> capacityList = lookupValue_all("Win32_PhysicalMemory", "Capacity");
             long total = 0;
@@ -269,7 +285,7 @@ namespace getSystemInfo_cli
         }
 
         // list all install ram sticks, return a list of string array of <manufacturer> <model> <capacity> <speed>
-        public static List<string[]> getRAM_stickList()
+        public static List<string[]> getMemory_stickList()
         {
             var RAMs = lookupValue_all("Win32_PhysicalMemory", new string[] { "Manufacturer", "PartNumber", "Capacity", "Speed", "MemoryType" });
 
