@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace getSystemInfo_cli
@@ -109,6 +110,53 @@ namespace getSystemInfo_cli
                     result.Add(s);
                 }
             }
+            return result;
+        }
+
+
+        public static void writeCsv(List<string[]> log, string filename, bool overwrite)
+        {
+            string csvContents = convertToCsvContents(log);
+
+            if (overwrite)
+            {
+                File.WriteAllText(filename, csvContents);
+            }
+            else
+            {
+                File.AppendAllText(filename, csvContents);
+            }
+        }
+
+        public static string convertToCsvContents(List<string[]> log)
+        {
+            StringBuilder sb = new StringBuilder();
+            int logCount = log.Count;
+            for (int i = 0; i < logCount; i++)
+            {
+                var logLine = log[i];
+                for (int j = 0; j < logLine.Length; j++)
+                {
+                    logLine[j] = quoteStringForCsv(logLine[j]);
+                }
+                sb.AppendLine(string.Join(",", logLine));
+            }
+
+            string csvContents = sb.ToString();
+            return csvContents;
+        }
+
+        // see https://en.m.wikipedia.org/wiki/Comma-separated_values for what to quote
+        private static string quoteStringForCsv(string input)
+        {
+            string result = input;
+
+            if (result.Contains(",") || result.Contains("\"") || result.Contains("\n") || result.Contains("\r"))
+            {
+                result = result.Replace("\"", "\"\"");
+                result = "\"" + result + "\"";
+            }
+
             return result;
         }
     }
