@@ -752,6 +752,12 @@ namespace getSystemInfo_cli
             return result;
         }
 
+        // get %SystemRoot%
+        public static string getSystem_rootPath()
+        {
+            return lookupValue_first("Win32_OperatingSystem", "WindowsDirectory");
+        }
+
         public static string getSystem_language()
         {
             if (!contextIsRemote)
@@ -849,6 +855,7 @@ namespace getSystemInfo_cli
             }
             return -1;
         }
+
         private static long getTotalSpace(string driveName)
         {
             foreach (DriveInfo drive in DriveInfo.GetDrives())
@@ -864,14 +871,16 @@ namespace getSystemInfo_cli
         // get system drive total size and free space
         public static string getSystem_systemDrive()
         {
-            string sysDrive = Path.GetPathRoot(Environment.SystemDirectory);
+            string sysDrive = Path.GetPathRoot(getSystem_rootPath());
             //Console.WriteLine(sysDrive);
             return sysDrive;
         }
+
         public static long getSystem_systemDriveFreeSpace()
         {
             return getTotalFreeSpace(getSystem_systemDrive());
         }
+
         public static long getSystem_systemDriveTotalSpace()
         {
             return getTotalSpace(getSystem_systemDrive());
@@ -912,6 +921,73 @@ namespace getSystemInfo_cli
                 return re;
             }
             return 0;
+        }
+        #endregion
+
+        #region get Logical Drives
+        public struct driveInfo
+        {
+            public string name { get; set; }
+            public string description { get; set; }
+            public int iType { get; set; }
+            public string sType { get; set; }
+            public string volumeName { get; set; }
+            public string fileSystem { get; set; }
+            public long size { get; set; }
+            public long free { get; set; }
+            public string networkPath { get; set; }
+            public bool isSystemDrive { get; set; }
+        }
+
+        public static readonly Dictionary<int, string> driveTypeToText = new Dictionary<int, string>()
+        {
+            { 0, "Unknown" },
+            { 1, "No Root Directory" },
+            { 2, "Removable Disk" },
+            { 3, "Local Disk" },
+            { 4, "Network Drive" },
+            { 5, "Compact Disc" },
+            { 6, "RAM Disk" },
+        };
+
+        private static long stringToLong(string s)
+        {
+            if (long.TryParse(s, out long re))
+            {
+                return re;
+            }
+            return 0;
+        }
+
+        // sometimes (the first time?) it fails to get size and free size (only returns 0), re-run to get the correct value
+        public static List<driveInfo> getDrive_allLogicalDrives()
+        {
+            List<string[]> allDrives = lookupValue_all("Win32_LogicalDisk", new string[] { "Name", "Description", "DriveType", "VolumeName", "FileSystem", "Size", "FreeSpace", "ProviderName" });
+
+            List<driveInfo> re = new List<driveInfo>();
+            string systemLetter = getSystem_systemDrive().Replace("\\", string.Empty);
+            foreach (var drive in allDrives)
+            {
+                int driveType = stringToInt(drive[2]);
+
+                driveInfo d = new driveInfo
+                {
+                    name = drive[0],
+                    description = drive[1],
+                    iType = driveType,
+                    sType = driveTypeToText[driveType],
+                    volumeName = drive[3],
+                    fileSystem = drive[4],
+                    size = stringToLong(drive[5]),
+                    free = stringToLong(drive[6]),
+                    networkPath = drive[7],
+                    isSystemDrive = (drive[0] == systemLetter),
+                };
+
+                re.Add(d);
+            }
+
+            return re;
         }
         #endregion
 
