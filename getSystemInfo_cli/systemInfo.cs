@@ -842,50 +842,6 @@ namespace getSystemInfo_cli
             return misc.getDistinct_stringList(result);
         }
 
-        // note that it won't work with network share drive
-        // https://stackoverflow.com/questions/1393711/get-free-disk-space
-        private static long getTotalFreeSpace(string driveName)
-        {
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.IsReady && drive.Name == driveName)
-                {
-                    return drive.TotalFreeSpace;
-                }
-            }
-            return -1;
-        }
-
-        private static long getTotalSpace(string driveName)
-        {
-            foreach (DriveInfo drive in DriveInfo.GetDrives())
-            {
-                if (drive.IsReady && drive.Name == driveName)
-                {
-                    return drive.TotalSize;
-                }
-            }
-            return -1;
-        }
-
-        // get system drive total size and free space
-        public static string getSystem_systemDrive()
-        {
-            string sysDrive = Path.GetPathRoot(getSystem_rootPath());
-            //Console.WriteLine(sysDrive);
-            return sysDrive;
-        }
-
-        public static long getSystem_systemDriveFreeSpace()
-        {
-            return getTotalFreeSpace(getSystem_systemDrive());
-        }
-
-        public static long getSystem_systemDriveTotalSpace()
-        {
-            return getTotalSpace(getSystem_systemDrive());
-        }
-
         public static TimeSpan getSystem_uptime()
         {
             string lastBootUptime = lookupValue_first("Win32_OperatingSystem", "LastBootUpTime");
@@ -965,7 +921,7 @@ namespace getSystemInfo_cli
             List<string[]> allDrives = lookupValue_all("Win32_LogicalDisk", new string[] { "Name", "Description", "DriveType", "VolumeName", "FileSystem", "Size", "FreeSpace", "ProviderName" });
 
             List<driveInfo> re = new List<driveInfo>();
-            string systemLetter = getSystem_systemDrive().Replace("\\", string.Empty);
+            string systemLetter = getDrive_systemDrive().Replace("\\", string.Empty);
             foreach (var drive in allDrives)
             {
                 int driveType = stringToInt(drive[2]);
@@ -988,6 +944,51 @@ namespace getSystemInfo_cli
             }
 
             return re;
+        }
+
+        private static long getDriveFreeSpace(string driveName)
+        {
+            // search for the wanted drive in the list provided by getDrive_allLogicalDrives
+            var all = getDrive_allLogicalDrives();
+            foreach (var d in all)
+            {
+                if (d.name == driveName.Replace("\\", string.Empty))
+                {
+                    return d.free;
+                }
+            }
+            return -1;
+        }
+
+        private static long getDriveCapacity(string driveName)
+        {
+            // search for the wanted drive in the list provided by getDrive_allLogicalDrives
+            var all = getDrive_allLogicalDrives();
+            foreach (var d in all)
+            {
+                if (d.name == driveName.Replace("\\", string.Empty))
+                {
+                    return d.size;
+                }
+            }
+            return -1;
+        }
+
+        // get system drive total size and free space
+        public static string getDrive_systemDrive()
+        {
+            string sysDrive = Path.GetPathRoot(getSystem_rootPath());
+            return sysDrive;
+        }
+
+        public static long getDrive_systemDriveFreeSpace()
+        {
+            return getDriveFreeSpace(getDrive_systemDrive());
+        }
+
+        public static long getDrive_systemDriveCapacity()
+        {
+            return getDriveCapacity(getDrive_systemDrive());
         }
         #endregion
 
