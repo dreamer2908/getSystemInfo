@@ -889,6 +889,30 @@ namespace getSystemInfo_cli
             var uptime = getSystem_uptime();
             return string.Format("{0:dd\\:hh\\:mm\\:ss}", uptime);
         }
+
+        public static DateTime getSystem_time()
+        {
+            List<string[]> result1 = lookupValue_all("Win32_LocalTime", new string[] { "Year", "Month", "Day", "Hour", "Minute", "Second", "Milliseconds" });
+
+            int year = stringToInt(result1[0][0]);
+            int month = stringToInt(result1[0][1]);
+            int day = stringToInt(result1[0][2]);
+            int hour = stringToInt(result1[0][3]);
+            int minute = stringToInt(result1[0][4]);
+            int second = stringToInt(result1[0][5]);
+            int milisecond = stringToInt(result1[0][6]);
+
+            DateTime sysTime = new DateTime(year, month, day, hour, minute, second, milisecond);
+            return sysTime;
+        }
+        private static int stringToInt(string s)
+        {
+            if (int.TryParse(s, out int re))
+            {
+                return re;
+            }
+            return 0;
+        }
         #endregion
 
         #region getProgram
