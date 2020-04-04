@@ -14,6 +14,92 @@ namespace getSystemInfo_cli
 {
     class systemInfo
     {
+        #region Setup Context Local/Remote
+        public static ManagementScope scope;
+        public static RegistryKey registryLocalMachine;
+        public static RegistryKey registryCurrentUser;
+
+        static systemInfo()
+        {
+            setupContextLocal();
+        }
+
+        public static int setupContextLocal()
+        {
+            registryLocalMachine = Registry.LocalMachine;
+            registryCurrentUser = Registry.CurrentUser;
+
+            scope = new ManagementScope(@"\\.\root\cimv2");
+            try {
+                scope.Connect();
+            }
+            catch (Exception ex) when (
+                       ex is IOException // hostname not found or unreachable
+                    || ex is ArgumentNullException // null hostname
+                    || ex is System.Security.SecurityException // user doesn't have permissions for this action
+                    || ex is UnauthorizedAccessException // user doesn't have the necessary registry rights
+                )
+            {
+                return -1;
+            }
+            return 0;
+        }
+
+        // return -1 when wmi scope connection fails
+        // return -2 when remote registry connection fails
+        // return -3 when both fails
+        // return 0 when all right
+        public static int setupContextRemote(string hostname, bool useCurrentWindowsLogin, string username="", string password="")
+        {
+            ConnectionOptions options = new ConnectionOptions();
+            options.Impersonation = System.Management.ImpersonationLevel.Impersonate;
+
+            if (!useCurrentWindowsLogin)
+            {
+                options.Username = username;
+                options.Password = password;
+            }
+
+            scope = new ManagementScope(@"\\" + hostname + @"\root\cimv2");
+            scope.Options = options;
+
+            int re = 0;
+
+            try
+            {
+                scope.Connect();
+            }
+            catch (Exception ex) when (
+                       ex is IOException // hostname not found or unreachable
+                    || ex is ArgumentNullException // null hostname
+                    || ex is System.Security.SecurityException // user doesn't have permissions for this action
+                    || ex is UnauthorizedAccessException // user doesn't have the necessary rights
+                )
+            {
+                re = re - 1;
+            }
+
+            try
+            {
+                // todo: authenticate with username and password
+                // only works with current windows login for now
+                registryLocalMachine = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, hostname);
+                registryCurrentUser = RegistryKey.OpenRemoteBaseKey(RegistryHive.CurrentUser, hostname);
+            }
+            catch (Exception ex) when (
+                       ex is IOException // hostname not found or unreachable
+                    || ex is ArgumentNullException // null hostname
+                    || ex is System.Security.SecurityException // user doesn't have permissions for this action
+                    || ex is UnauthorizedAccessException // user doesn't have the necessary registry rights
+                )
+            {
+                re = re - 2;
+            }
+
+            return re;
+        }
+        #endregion
+
         #region lookupValue
 
         private static string lookupValue_first(string wantedClass, string wantedValue)
@@ -795,16 +881,18 @@ namespace getSystemInfo_cli
             string uninstallKeyUser = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             string uninstallKey32 = @"SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall";
             string uninstallKey64 = @"SOFTWARE\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall";
-            rks.Add(Registry.CurrentUser.OpenSubKey(uninstallKeyUser));
-            rks.Add(Registry.LocalMachine.OpenSubKey(uninstallKey32));
-            try
-            {
-                rks.Add(Registry.LocalMachine.OpenSubKey(uninstallKey64));
-            }
-            catch (Exception) { }
+
+            rks.Add(registryCurrentUser.OpenSubKey(uninstallKeyUser));
+            rks.Add(registryLocalMachine.OpenSubKey(uninstallKey32));
+            rks.Add(registryLocalMachine.OpenSubKey(uninstallKey64));
 
             foreach (RegistryKey rk in rks)
             {
+                if (rk == null)
+                {
+                    continue;
+                }
+
                 foreach (string skName in rk.GetSubKeyNames())
                 {
                     using (RegistryKey sk = rk.OpenSubKey(skName))
