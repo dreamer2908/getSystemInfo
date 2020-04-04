@@ -18,6 +18,8 @@ namespace getSystemInfo_cli
         public static ManagementScope scope;
         public static RegistryKey registryLocalMachine;
         public static RegistryKey registryCurrentUser;
+        public static RegistryKey registryUsers;
+        public static bool contextIsRemote;
 
         static systemInfo()
         {
@@ -26,8 +28,11 @@ namespace getSystemInfo_cli
 
         public static int setupContextLocal()
         {
+            contextIsRemote = false;
+
             registryLocalMachine = Registry.LocalMachine;
             registryCurrentUser = Registry.CurrentUser;
+            registryUsers = Registry.Users;
 
             scope = new ManagementScope(@"\\.\root\cimv2");
             try {
@@ -51,6 +56,8 @@ namespace getSystemInfo_cli
         // return 0 when all right
         public static int setupContextRemote(string hostname, bool useCurrentWindowsLogin, string username="", string password="")
         {
+            contextIsRemote = true;
+
             ConnectionOptions options = new ConnectionOptions();
             options.Impersonation = System.Management.ImpersonationLevel.Impersonate;
 
@@ -85,6 +92,7 @@ namespace getSystemInfo_cli
                 // only works with current windows login for now
                 registryLocalMachine = RegistryKey.OpenRemoteBaseKey(RegistryHive.LocalMachine, hostname);
                 registryCurrentUser = RegistryKey.OpenRemoteBaseKey(RegistryHive.CurrentUser, hostname);
+                registryUsers = RegistryKey.OpenRemoteBaseKey(RegistryHive.Users, hostname);
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -106,6 +114,7 @@ namespace getSystemInfo_cli
         {
             string result = String.Empty;
             ManagementClass mc = new ManagementClass(wantedClass);
+            mc.Scope = scope;
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
@@ -124,6 +133,7 @@ namespace getSystemInfo_cli
         {
             List<string> result = new List<string>();
             ManagementClass mc = new ManagementClass(wantedClass);
+            mc.Scope = scope;
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
@@ -142,6 +152,7 @@ namespace getSystemInfo_cli
             List<string[]> results = new List<string[]>();
 
             ManagementClass mc = new ManagementClass(wantedClass);
+            mc.Scope = scope;
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
@@ -166,6 +177,7 @@ namespace getSystemInfo_cli
         {
             int count = 0;
             ManagementClass mc = new ManagementClass(wantedClass);
+            mc.Scope = scope;
             ManagementObjectCollection moc = mc.GetInstances();
             foreach (ManagementObject mo in moc)
             {
@@ -180,6 +192,7 @@ namespace getSystemInfo_cli
         public static ManagementObjectCollection runWmiQuery(string queryString)
         {
             ManagementObjectSearcher query = new ManagementObjectSearcher(queryString);
+            query.Scope = scope;
             ManagementObjectCollection moc = query.Get();
             return moc;
         }
@@ -219,9 +232,13 @@ namespace getSystemInfo_cli
             return CPUs;
         }
 
+        // TODO: get CPU usage
+
         #endregion
 
         #region getRAM
+
+        // TODO: get RAM usage
 
         // count number of installed ram sticks
         public static string getRAM_stickCount()
@@ -349,7 +366,7 @@ namespace getSystemInfo_cli
                     addr = hdd[0],
                     model = hdd[1],
                     size = varToLong(hdd[2]),
-                    smart = getHddSmartInfo(hdd[0])
+                    smart = contextIsRemote ? "Remote S.M.A.R.T not yet implemented." : getHddSmartInfo(hdd[0])
                 };
                 //Console.WriteLine(thisOne.name);
                 //Console.WriteLine(thisOne.model);
@@ -375,7 +392,7 @@ namespace getSystemInfo_cli
             // Console.WriteLine(exitCode);
             // Console.WriteLine(result);
 
-            return (result != null) ? result : error;
+            return result ?? error;
         }
 
         public static int executeTask(string executable, string argument, bool hideConsole, out string output, out string error)
@@ -457,6 +474,8 @@ namespace getSystemInfo_cli
         // getVideo_monitor5    <cp>        <cp>        <except>    <cp>        <empty>     <empty>     <cp>        <empty>
 
         // three exceptions has the same error: System.ComponentModel.Win32Exception (0x80004005): The paramenter is incorrect
+
+        // TODO: find some way to get their frendly names via registry or wmi
 
         // by G.Y, https://stackoverflow.com/a/28257839
         public static void getVideo_monitor1()
@@ -552,7 +571,7 @@ namespace getSystemInfo_cli
         #endregion
 
         #region getNetwork
-
+        // TODO: update getNetwork_interfaces to support remote context
         // get network card, ip address
         // return Name ("Ethernet 2"), Description ("Realtek PCIe GbE Family Controller"), Physical Address, IPv4 Addresses with Subnet Mask, Default Gateways, DNS Servers
         public struct struct_ipAddr
@@ -735,18 +754,26 @@ namespace getSystemInfo_cli
 
         public static string getSystem_language()
         {
-            CultureInfo ci = CultureInfo.CurrentUICulture;
+            if (!contextIsRemote)
+            {
+                CultureInfo ci = CultureInfo.CurrentUICulture;
 
-            //Console.WriteLine("Default Language Info:");
-            //Console.WriteLine("* Name: {0}", ci.Name);
-            //Console.WriteLine("* Display Name: {0}", ci.DisplayName);
-            //Console.WriteLine("* English Name: {0}", ci.EnglishName);
-            //Console.WriteLine("* 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName);
-            //Console.WriteLine("* 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName);
-            //Console.WriteLine("* 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName);
+                //Console.WriteLine("Default Language Info:");
+                //Console.WriteLine("* Name: {0}", ci.Name);
+                //Console.WriteLine("* Display Name: {0}", ci.DisplayName);
+                //Console.WriteLine("* English Name: {0}", ci.EnglishName);
+                //Console.WriteLine("* 2-letter ISO Name: {0}", ci.TwoLetterISOLanguageName);
+                //Console.WriteLine("* 3-letter ISO Name: {0}", ci.ThreeLetterISOLanguageName);
+                //Console.WriteLine("* 3-letter Win32 API Name: {0}", ci.ThreeLetterWindowsLanguageName);
 
-            return ci.Name;
-
+                return ci.Name;
+            }
+            else
+            {
+                // get it from HKEY_USERS\.DEFAULT\Control Panel\International, value LocaleName
+                var sk = registryUsers.OpenSubKey(@".DEFAULT\Control Panel\International");
+                return (sk != null) ? varToString(sk.GetValue("LocaleName")) : string.Empty;
+            }
         }
 
         public static string getSystem_name()
@@ -852,8 +879,8 @@ namespace getSystemInfo_cli
 
         public static TimeSpan getSystem_uptime()
         {
-            ManagementObject mo = new ManagementObject(@"\\.\root\cimv2:Win32_OperatingSystem=@");
-            DateTime lastBootUp = ManagementDateTimeConverter.ToDateTime(mo["LastBootUpTime"].ToString());
+            string lastBootUptime = lookupValue_first("Win32_OperatingSystem", "LastBootUpTime");
+            DateTime lastBootUp = ManagementDateTimeConverter.ToDateTime(lastBootUptime);
             TimeSpan uptime = DateTime.Now.ToUniversalTime() - lastBootUp.ToUniversalTime();
             return uptime;
         }
@@ -870,7 +897,10 @@ namespace getSystemInfo_cli
         private static string varToString(object v) => v != null ? v.ToString().Trim() : string.Empty;
         private static long varToLong(object v)
         {
-            return v != null ? long.Parse(v.ToString()) : 0;
+            if (v == null) return 0;
+
+            bool valid = long.TryParse(v.ToString(), out long re);
+            return valid ? re : 0;
         }
         public static List<string[]> getProgram_list()
         {
