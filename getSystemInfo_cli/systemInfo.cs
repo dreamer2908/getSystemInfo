@@ -232,7 +232,42 @@ namespace getSystemInfo_cli
             return CPUs;
         }
 
-        // TODO: get CPU usage
+        public static int getCPU_usage()
+        {
+            // see https://stackoverflow.com/questions/48432100/
+            var all = lookupValue_all("Win32_PerfFormattedData_Counters_ProcessorInformation", new string[] { "Name", "PercentProcessorTime" });
+
+            foreach (var col in all)
+            {
+                if (col[0] == "_Total")
+                {
+                    return Convert.ToInt32(col[1]);
+                }
+            }
+
+            return -1; // get again if it arrives here
+        }
+
+        // get <n> times, with <delay> miliseconds delay between each
+        // return the average
+        public static double getCPU_usageAvg(int n, int delay)
+        {
+            int[] usage = new int[n];
+
+            for (int i = 0; i < n; i++)
+            {
+                usage[i] = getCPU_usage();
+                System.Threading.Thread.Sleep(delay);
+            }
+
+            double sum = 0;
+            foreach (int u in usage)
+            {
+                sum += u;
+            }
+
+            return sum / n;
+        }
 
         #endregion
 
