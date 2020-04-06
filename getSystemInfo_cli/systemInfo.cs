@@ -622,7 +622,6 @@ namespace getSystemInfo_cli
         #endregion
 
         #region getNetwork
-        // TODO: update getNetwork_interfaces to support remote context
         // get network card, ip address
         // return Name ("Ethernet 2"), Description ("Realtek PCIe GbE Family Controller"), Physical Address, IPv4 Addresses with Subnet Mask, Default Gateways, DNS Servers
         public struct struct_ipAddr
@@ -642,6 +641,7 @@ namespace getSystemInfo_cli
             public List<string> gateways;
             public List<string> dnsServers;
             public long speed;
+            public string type;
         }
         private static bool isValidIpAdressV4(string ip)
         {
@@ -669,111 +669,198 @@ namespace getSystemInfo_cli
         {
             List<sruct_networkInterfaceInfo> result = new List<sruct_networkInterfaceInfo>();
 
-            NetworkInterface[] fNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
-            foreach (NetworkInterface adapter in fNetworkInterfaces)
+            if (!contextIsRemote)
             {
-
-                string fRegistryKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + adapter.Id + "\\Connection";
-                RegistryKey rk = Registry.LocalMachine.OpenSubKey(fRegistryKey, false);
-                if (rk != null)
+                NetworkInterface[] fNetworkInterfaces = NetworkInterface.GetAllNetworkInterfaces();
+                foreach (NetworkInterface adapter in fNetworkInterfaces)
                 {
-                    string fPnpInstanceID = rk.GetValue("PnpInstanceID", "").ToString();
-                    int fMediaSubType = Convert.ToInt32(rk.GetValue("MediaSubType", 0));
 
-                    // filter real network cards. the device instance path should have "PCI" or "USB" at the beginning or sometimes in the middle (rare)
-                    // virtual interface' device instance path start with "ROOT"
-                    // some virtual devices should be accepted:
-                    // - Broadcom Team (BASP Virtual Adapter): ROOT\BRCM_BLFM\<number>
-                    // - Microsoft Network Adapter Multiplexor Driver: COMPOSITEBUS\MS_IMPLAT_MP\{uuid}
-                    if (fPnpInstanceID.Length > 0 && (dontFilterInstanceID || fPnpInstanceID.StartsWith("PCI") || fPnpInstanceID.StartsWith("USB") || fPnpInstanceID.Contains("PCI") || fPnpInstanceID.StartsWith("COMPOSITEBUS") || fPnpInstanceID.StartsWith("ROOT\\BRCM_BLFM\\")))
+                    string fRegistryKey = "SYSTEM\\CurrentControlSet\\Control\\Network\\{4D36E972-E325-11CE-BFC1-08002BE10318}\\" + adapter.Id + "\\Connection";
+                    RegistryKey rk = Registry.LocalMachine.OpenSubKey(fRegistryKey, false);
+                    if (rk != null)
                     {
-                        bool isDhcpEnabled;
-                        try
-                        {
-                            isDhcpEnabled = adapter.GetIPProperties().GetIPv4Properties().IsDhcpEnabled;
-                        }
-                        catch (NetworkInformationException)
-                        {
-                            isDhcpEnabled = false;
-                        }
-                        sruct_networkInterfaceInfo thisOne = new sruct_networkInterfaceInfo
-                        {
-                            name = adapter.Name,
-                            description = adapter.Description,
-                            PnpInstanceID = fPnpInstanceID,
-                            MAC = adapter.GetPhysicalAddress().ToString(),
-                            isUp = (adapter.OperationalStatus == OperationalStatus.Up),
-                            isDhcpEnabled = isDhcpEnabled,
-                            ipAddresses = new List<struct_ipAddr>(),
-                            gateways = new List<string>(),
-                            dnsServers = new List<string>()
-                        };
+                        string fPnpInstanceID = rk.GetValue("PnpInstanceID", "").ToString();
+                        int fMediaSubType = Convert.ToInt32(rk.GetValue("MediaSubType", 0));
 
-                        // get address list
-                        IPInterfaceProperties properties = adapter.GetIPProperties();
-                        foreach (UnicastIPAddressInformation unicast in properties.UnicastAddresses)
+                        // filter real network cards. the device instance path should have "PCI" or "USB" at the beginning or sometimes in the middle (rare)
+                        // virtual interface' device instance path start with "ROOT"
+                        // some virtual devices should be accepted:
+                        // - Broadcom Team (BASP Virtual Adapter): ROOT\BRCM_BLFM\<number>
+                        // - Microsoft Network Adapter Multiplexor Driver: COMPOSITEBUS\MS_IMPLAT_MP\{uuid}
+                        if (fPnpInstanceID.Length > 0 && (dontFilterInstanceID || fPnpInstanceID.StartsWith("PCI") || fPnpInstanceID.StartsWith("USB") || fPnpInstanceID.Contains("PCI") || fPnpInstanceID.StartsWith("COMPOSITEBUS") || fPnpInstanceID.StartsWith("ROOT\\BRCM_BLFM\\")))
                         {
-                            struct_ipAddr thisIP;
-                            thisIP.ipAddr = unicast.Address.ToString();
-
-                            // in .NET 2.0 & 3.5, IPv4Mask is null if the network interface is down
-                            // this was fixed in .NET 4.0 and later; IPv4Mask will have the correct value
-                            // the following null check can prevent crashing in unfortunate occasions,
-                            // but please use .NET 4.0 or later
-                            thisIP.netMask = (unicast.IPv4Mask != null) ? unicast.IPv4Mask.ToString(): String.Empty;
-                            if (isValidIpAdressV4(thisIP.ipAddr))
+                            bool isDhcpEnabled;
+                            try
                             {
-                                thisOne.ipAddresses.Add(thisIP);
+                                isDhcpEnabled = adapter.GetIPProperties().GetIPv4Properties().IsDhcpEnabled;
                             }
-                        }
-
-                        // get gateway list
-                        foreach (GatewayIPAddressInformation gipi in adapter.GetIPProperties().GatewayAddresses)
-                        {
-                            string gateway = gipi.Address.ToString();
-                            if (isValidIpAdressV4(gateway))
+                            catch (NetworkInformationException)
                             {
-                                thisOne.gateways.Add(gateway);
+                                isDhcpEnabled = false;
                             }
-                        }
-
-                        // get dns list
-                        foreach(IPAddress dnsAddr in properties.DnsAddresses)
-                        {
-                            string dns = dnsAddr.ToString();
-                            if (isValidIpAdressV4(dns))
+                            sruct_networkInterfaceInfo thisOne = new sruct_networkInterfaceInfo
                             {
-                                thisOne.dnsServers.Add(dns);
+                                name = adapter.Name,
+                                description = adapter.Description,
+                                PnpInstanceID = fPnpInstanceID,
+                                MAC = adapter.GetPhysicalAddress().ToString(),
+                                isUp = (adapter.OperationalStatus == OperationalStatus.Up),
+                                isDhcpEnabled = isDhcpEnabled,
+                                ipAddresses = new List<struct_ipAddr>(),
+                                gateways = new List<string>(),
+                                dnsServers = new List<string>(),
+                                type = adapter.NetworkInterfaceType.ToString(),
+                            };
+
+                            // get address list
+                            IPInterfaceProperties properties = adapter.GetIPProperties();
+                            foreach (UnicastIPAddressInformation unicast in properties.UnicastAddresses)
+                            {
+                                struct_ipAddr thisIP;
+                                thisIP.ipAddr = unicast.Address.ToString();
+
+                                // in .NET 2.0 & 3.5, IPv4Mask is null if the network interface is down
+                                // this was fixed in .NET 4.0 and later; IPv4Mask will have the correct value
+                                // the following null check can prevent crashing in unfortunate occasions,
+                                // but please use .NET 4.0 or later
+                                thisIP.netMask = (unicast.IPv4Mask != null) ? unicast.IPv4Mask.ToString() : String.Empty;
+                                if (isValidIpAdressV4(thisIP.ipAddr))
+                                {
+                                    thisOne.ipAddresses.Add(thisIP);
+                                }
                             }
+
+                            // get gateway list
+                            foreach (GatewayIPAddressInformation gipi in adapter.GetIPProperties().GatewayAddresses)
+                            {
+                                string gateway = gipi.Address.ToString();
+                                if (isValidIpAdressV4(gateway))
+                                {
+                                    thisOne.gateways.Add(gateway);
+                                }
+                            }
+
+                            // get dns list
+                            foreach (IPAddress dnsAddr in properties.DnsAddresses)
+                            {
+                                string dns = dnsAddr.ToString();
+                                if (isValidIpAdressV4(dns))
+                                {
+                                    thisOne.dnsServers.Add(dns);
+                                }
+                            }
+
+                            thisOne.speed = adapter.Speed;
+
+                            result.Add(thisOne);
+
+                            //Console.WriteLine(thisOne.name);
+                            //Console.WriteLine(thisOne.description);
+                            //Console.WriteLine(thisOne.MAC);
+                            //Console.WriteLine(thisOne.isUp);
+                            //foreach (struct_ipAddr ip in thisOne.ipAddresses)
+                            //{
+                            //    Console.WriteLine(ip.ipAddr);
+                            //    Console.WriteLine(ip.netMask);
+                            //}
+                            //foreach (string ip in thisOne.gateways)
+                            //{
+                            //    Console.WriteLine(ip);
+                            //}
+                            //foreach (string ip in thisOne.dnsServers)
+                            //{
+                            //    Console.WriteLine(ip);
+                            //}
+                            //Console.WriteLine(thisOne.speed);
                         }
-
-                        thisOne.speed = adapter.Speed;
-
-                        result.Add(thisOne);
-
-                        //Console.WriteLine(thisOne.name);
-                        //Console.WriteLine(thisOne.description);
-                        //Console.WriteLine(thisOne.MAC);
-                        //Console.WriteLine(thisOne.isUp);
-                        //foreach (struct_ipAddr ip in thisOne.ipAddresses)
-                        //{
-                        //    Console.WriteLine(ip.ipAddr);
-                        //    Console.WriteLine(ip.netMask);
-                        //}
-                        //foreach (string ip in thisOne.gateways)
-                        //{
-                        //    Console.WriteLine(ip);
-                        //}
-                        //foreach (string ip in thisOne.dnsServers)
-                        //{
-                        //    Console.WriteLine(ip);
-                        //}
-                        //Console.WriteLine(thisOne.speed);
                     }
+                }
+            }
+            else
+            {
+                List<string[]> adapters = lookupValue_all("Win32_NetworkAdapter", new string[] { "PhysicalAdapter", "Name", "Description", "PNPDeviceID", "MACAddress", "NetConnectionStatus", "Speed", "AdapterType", "GUID" });
+
+                foreach (var adapter in adapters)
+                {
+                    if (adapter[0] != "True") continue; // only get adapters declared as physical. They are showed in Control Panel
+
+                    var thisOne = new sruct_networkInterfaceInfo
+                    {
+                        name = adapter[1],
+                        description = adapter[2],
+                        PnpInstanceID = adapter[3],
+                        MAC = adapter[4],
+                        isUp = (adapter[5] == "2"), // NetConnectionStatus 2 = up, 4 = disabled
+                        isDhcpEnabled = false,
+                        ipAddresses = new List<struct_ipAddr>(),
+                        gateways = new List<string>(),
+                        dnsServers = new List<string>(),
+                        speed = stringToLong(adapter[6]),
+                        type = adapter[7],
+                    };
+
+                    // get ip configuration from registry
+                    string adapterGuid = adapter[8];
+                    string regKey = @"SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\" + adapterGuid;
+                    using (var sk = registryLocalMachine.OpenSubKey(regKey))
+                    {
+                        if (sk != null)
+                        {
+                            // DHCP
+                            bool dhcpEnabled = (varToLong(sk.GetValue("EnableDHCP")) == 1);
+                            thisOne.isDhcpEnabled = dhcpEnabled;
+
+                            // IPs + subnets
+                            var ipArray = parse_REG_MULTI_SZ(sk.GetValue("IPAddress"));
+                            var subnetArray = parse_REG_MULTI_SZ(sk.GetValue("SubnetMask"));
+
+                            int ipCount = (ipArray.Length <= subnetArray.Length) ? ipArray.Length : subnetArray.Length;
+                            for (int i = 0; i < ipCount; i++)
+                            {
+                                var thisIp = new struct_ipAddr
+                                {
+                                    ipAddr = ipArray[i],
+                                    netMask = subnetArray[i],
+                                };
+                                thisOne.ipAddresses.Add(thisIp);
+                            }
+
+                            // gateways
+                            var gatewayArray = dhcpEnabled ? parse_REG_MULTI_SZ(sk.GetValue("DhcpDefaultGateway")) : parse_REG_MULTI_SZ(sk.GetValue("DefaultGateway"));
+                            thisOne.gateways.AddRange(gatewayArray);
+
+                            // DNS
+                            var dnsArray = dhcpEnabled ? parseDnsList(sk.GetValue("DhcpNameServer")) : parseDnsList(sk.GetValue("NameServer"));
+                            thisOne.dnsServers.AddRange(dnsArray);
+                        }
+                    }
+
+                    result.Add(thisOne);
                 }
             }
 
             return result;
+        }
+
+        private static string[] parse_REG_MULTI_SZ(object val)
+        {
+            if (val == null) return new string[] { };
+
+            try
+            {
+                return (string[])val;
+            }
+            catch (InvalidCastException)
+            {
+                return new string[] { };
+            }
+        }
+
+        private static string[] parseDnsList(object val)
+        {
+            string all = varToString(val);
+            var split = all.Split(new Char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            return split;
         }
 
         #endregion
