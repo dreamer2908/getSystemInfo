@@ -642,6 +642,7 @@ namespace getSystemInfo_cli
             public List<string> dnsServers;
             public long speed;
             public string type;
+            public string guid;
         }
         private static bool isValidIpAdressV4(string ip)
         {
@@ -710,6 +711,7 @@ namespace getSystemInfo_cli
                                 gateways = new List<string>(),
                                 dnsServers = new List<string>(),
                                 type = adapter.NetworkInterfaceType.ToString(),
+                                guid = adapter.Id,
                             };
 
                             // get address list
@@ -797,6 +799,7 @@ namespace getSystemInfo_cli
                         dnsServers = new List<string>(),
                         speed = stringToLong(adapter[6]),
                         type = adapter[7],
+                        guid = adapter[8],
                     };
 
                     // get ip configuration from registry
