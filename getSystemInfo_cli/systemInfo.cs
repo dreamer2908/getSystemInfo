@@ -811,8 +811,8 @@ namespace getSystemInfo_cli
                             thisOne.isDhcpEnabled = dhcpEnabled;
 
                             // IPs + subnets
-                            var ipArray = parse_REG_MULTI_SZ(sk.GetValue("IPAddress"));
-                            var subnetArray = parse_REG_MULTI_SZ(sk.GetValue("SubnetMask"));
+                            var ipArray = dhcpEnabled ? parse_multivalue_REG_SZ(sk.GetValue("DhcpIPAddress")) : parse_multivalue_REG_MULTI_SZ(sk.GetValue("IPAddress"));
+                            var subnetArray = dhcpEnabled ? parse_multivalue_REG_SZ(sk.GetValue("DhcpSubnetMask")) : parse_multivalue_REG_MULTI_SZ(sk.GetValue("SubnetMask"));
 
                             int ipCount = (ipArray.Length <= subnetArray.Length) ? ipArray.Length : subnetArray.Length;
                             for (int i = 0; i < ipCount; i++)
@@ -826,11 +826,11 @@ namespace getSystemInfo_cli
                             }
 
                             // gateways
-                            var gatewayArray = dhcpEnabled ? parse_REG_MULTI_SZ(sk.GetValue("DhcpDefaultGateway")) : parse_REG_MULTI_SZ(sk.GetValue("DefaultGateway"));
+                            var gatewayArray = dhcpEnabled ? parse_multivalue_REG_MULTI_SZ(sk.GetValue("DhcpDefaultGateway")) : parse_multivalue_REG_MULTI_SZ(sk.GetValue("DefaultGateway"));
                             thisOne.gateways.AddRange(gatewayArray);
 
                             // DNS
-                            var dnsArray = dhcpEnabled ? parseDnsList(sk.GetValue("DhcpNameServer")) : parseDnsList(sk.GetValue("NameServer"));
+                            var dnsArray = dhcpEnabled ? parse_multivalue_REG_SZ(sk.GetValue("DhcpNameServer")) : parse_multivalue_REG_SZ(sk.GetValue("NameServer"));
                             thisOne.dnsServers.AddRange(dnsArray);
                         }
                     }
@@ -842,7 +842,7 @@ namespace getSystemInfo_cli
             return result;
         }
 
-        private static string[] parse_REG_MULTI_SZ(object val)
+        private static string[] parse_multivalue_REG_MULTI_SZ(object val)
         {
             if (val == null) return new string[] { };
 
@@ -856,7 +856,7 @@ namespace getSystemInfo_cli
             }
         }
 
-        private static string[] parseDnsList(object val)
+        private static string[] parse_multivalue_REG_SZ(object val)
         {
             string all = varToString(val);
             var split = all.Split(new Char[] { ',', ' ' }, StringSplitOptions.RemoveEmptyEntries);
