@@ -92,10 +92,10 @@ namespace getSystemResources
             sbAppendWriteLine("RAM Used Size: {0} ({1:0.00}%)", misc.byteToHumanSize(used), usedpercent);
             sbAppendWriteLine("RAM Free Size: {0} ({1:0.00}%)", misc.byteToHumanSize(available), availablepercent);
 
-            sbAppendWriteLine("RAM Slot Count: {0}", systemInfo.getRAM_slotCount());
-            sbAppendWriteLine("RAM Stick Count: {0}", systemInfo.getRAM_stickCount());
+            sbAppendWriteLine("RAM Slot Count: {0}", systemInfo.getMemory_slotCount());
+            sbAppendWriteLine("RAM Stick Count: {0}", systemInfo.getMemory_stickCount());
 
-            List<string[]> RAMs = systemInfo.getRAM_stickList();
+            List<string[]> RAMs = systemInfo.getMemory_stickList();
 
             for (int i = 0; i < RAMs.Count; i++)
             {
@@ -182,8 +182,10 @@ namespace getSystemResources
                 var network = networkInterface[i];
                 sbAppendWriteLine("Network Interface #{0}:", i + 1);
                 sbAppendWriteLine("    Name: {0}", network.name);
+                sbAppendWriteLine("    Type: {0}", network.type);
                 sbAppendWriteLine("    Description: {0}", network.description);
                 sbAppendWriteLine("    Device Instance Path: {0}", network.PnpInstanceID);
+                sbAppendWriteLine("    GUID: {0}", network.guid);
                 sbAppendWriteLine("    MAC Address: {0}", network.MAC);
                 sbAppendWriteLine("    Status: {0}", network.isUp ? "Up" : "Down");
                 sbAppendWriteLine("    Speed: {0}", misc.bpsToHumanSize(network.speed));
@@ -207,7 +209,7 @@ namespace getSystemResources
                 // get the current throughput of this interface
                 foreach (var thisInterface in allNetworkInterfaces)
                 {
-                    if (thisInterface.Name == network.name)
+                    if (thisInterface.Id == network.guid)
                     {
                         if (thisInterface.OperationalStatus == OperationalStatus.Up)
                         {
