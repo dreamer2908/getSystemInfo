@@ -88,6 +88,7 @@
             this.btnApply = new System.Windows.Forms.Button();
             this.lblStatusBar = new System.Windows.Forms.Label();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnCheckOnlineUpdate = new System.Windows.Forms.Button();
             this.btnTestEventLog = new System.Windows.Forms.Button();
             this.lnkEventLogMessageBlackList = new System.Windows.Forms.LinkLabel();
             this.lnkEventLogTaskBlackList = new System.Windows.Forms.LinkLabel();
@@ -123,7 +124,11 @@
             this.backgroundWorker1 = new System.ComponentModel.BackgroundWorker();
             this.timer3 = new System.Windows.Forms.Timer(this.components);
             this.timer4 = new System.Windows.Forms.Timer(this.components);
-            this.btnCheckOnlineUpdate = new System.Windows.Forms.Button();
+            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
+            this.sendSystemInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.sendResourceStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.updateAppToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numMaxHistory)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numRamThreshold)).BeginInit();
@@ -133,6 +138,7 @@
             this.groupBox3.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numDelayBetweenEmails)).BeginInit();
             this.groupBox4.SuspendLayout();
+            this.contextMenuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // timer1
@@ -147,6 +153,7 @@
             // 
             // notifyIcon1
             // 
+            this.notifyIcon1.ContextMenuStrip = this.contextMenuStrip1;
             this.notifyIcon1.Icon = ((System.Drawing.Icon)(resources.GetObject("notifyIcon1.Icon")));
             this.notifyIcon1.Text = "System Resources Alerter";
             this.notifyIcon1.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.notifyIcon1_MouseDoubleClick);
@@ -796,6 +803,17 @@
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Windows Event Logs";
             // 
+            // btnCheckOnlineUpdate
+            // 
+            this.btnCheckOnlineUpdate.Location = new System.Drawing.Point(388, 142);
+            this.btnCheckOnlineUpdate.Name = "btnCheckOnlineUpdate";
+            this.btnCheckOnlineUpdate.Size = new System.Drawing.Size(75, 23);
+            this.btnCheckOnlineUpdate.TabIndex = 5;
+            this.btnCheckOnlineUpdate.Text = "Update";
+            this.btnCheckOnlineUpdate.UseVisualStyleBackColor = true;
+            this.btnCheckOnlineUpdate.Visible = false;
+            this.btnCheckOnlineUpdate.Click += new System.EventHandler(this.btnCheckOnlineUpdate_Click);
+            // 
             // btnTestEventLog
             // 
             this.btnTestEventLog.Location = new System.Drawing.Point(388, 112);
@@ -1126,16 +1144,43 @@
             this.timer4.Interval = 900000;
             this.timer4.Tick += new System.EventHandler(this.timer4_Tick);
             // 
-            // btnCheckOnlineUpdate
+            // contextMenuStrip1
             // 
-            this.btnCheckOnlineUpdate.Location = new System.Drawing.Point(388, 142);
-            this.btnCheckOnlineUpdate.Name = "btnCheckOnlineUpdate";
-            this.btnCheckOnlineUpdate.Size = new System.Drawing.Size(75, 23);
-            this.btnCheckOnlineUpdate.TabIndex = 5;
-            this.btnCheckOnlineUpdate.Text = "Update";
-            this.btnCheckOnlineUpdate.UseVisualStyleBackColor = true;
-            this.btnCheckOnlineUpdate.Visible = false;
-            this.btnCheckOnlineUpdate.Click += new System.EventHandler(this.btnCheckOnlineUpdate_Click);
+            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.sendSystemInfoToolStripMenuItem,
+            this.sendResourceStatusToolStripMenuItem,
+            this.updateAppToolStripMenuItem,
+            this.exitToolStripMenuItem});
+            this.contextMenuStrip1.Name = "contextMenuStrip1";
+            this.contextMenuStrip1.Size = new System.Drawing.Size(187, 92);
+            // 
+            // sendSystemInfoToolStripMenuItem
+            // 
+            this.sendSystemInfoToolStripMenuItem.Name = "sendSystemInfoToolStripMenuItem";
+            this.sendSystemInfoToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.sendSystemInfoToolStripMenuItem.Text = "Send System Info";
+            this.sendSystemInfoToolStripMenuItem.Click += new System.EventHandler(this.sendSystemInfoToolStripMenuItem_Click);
+            // 
+            // sendResourceStatusToolStripMenuItem
+            // 
+            this.sendResourceStatusToolStripMenuItem.Name = "sendResourceStatusToolStripMenuItem";
+            this.sendResourceStatusToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.sendResourceStatusToolStripMenuItem.Text = "Send Resource Status";
+            this.sendResourceStatusToolStripMenuItem.Click += new System.EventHandler(this.sendResourceStatusToolStripMenuItem_Click);
+            // 
+            // updateAppToolStripMenuItem
+            // 
+            this.updateAppToolStripMenuItem.Name = "updateAppToolStripMenuItem";
+            this.updateAppToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.updateAppToolStripMenuItem.Text = "Update App";
+            this.updateAppToolStripMenuItem.Click += new System.EventHandler(this.updateAppToolStripMenuItem_Click);
+            // 
+            // exitToolStripMenuItem
+            // 
+            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.exitToolStripMenuItem.Text = "Exit";
+            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // Form1
             // 
@@ -1169,6 +1214,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.numDelayBetweenEmails)).EndInit();
             this.groupBox4.ResumeLayout(false);
             this.groupBox4.PerformLayout();
+            this.contextMenuStrip1.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -1270,6 +1316,11 @@
         private System.Windows.Forms.Timer timer3;
         private System.Windows.Forms.Timer timer4;
         private System.Windows.Forms.Button btnCheckOnlineUpdate;
+        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
+        private System.Windows.Forms.ToolStripMenuItem sendSystemInfoToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem sendResourceStatusToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem updateAppToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     }
 }
 

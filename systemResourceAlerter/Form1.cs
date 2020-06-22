@@ -1484,6 +1484,28 @@ namespace systemResourceAlerter
             checkOnlineForUpdate();
         }
         #endregion
+
+        private void sendSystemInfoToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            applySettings();
+            sendDailySystemInfoEmail();
+        }
+
+        private void sendResourceStatusToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            applySettings();
+            sendEmailAlert(true, true);
+        }
+
+        private void updateAppToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            checkOnlineForUpdate(false);
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
     }
 
 }
