@@ -25,6 +25,7 @@ namespace getSystemInfo_cli
         public string Id { get; set; }
         public int Index { get; set; }
         public bool IsOK { get; set; }
+        public string Health { get; set; }
         public string Model { get; set; }
         public string Type { get; set; }
         public string Serial { get; set; }
@@ -99,6 +100,7 @@ namespace getSystemInfo_cli
         public int Threshold { get; set; }
         public int Data { get; set; }
         public bool IsOK { get; set; }
+        public string Health { get; set; }
 
         public Smart()
         {
@@ -199,6 +201,70 @@ namespace getSystemInfo_cli
         }
 
         /*
+         * This part by Quy Nguyen
+         * Check some specific attributes to see if the drive is still good
+         */
+
+        public void AnalyseSmartData(HDD drive)
+        {
+            /*
+             * warning health if at least one of these attributes have value over 0
+             * 0x05 "Reallocated sector count"
+             * 0xC4 "Reallocation count"
+             * 0xC5 "Current pending sector count"
+             * 0xC6 "Offline scan uncorrectable count"
+             * 0xC7 "UDMA CRC error rate"
+             */
+            bool warning = false;
+            foreach (var attr in drive.Attributes)
+            {
+                if (attr.Value.HasData)
+                {
+                    int id = attr.Key;
+                    if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7) && attr.Value.Data != 0)
+                    {
+                        warning = true;
+                        attr.Value.IsOK = false;
+                        attr.Value.Health = "warning";
+                    }
+                }
+            }
+
+            /*
+             * failed health if any attribute is equal to or lower than its threshold
+             */
+            bool failed = false;
+            foreach (var attr in drive.Attributes)
+            {
+                if (attr.Value.HasData)
+                {
+                    if (attr.Value.Worst <= attr.Value.Threshold)
+                    {
+                        failed = true;
+                        attr.Value.IsOK = false;
+                        attr.Value.Health = "failed";
+                    }
+                }
+            }
+
+            if (failed)
+            {
+                drive.IsOK = false;
+                drive.Health = "FAILED";
+            }
+            else if (warning)
+            {
+                drive.IsOK = false;
+                drive.Health = "WARNING";
+            }
+            else
+            {
+                drive.IsOK = true;
+                drive.Health = "GOOD";
+            }
+        }
+
+        /*
          * This part is a mix between Llewellyn Kruger's and derek wilson's code. Modification by Quy Nguyen
          */
 
@@ -252,7 +318,7 @@ namespace getSystemInfo_cli
 
             {
                 output.AppendLine("-----------------------------------------------------");
-                output.AppendLine(string.Format(" DRIVE ({0}): " + drive.Serial + " - " + drive.Model + " - " + drive.Type, ((drive.IsOK) ? "OK" : "BAD")));
+                output.AppendLine(" DRIVE (" + drive.Health + "): " + drive.Serial + " - " + drive.Model + " - " + drive.Type);
                 output.AppendLine("-----------------------------------------------------");
                 output.AppendLine("");
 
@@ -260,7 +326,7 @@ namespace getSystemInfo_cli
                 foreach (var attr in drive.Attributes)
                 {
                     if (attr.Value.HasData)
-                        output.AppendLine(string.Format("{4,3} {0,-40} {1,-8} {2,-6} {3,-10} {5,-10} {6}", attr.Value.Attribute, attr.Value.Current, attr.Value.Worst, attr.Value.Threshold, attr.Key.ToString(), attr.Value.Data, ((attr.Value.IsOK) ? "OK" : "")));
+                        output.AppendLine(string.Format("{4,3} {0,-40} {1,-8} {2,-6} {3,-10} {5,-10} {6}", attr.Value.Attribute, attr.Value.Current, attr.Value.Worst, attr.Value.Threshold, attr.Key.ToString(), attr.Value.Data, ((attr.Value.IsOK) ? "ok" : attr.Value.Health)));
                 }
             }
             drive.smart = output.ToString();
@@ -277,6 +343,7 @@ namespace getSystemInfo_cli
             {
                 GetSmartInformation(HDD.Value);
                 GetSmartThreshold(HDD.Value);
+                AnalyseSmartData(HDD.Value);
                 compileSmartInfo(HDD.Value);
             }
             return HDDs;
