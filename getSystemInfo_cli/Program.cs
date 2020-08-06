@@ -15,83 +15,96 @@ namespace getSystemInfo_cli
         static void Main(string[] args)
         {
             Console.Write("Hostname to connect: ");
-            string hostname = Console.ReadLine(); ;
+            string hostname = Console.ReadLine();
+            hostname = hostname.Trim();
 
-            Console.Write("Use Windows Authentication? [y/n] ");
-            var userInput = Console.ReadKey();
-            string selection = userInput.KeyChar.ToString().ToLower();
-
-            Console.WriteLine();
             int connectionResult = 0;
-            if (selection != "n")
+            bool connectionIsLocal = true;
+
+            if (hostname.ToLower() == "localhost" || hostname == "127.0.0.1" || hostname.ToLower() == Environment.MachineName.ToLower())
             {
-                Console.WriteLine("Setting up remote WMi and registry connections with Windows Authentication...");
-                connectionResult = systemInfo.setupContextRemote(hostname, true);
+                connectionIsLocal = true;
+                connectionResult = systemInfo.setupContextLocal();
             }
             else
             {
-                Console.Write("Enter username: ");
-                string username = Console.ReadLine();
+                connectionIsLocal = false;
+                Console.Write("Use Windows Authentication? [y/n] ");
+                var userInput = Console.ReadKey();
+                string selection = userInput.KeyChar.ToString().ToLower();
 
-                Console.Write("Enter password: ");
-                // hide keypress, from https://stackoverflow.com/a/3404522
-                string password = "";
-                do
-                {
-                    ConsoleKeyInfo key = Console.ReadKey(true);
-                    // Backspace Should Not Work
-                    if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
-                    {
-                        password += key.KeyChar;
-                        Console.Write("*");
-                    }
-                    else
-                    {
-                        if (key.Key == ConsoleKey.Backspace && password.Length > 0)
-                        {
-                            password = password.Substring(0, (password.Length - 1));
-                            Console.Write("\b \b");
-                        }
-                        else if (key.Key == ConsoleKey.Enter)
-                        {
-                            break;
-                        }
-                    }
-                } while (true);
                 Console.WriteLine();
+                if (selection != "n")
+                {
+                    Console.WriteLine("Setting up remote WMi and registry connections with Windows Authentication...");
+                    connectionResult = systemInfo.setupContextRemote(hostname, true);
+                }
+                else
+                {
+                    Console.Write("Enter username: ");
+                    string username = Console.ReadLine();
 
-                connectionResult = systemInfo.setupContextRemote(hostname, false, username, password);
+                    Console.Write("Enter password: ");
+                    // hide keypress, from https://stackoverflow.com/a/3404522
+                    string password = "";
+                    do
+                    {
+                        ConsoleKeyInfo key = Console.ReadKey(true);
+                        // Backspace Should Not Work
+                        if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                        {
+                            password += key.KeyChar;
+                            Console.Write("*");
+                        }
+                        else
+                        {
+                            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                            {
+                                password = password.Substring(0, (password.Length - 1));
+                                Console.Write("\b \b");
+                            }
+                            else if (key.Key == ConsoleKey.Enter)
+                            {
+                                break;
+                            }
+                        }
+                    } while (true);
+                    Console.WriteLine();
+
+                    connectionResult = systemInfo.setupContextRemote(hostname, false, username, password);
+                }
             }
 
             Console.WriteLine("Context status = {0}", connectionResult);
             if (connectionResult != 0)
             {
+                string localOrRemote = connectionIsLocal ? "Local" : "Remote";
                 if (connectionResult == -1 || connectionResult == -3)
                 {
-                    Console.WriteLine("WMI remote connection failed.");
+                    Console.WriteLine("{0} WMI connection failed.", localOrRemote);
                 }
                 if (connectionResult == -2 || connectionResult == -3)
                 {
-                    Console.WriteLine("Remote registry connection failed.");
+                    Console.WriteLine("{0} registry connection failed.", localOrRemote);
                 }
 
                 Console.Write("Continue? [y/n] ");
-                userInput = Console.ReadKey();
+                var userInput = Console.ReadKey();
                 if (userInput.KeyChar.ToString().ToLower() != "y")
                 {
                     System.Environment.Exit(1);
                 }
             }
 
-            Console.WriteLine("Getting installed program list...");
-            string outputProgramCsv = string.Format("programList_remote_{0}_{1}.csv", hostname, getNowStringForFilename());
-            misc.writeCsv(systemInfo.getProgram_list(), outputProgramCsv, true);
-            Console.WriteLine("Written list to {0}", outputProgramCsv);
-
             Console.WriteLine("Getting system information...");
             string outputSysInfoLog = string.Format("system_info_{0}_{1}.txt", hostname, getNowStringForFilename());
             Console.WriteLine();
             getSystemResources(outputSysInfoLog);
+
+            Console.WriteLine("Getting installed program list...");
+            string outputProgramCsv = string.Format("programList_remote_{0}_{1}.csv", hostname, getNowStringForFilename());
+            misc.writeCsv(systemInfo.getProgram_list(), outputProgramCsv, true);
+            Console.WriteLine("Written list to {0}", outputProgramCsv);
 
             Console.WriteLine("Done.");
             Console.ReadLine();
@@ -157,16 +170,23 @@ namespace getSystemInfo_cli
             sbAppendWriteLine("RAM Slot Count: {0}", systemInfo.getMemory_slotCount());
             sbAppendWriteLine("RAM Stick Count: {0}", systemInfo.getMemory_stickCount());
 
-            List<string[]> RAMs = systemInfo.getMemory_stickList();
-
-            for (int i = 0; i < RAMs.Count; i++)
+            try
             {
-                sbAppendWriteLine("RAM Stick #{0}:", i + 1);
-                sbAppendWriteLine("    Manufacturer: {0}", RAMs[i][0]);
-                sbAppendWriteLine("    PartNumber: {0}", RAMs[i][1]);
-                sbAppendWriteLine("    Capacity: {0}", misc.byteToHumanSize(long.Parse(RAMs[i][2])));
-                sbAppendWriteLine("    Bus Speed: {0} MHz", RAMs[i][3]);
-                sbAppendWriteLine("    Type: {0}", RAMs[i][4]);
+                List<string[]> RAMs = systemInfo.getMemory_stickList();
+
+                for (int i = 0; i < RAMs.Count; i++)
+                {
+                    sbAppendWriteLine("RAM Stick #{0}:", i + 1);
+                    sbAppendWriteLine("    Manufacturer: {0}", RAMs[i][0]);
+                    sbAppendWriteLine("    PartNumber: {0}", RAMs[i][1]);
+                    sbAppendWriteLine("    Capacity: {0}", misc.byteToHumanSize(long.Parse(RAMs[i][2])));
+                    sbAppendWriteLine("    Bus Speed: {0} MHz", RAMs[i][3]);
+                    sbAppendWriteLine("    Type: {0}", RAMs[i][4]);
+                }
+            }
+            catch (Exception)
+            {
+                sbAppendWriteLine("Failed to get RAM Stick.");
             }
             #endregion
 
