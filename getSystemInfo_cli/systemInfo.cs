@@ -16,6 +16,7 @@ namespace getSystemInfo_cli
     {
         #region Setup Context Local/Remote
         public static ManagementScope scope;
+        public static ManagementScope scope2;
         public static RegistryKey registryLocalMachine;
         public static RegistryKey registryCurrentUser;
         public static RegistryKey registryUsers;
@@ -35,8 +36,10 @@ namespace getSystemInfo_cli
             registryUsers = Registry.Users;
 
             scope = new ManagementScope(@"\\.\root\cimv2");
+            scope2 = new ManagementScope(@"\\.\root\wmi");
             try {
                 scope.Connect();
+                scope2.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -68,6 +71,7 @@ namespace getSystemInfo_cli
             }
 
             scope = new ManagementScope(@"\\" + hostname + @"\root\cimv2");
+            scope2 = new ManagementScope(@"\\" + hostname + @"\root\wmi");
             scope.Options = options;
 
             int re = 0;
@@ -75,6 +79,7 @@ namespace getSystemInfo_cli
             try
             {
                 scope.Connect();
+                scope2.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -399,6 +404,7 @@ namespace getSystemInfo_cli
         // todo: function to run self tests
         public struct struct_hddInfo
         {
+            public string index;
             public string addr;
             public string model;
             public long size;
@@ -408,7 +414,16 @@ namespace getSystemInfo_cli
         public static List<struct_hddInfo> getHDD_list()
         {
             List<struct_hddInfo> result = new List<struct_hddInfo>();
-            List<string[]> hdds = lookupValue_all("Win32_DiskDrive", new string[] { "Name", "Model", "Size" });
+            List<string[]> hdds = lookupValue_all("Win32_DiskDrive", new string[] { "Name", "Model", "Size", "Index" });
+
+            Dictionary<int, HDD> wmiHDDs = new Dictionary<int, HDD>();
+            if (contextIsRemote)
+            {
+                var getHddInfo = new getHddInfo();
+                getHddInfo.scope = scope;
+                getHddInfo.scope2 = scope2;
+                wmiHDDs = getHddInfo.getAllDiskData();
+            }
 
             foreach (string[] hdd in hdds)
             {
@@ -417,13 +432,16 @@ namespace getSystemInfo_cli
                     addr = hdd[0],
                     model = hdd[1],
                     size = varToLong(hdd[2]),
-                    smart = contextIsRemote ? "Remote S.M.A.R.T not yet implemented." : getHddSmartInfo(hdd[0])
+                    index = hdd[3],
                 };
+
+                int Index = Convert.ToInt32(thisOne.index.ToString().Trim());
+                thisOne.smart = contextIsRemote ? wmiHDDs[Index].smart : getHddSmartInfo(hdd[0]);
                 //Console.WriteLine(thisOne.name);
                 //Console.WriteLine(thisOne.model);
                 //Console.WriteLine(thisOne.size);
                 //Console.WriteLine(thisOne.smart);
-                result.Add(thisOne);
+            result.Add(thisOne);
             }
 
             return result;

@@ -44,6 +44,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\getSystemInfo_cli\HDD.cs">
+      <Link>HDD.cs</Link>
+    </Compile>
     <Compile Include="..\getSystemInfo_cli\misc.cs">
       <Link>misc.cs</Link>
     </Compile>
