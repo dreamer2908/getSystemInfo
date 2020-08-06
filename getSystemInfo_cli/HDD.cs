@@ -45,14 +45,33 @@ namespace getSystemInfo_cli
                 {0x0B, new Smart("Calibration retry count")},
                 {0x0C, new Smart("Power cycle count")},
                 {0x0D, new Smart("Soft read error rate")},
+                {0x16, new Smart("Current Helium Level")}, // added by QN
+                {0xAA, new Smart("Available Reserved Space")}, // added by QN
+                {0xAB, new Smart("SSD Program Fail Count")}, // added by QN
+                {0xAC, new Smart("SSD Erase Fail Count")}, // added by QN
+                {0xAD, new Smart("SSD Wear Leveling Count")}, // added by QN
+                {0xAE, new Smart("Unexpected Power Loss Count")}, // added by QN
+                {0xAF, new Smart("Power Loss Protection Failure")}, // added by QN
+                {0xB0, new Smart("Erase Fail Count")}, // added by QN
+                {0xB1, new Smart("Wear Range Delta")}, // added by QN
+                {0xB3, new Smart("Used Reserved Block Count Total")}, // added by QN
+                {0xB4, new Smart("Unused Reserved Block Count Total")}, // added by QN
+                {0xB5, new Smart("Program Fail Count Total")}, // added by QN
+                {0xB6, new Smart("Erase Fail Count")}, // added by QN
+                {0xB7, new Smart("Runtime Bad Block")}, // added by QN
                 {0xB8, new Smart("End-to-End error")},
+                {0xB9, new Smart("Head Stability")}, // added by QN
+                {0xBA, new Smart("Induced Op-Vibration Detection")}, // added by QN
+                {0xBB, new Smart("Reported Uncorrectable Errors")}, // added by QN
+                {0xBC, new Smart("Command Timeout")}, // added by QN
+                {0xBD, new Smart("High Fly Writes")}, // added by QN
                 {0xBE, new Smart("Airflow Temperature")},
                 {0xBF, new Smart("G-sense error rate")},
                 {0xC0, new Smart("Power-off retract count")},
                 {0xC1, new Smart("Load/Unload cycle count")},
                 {0xC2, new Smart("HDD temperature")},
                 {0xC3, new Smart("Hardware ECC recovered")},
-                {0xC4, new Smart("Reallocation count")},
+                {0xC4, new Smart("Reallocation event count")},
                 {0xC5, new Smart("Current pending sector count")},
                 {0xC6, new Smart("Offline scan uncorrectable count")},
                 {0xC7, new Smart("UDMA CRC error rate")},
@@ -66,6 +85,9 @@ namespace getSystemInfo_cli
                 {0xCF, new Smart("Spin high current")},
                 {0xD0, new Smart("Spin buzz")},
                 {0xD1, new Smart("Offline seek performance")},
+                {0xD2, new Smart("Vibration During Write")}, // added by QN
+                {0xD3, new Smart("Vibration During Write")}, // added by QN
+                {0xD4, new Smart("Shock During Write")}, // added by QN
                 {0xDC, new Smart("Disk shift")},
                 {0xDD, new Smart("G-sense error rate")},
                 {0xDE, new Smart("Loaded hours")},
@@ -76,9 +98,23 @@ namespace getSystemInfo_cli
                 {0xE3, new Smart("Torque amplification count")},
                 {0xE4, new Smart("Power-off retract count")},
                 {0xE6, new Smart("GMR head amplitude")},
-                {0xE7, new Smart("Temperature")},
+                {0xE7, new Smart("Life Left")}, // changed by QN
+                {0xE8, new Smart("Endurance Remaining")}, // added by QN
+                {0xE9, new Smart("Media Wearout Indicator")}, // added by QN
+                // 0xEA and 0xEB can't be decoded for now
+                {0xEA, new Smart("Average erase count")}, // added by QN
+                {0xEB, new Smart("Good Block Count")}, // added by QN
                 {0xF0, new Smart("Head flying hours")},
+                {0xF1, new Smart("Total LBAs Written")}, // added by QN
+                {0xF2, new Smart("Total LBAs Read")}, // added by QN
+                // 0xF3 and 0xF4 can't be combined into F0 and F1 yet
+                {0xF3, new Smart("Total LBAs Written Expanded")}, // added by QN
+                {0xF4, new Smart("Total LBAs Read Expanded")}, // added by QN
+                {0xF9, new Smart("NAND Writes (1GiB)")}, // added by QN
                 {0xFA, new Smart("Read error retry rate")},
+                {0xFB, new Smart("Minimum Spares Remaining")}, // added by QN
+                {0xFC, new Smart("Newly Added Bad Flash Block")}, // added by QN
+                {0xFE, new Smart("Free Fall Protection")}, // added by QN
                 /* slot in any new codes you find in here */
             };
     }
