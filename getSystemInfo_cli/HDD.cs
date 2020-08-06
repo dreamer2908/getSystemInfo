@@ -245,11 +245,18 @@ namespace getSystemInfo_cli
         {
             /*
              * warning health if at least one of these attributes have value over 0
+             * Critical attribute according to wikipedia
+             * https://en.wikipedia.org/wiki/S.M.A.R.T.#Known_ATA_S.M.A.R.T._attributes
              * 0x05 "Reallocated sector count"
              * 0xC4 "Reallocation count"
              * 0xC5 "Current pending sector count"
              * 0xC6 "Offline scan uncorrectable count"
              * 0xC7 "UDMA CRC error rate"
+             * 0x0A Spin Retry Count
+             * 0xB8 End-to-End error
+             * 0xBB Reported Uncorrectable Errors
+             * 0xBC Command Timeout
+             * 0xC9 Soft Read Error Rate
              */
             bool warning = false;
             foreach (var attr in drive.Attributes)
@@ -257,7 +264,9 @@ namespace getSystemInfo_cli
                 if (attr.Value.HasData)
                 {
                     int id = attr.Key;
-                    if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7) && attr.Value.Data != 0)
+                    if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7
+                         || id == 0x0A || id == 0xB8 || id == 0xBB || id == 0xBC || id == 0xC9)
+                        && attr.Value.Data != 0)
                     {
                         warning = true;
                         attr.Value.IsOK = false;
