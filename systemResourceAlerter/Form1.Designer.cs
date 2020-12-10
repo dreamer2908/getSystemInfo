@@ -1283,9 +1283,9 @@
             this.label32.AutoSize = true;
             this.label32.Location = new System.Drawing.Point(225, 97);
             this.label32.Name = "label32";
-            this.label32.Size = new System.Drawing.Size(33, 13);
+            this.label32.Size = new System.Drawing.Size(43, 13);
             this.label32.TabIndex = 3;
-            this.label32.Text = "hours";
+            this.label32.Text = "minutes";
             // 
             // label27
             // 

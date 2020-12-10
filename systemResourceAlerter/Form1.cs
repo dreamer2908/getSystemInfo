@@ -12,6 +12,7 @@ using System.Text;
 using System.IO;
 using System.Drawing;
 using System.Globalization;
+using getSystemInfo_cli;
 
 namespace systemResourceAlerter
 {
@@ -126,12 +127,14 @@ namespace systemResourceAlerter
         int onlineUpdatePeriod = 900; // seconds. set this to 0 or negative to disable update
 
         bool checkLocalDiskSpaceEnable = true;
-        int checkLocalDiskSpacePeriod = 3600; // seconds. The GUI uses hours
+        int checkLocalDiskSpacePeriod = 1; // minutes
         int systemPartitionThreshold = 90;
         int otherPartitionThreshold = 90;
+        bool alert2InProgress = false;
+        string alert2Message = string.Empty;
 
         bool diagnoseLocalDiskHealthEnable = true;
-        int diagnoseLocalDiskHealthPeriod = 3600; // seconds. The GUI uses hours
+        int diagnoseLocalDiskHealthPeriod = 1; // hours
 
         #endregion
 
@@ -545,22 +548,32 @@ namespace systemResourceAlerter
             // or when delay is asked to be ignored
             double secondSinceLastEmail = (DateTime.Now - lastEmailTimestamp).TotalSeconds;
 
-            if ((alertInProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
+            if ((alertInProgress || alert2InProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
             {
                 string email_body = emailHeadline + "At system time: " + getNowString();
                 double avgCPU = queueCalcAverage(cpuUsageHistory);
                 double avgRAM = queueCalcAverage(ramUsageHistory);
                 var alertDuration = (DateTime.Now - alertBegin);
 
+                if (alertInProgress)
+                {
+                    email_body += "\n \n" + string.Format("Alert detected at: {0}!! \nElapsed Time: {1}", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
+                }
+                else
+                {
+                    email_body += "\n \n" + string.Format("No alert detected about CPU and RAM.");
+                }
+
                 email_body += "\n \n" + string.Format("Average CPU usage over {1} seconds period is {0:0.00}%.", avgCPU, cpuUsageHistory.Count);
                 email_body += "\n" + string.Format("Average RAM usage over {1} seconds period is {0:0.00}%.", avgRAM, ramUsageHistory.Count);
 
-                if (alertInProgress)
+                if (alert2InProgress)
                 {
-                    email_body += "\n \n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}\n", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
-                } else
+                    email_body += "\n \n" + "Disk space alert detected!!\n \n" + alert2Message;
+                }
+                else
                 {
-                    email_body += "\n \n" + string.Format("No alert detected.\n");
+                    email_body += "\n \n" + string.Format("No alert detected about local disk space.\n");
                 }
 
                 lastEmailTimestamp = DateTime.Now;
@@ -977,16 +990,44 @@ namespace systemResourceAlerter
         private void restartDiskTimers()
         {
             timer5.Stop();
-            timer5.Interval = checkLocalDiskSpacePeriod * 3600 * 1000;
+            timer5.Interval = checkLocalDiskSpacePeriod * 60 * 1000;
             timer5.Start();
             timer6.Stop();
             timer6.Interval = diagnoseLocalDiskHealthPeriod * 3600 * 1000;
             timer6.Start();
         }
 
-        private void checklocalDiskSpaceUsage()
+        private void checkLocalDiskSpaceUsage()
         {
+            bool alert = false;
+            var messages = new StringBuilder();
 
+            var allLogicalDrives = systemInfo.getDrive_allLogicalDrives();
+
+            long fixedDriveTotalSize = 0;
+            long fixedDriveAvailableSize = 0;
+
+            foreach (var d in allLogicalDrives)
+            {
+                if (d.iType == 3) // fixed local disk
+                {
+                    fixedDriveTotalSize += d.size;
+                    fixedDriveAvailableSize += d.free;
+
+                    int threshold = (d.isSystemDrive) ? systemPartitionThreshold : otherPartitionThreshold;
+                    long dUsedSize = d.size - d.free;
+                    double dUsedPercent = 100.0 * dUsedSize / d.size;
+                    if (dUsedPercent > threshold)
+                    {
+                        alert = true;
+                        messages.AppendLine(string.Format("Drive: {0} ({1}). Capacity: {2}, {3} used ({4:0.00}%)", d.name, d.volumeName, misc.byteToHumanSize(d.size), misc.byteToHumanSize(dUsedSize), dUsedPercent));
+
+                    }
+                }
+            }
+
+            alert2InProgress = alert;
+            alert2Message = messages.ToString();
         }
 
         private void diagnoseLocalDiskHealth()
@@ -1563,6 +1604,7 @@ namespace systemResourceAlerter
         private void sendResourceStatusToolStripMenuItem_Click(object sender, EventArgs e)
         {
             applySettings();
+            checkLocalDiskSpaceUsage();
             sendEmailAlert(true, true);
         }
 
@@ -1580,7 +1622,7 @@ namespace systemResourceAlerter
         {
             if (checkLocalDiskSpaceEnable)
             {
-                checklocalDiskSpaceUsage();
+                checkLocalDiskSpaceUsage();
             }
         }
 
