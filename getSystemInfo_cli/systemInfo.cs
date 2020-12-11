@@ -413,13 +413,13 @@ namespace getSystemInfo_cli
             public string health;
         }
 
-        public static List<struct_hddInfo> getHDD_list()
+        public static List<struct_hddInfo> getHDD_list(bool forceWmiSmart = false)
         {
             List<struct_hddInfo> result = new List<struct_hddInfo>();
             List<string[]> hdds = lookupValue_all("Win32_DiskDrive", new string[] { "Name", "Model", "Size", "Index" });
 
             Dictionary<int, HDD> wmiHDDs = new Dictionary<int, HDD>();
-            if (contextIsRemote)
+            if (contextIsRemote || forceWmiSmart)
             {
                 var getHddInfo = new getHddInfo();
                 getHddInfo.scope = scope;
@@ -439,7 +439,7 @@ namespace getSystemInfo_cli
 
                 int Index = Convert.ToInt32(thisOne.index.ToString().Trim());
 
-                if (contextIsRemote)
+                if (contextIsRemote || forceWmiSmart)
                 {
                     thisOne.smart = wmiHDDs[Index].smart;
                     thisOne.isOk = wmiHDDs[Index].IsOK;

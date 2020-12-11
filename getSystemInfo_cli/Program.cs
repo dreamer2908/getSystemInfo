@@ -231,7 +231,7 @@ namespace getSystemInfo_cli
                 sbAppendWriteLine("    Your fixed stats: {0}, {1} used ({2:0.00}%)", misc.byteToHumanSize(fixedDriveTotalSize), misc.byteToHumanSize(fixedDriveUsedSize), fixedDriveUsedPercent);
             }
 
-            var HDDs = systemInfo.getHDD_list();
+            var HDDs = systemInfo.getHDD_list(true);
             sbAppendWriteLine("Physical Drive Count: {0}", HDDs.Count);
 
             for (int i = 0; i < HDDs.Count; i++)
