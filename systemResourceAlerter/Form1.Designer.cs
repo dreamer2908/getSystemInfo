@@ -150,6 +150,7 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numEmailPort)).BeginInit();
@@ -196,36 +197,37 @@
             this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.sendSystemInfoToolStripMenuItem,
             this.sendResourceStatusToolStripMenuItem,
+            this.toolStripMenuItem1,
             this.updateAppToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(187, 92);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 136);
             // 
             // sendSystemInfoToolStripMenuItem
             // 
             this.sendSystemInfoToolStripMenuItem.Name = "sendSystemInfoToolStripMenuItem";
-            this.sendSystemInfoToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.sendSystemInfoToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.sendSystemInfoToolStripMenuItem.Text = "Send System Info";
             this.sendSystemInfoToolStripMenuItem.Click += new System.EventHandler(this.sendSystemInfoToolStripMenuItem_Click);
             // 
             // sendResourceStatusToolStripMenuItem
             // 
             this.sendResourceStatusToolStripMenuItem.Name = "sendResourceStatusToolStripMenuItem";
-            this.sendResourceStatusToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.sendResourceStatusToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.sendResourceStatusToolStripMenuItem.Text = "Send Resource Status";
             this.sendResourceStatusToolStripMenuItem.Click += new System.EventHandler(this.sendResourceStatusToolStripMenuItem_Click);
             // 
             // updateAppToolStripMenuItem
             // 
             this.updateAppToolStripMenuItem.Name = "updateAppToolStripMenuItem";
-            this.updateAppToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.updateAppToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.updateAppToolStripMenuItem.Text = "Update App";
             this.updateAppToolStripMenuItem.Click += new System.EventHandler(this.updateAppToolStripMenuItem_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(186, 22);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
@@ -1453,6 +1455,13 @@
             this.timer6.Tag = "Disk space";
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
             // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(198, 22);
+            this.toolStripMenuItem1.Text = "Send Disk Health Status";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -1623,6 +1632,7 @@
         private System.Windows.Forms.Label label33;
         private System.Windows.Forms.Timer timer5;
         private System.Windows.Forms.Timer timer6;
+        private System.Windows.Forms.ToolStripMenuItem toolStripMenuItem1;
     }
 }
 

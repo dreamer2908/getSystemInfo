@@ -32,6 +32,7 @@ namespace systemResourceAlerter
             if (autoStart)
             {
                 startEmailAlert();
+                sendHddHealthAlert();
             }
 
             timer3.Start();
@@ -135,6 +136,8 @@ namespace systemResourceAlerter
 
         bool diagnoseLocalDiskHealthEnable = true;
         int diagnoseLocalDiskHealthPeriod = 1; // hours
+        bool alert3InProgress = false;
+        string alert3Message = string.Empty;
 
         #endregion
 
@@ -285,6 +288,20 @@ namespace systemResourceAlerter
                 return true;
             }
             return false;
+        }
+
+        static string addPaddingToLines(string text, string pad)
+        {
+            var bs = new StringBuilder();
+
+            var input = text.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+
+            foreach (var line in input)
+            {
+                bs.AppendLine(pad + line);
+            }
+
+            return bs.ToString();
         }
         #endregion
 
@@ -574,6 +591,36 @@ namespace systemResourceAlerter
                 else
                 {
                     email_body += "\n \n" + string.Format("No alert detected about local disk space.\n");
+                }
+
+                lastEmailTimestamp = DateTime.Now;
+                if (custom_to != null)
+                {
+                    sendEmail(custom_to, email_subject, email_body);
+                }
+                else
+                {
+                    sendEmail(email_to, email_subject, email_body);
+                }
+            }
+        }
+
+        private void sendHddHealthAlert(bool ignoreDelay = false, bool ignoreAlertStatus = false, List<string> custom_to = null)
+        {
+            if (alert3InProgress || ignoreAlertStatus)
+            {
+                string email_body = emailHeadline + "At system time: " + getNowString();
+                double avgCPU = queueCalcAverage(cpuUsageHistory);
+                double avgRAM = queueCalcAverage(ramUsageHistory);
+                var alertDuration = (DateTime.Now - alertBegin);
+
+                if (alert3InProgress)
+                {
+                    email_body += "\n \n" + "Disk health alert detected!!\n \n" + alert3Message;
+                }
+                else
+                {
+                    email_body += "\n \n" + string.Format("No alert detected about local disk health.\n");
                 }
 
                 lastEmailTimestamp = DateTime.Now;
@@ -1032,7 +1079,39 @@ namespace systemResourceAlerter
 
         private void diagnoseLocalDiskHealth()
         {
+            var HDDs = systemInfo.getHDD_list(true);
+            var sb = new StringBuilder();
+            var sb2 = new StringBuilder();
+            bool alert = false;
 
+            sb2.AppendLine("Disk health summary:");
+            sb.AppendFormat("Physical drive count: {0}\n", HDDs.Count);
+
+            for (int i = 0; i < HDDs.Count; i++)
+            {
+                sb.AppendFormat("HDD #{0}:\n", i + 1);
+
+                var HDD = HDDs[i];
+
+                sb.AppendLine("    Address: " + HDD.addr);
+                sb.AppendLine("    Model: " + HDD.model);
+                sb.AppendLine("    Capacity: " + misc.byteToHumanSize(HDD.size));
+                sb.AppendLine("    S.M.A.R.T info:");
+                sb.AppendLine(addPaddingToLines(HDD.smart, "        "));
+                sb.AppendLine();
+
+                if (HDD.isOk == false) // note that it can also be null
+                {
+                    alert = true;
+                }
+
+                sb2.AppendFormat("HDD #{0}: {1}\n", i + 1, HDD.health);
+            }
+
+            sb2.Append("\nMore detail below.\n \n \n");
+
+            alert3InProgress = alert;
+            alert3Message = sb2.ToString() + sb.ToString();
         }
         #endregion
 
@@ -1631,10 +1710,17 @@ namespace systemResourceAlerter
             if (diagnoseLocalDiskHealthEnable)
             {
                 diagnoseLocalDiskHealth();
+                sendHddHealthAlert();
             }
         }
-        #endregion
 
+        private void toolStripMenuItem1_Click(object sender, EventArgs e)
+        {
+            diagnoseLocalDiskHealth();
+            sendHddHealthAlert(true, true);
+        }
+
+        #endregion
     }
 
 }
