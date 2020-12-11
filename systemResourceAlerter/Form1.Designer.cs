@@ -201,7 +201,7 @@
             this.updateAppToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 136);
+            this.contextMenuStrip1.Size = new System.Drawing.Size(199, 114);
             // 
             // sendSystemInfoToolStripMenuItem
             // 
@@ -1379,10 +1379,10 @@
             0,
             0});
             this.numDiagnoseLocalDiskHealthEveryxHour.Name = "numDiagnoseLocalDiskHealthEveryxHour";
-            this.numDiagnoseLocalDiskHealthEveryxHour.Size = new System.Drawing.Size(40, 20);
+            this.numDiagnoseLocalDiskHealthEveryxHour.Size = new System.Drawing.Size(47, 20);
             this.numDiagnoseLocalDiskHealthEveryxHour.TabIndex = 1;
             this.numDiagnoseLocalDiskHealthEveryxHour.Value = new decimal(new int[] {
-            1,
+            60,
             0,
             0,
             0});
@@ -1392,9 +1392,9 @@
             this.label33.AutoSize = true;
             this.label33.Location = new System.Drawing.Point(25, 41);
             this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(116, 13);
+            this.label33.Size = new System.Drawing.Size(126, 13);
             this.label33.TabIndex = 2;
-            this.label33.Text = "every                   hours";
+            this.label33.Text = "every                   minutes";
             // 
             // chbDiagnoseLocalDiskHealthEnable
             // 

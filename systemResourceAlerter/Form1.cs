@@ -135,7 +135,7 @@ namespace systemResourceAlerter
         string alert2Message = string.Empty;
 
         bool diagnoseLocalDiskHealthEnable = true;
-        int diagnoseLocalDiskHealthPeriod = 1; // hours
+        int diagnoseLocalDiskHealthPeriod = 60; // minutes
         bool alert3InProgress = false;
         string alert3Message = string.Empty;
 
@@ -1040,7 +1040,7 @@ namespace systemResourceAlerter
             timer5.Interval = checkLocalDiskSpacePeriod * 60 * 1000;
             timer5.Start();
             timer6.Stop();
-            timer6.Interval = diagnoseLocalDiskHealthPeriod * 3600 * 1000;
+            timer6.Interval = diagnoseLocalDiskHealthPeriod * 60 * 1000;
             timer6.Start();
         }
 
@@ -1387,7 +1387,7 @@ namespace systemResourceAlerter
             otherPartitionThreshold = Settings.Get("otherPartitionThreshold", 90);
 
             diagnoseLocalDiskHealthEnable = Settings.Get("diagnoseLocalDiskHealthEnable", true);
-            diagnoseLocalDiskHealthPeriod = Settings.Get("diagnoseLocalDiskHealthPeriod", 1);
+            diagnoseLocalDiskHealthPeriod = Settings.Get("diagnoseLocalDiskHealthPeriod", 60);
         }
 
         private string[] separatorComma = new string[] { "," };
