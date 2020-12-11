@@ -409,6 +409,8 @@ namespace getSystemInfo_cli
             public string model;
             public long size;
             public string smart;
+            public bool? isOk;
+            public string health;
         }
 
         public static List<struct_hddInfo> getHDD_list()
@@ -436,12 +438,25 @@ namespace getSystemInfo_cli
                 };
 
                 int Index = Convert.ToInt32(thisOne.index.ToString().Trim());
-                thisOne.smart = contextIsRemote ? wmiHDDs[Index].smart : getHddSmartInfo(hdd[0]);
+
+                if (contextIsRemote)
+                {
+                    thisOne.smart = wmiHDDs[Index].smart;
+                    thisOne.isOk = wmiHDDs[Index].IsOK;
+                    thisOne.health = wmiHDDs[Index].Health;
+                }
+                else
+                {
+                    thisOne.smart = getHddSmartInfo(hdd[0]);
+                    // parsing smartctl output not yet implemented, so isOk is null and health is UNKNOWN for now
+                    thisOne.isOk = null;
+                    thisOne.health = "UNKNOWN";
+                }
                 //Console.WriteLine(thisOne.name);
                 //Console.WriteLine(thisOne.model);
                 //Console.WriteLine(thisOne.size);
                 //Console.WriteLine(thisOne.smart);
-            result.Add(thisOne);
+                result.Add(thisOne);
             }
 
             return result;

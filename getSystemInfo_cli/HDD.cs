@@ -24,7 +24,7 @@ namespace getSystemInfo_cli
     {
         public string Id { get; set; }
         public int Index { get; set; }
-        public bool IsOK { get; set; }
+        public bool? IsOK { get; set; }
         public string Health { get; set; }
         public string Model { get; set; }
         public string Type { get; set; }
@@ -197,42 +197,49 @@ namespace getSystemInfo_cli
             // retrieve attribute flags, value worst and vendor data information
             searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictData");
             int iDriveIndex = 0;
-            foreach (ManagementObject data in searcher.Get())
+            try
             {
-                if (index == iDriveIndex)
+                foreach (ManagementObject data in searcher.Get())
                 {
-                    Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
-                    for (int i = 0; i < 30; ++i)
+                    if (index == iDriveIndex)
                     {
-                        int id = 0;
-                        try
-                        {
-                            id = bytes[i * 12 + 2];
+                            Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
+                            for (int i = 0; i < 30; ++i)
+                            {
+                                int id = 0;
+                                try
+                                {
+                                    id = bytes[i * 12 + 2];
 
-                            int flags = bytes[i * 12 + 4]; // least significant status byte, +3 most significant byte, but not used so ignored.
-                                                           //bool advisory = (flags & 0x1) == 0x0;
-                            bool failureImminent = (flags & 0x1) == 0x1;
-                            //bool onlineDataCollection = (flags & 0x2) == 0x2;
+                                    int flags = bytes[i * 12 + 4]; // least significant status byte, +3 most significant byte, but not used so ignored.
+                                                                   //bool advisory = (flags & 0x1) == 0x0;
+                                    bool failureImminent = (flags & 0x1) == 0x1;
+                                    //bool onlineDataCollection = (flags & 0x2) == 0x2;
 
-                            int value = bytes[i * 12 + 5];
-                            int worst = bytes[i * 12 + 6];
-                            int vendordata = BitConverter.ToInt32(bytes, i * 12 + 7);
-                            if (id == 0) continue;
+                                    int value = bytes[i * 12 + 5];
+                                    int worst = bytes[i * 12 + 6];
+                                    int vendordata = BitConverter.ToInt32(bytes, i * 12 + 7);
+                                    if (id == 0) continue;
 
-                            var attr = drive.Attributes[id];
-                            attr.Current = value;
-                            attr.Worst = worst;
-                            attr.Data = vendordata;
-                            attr.IsOK = !failureImminent;
-                        }
-                        catch
-                        {
-                            // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
-                            _logger.AppendLine($"SMART Key Not found {id}");
-                        }
+                                    var attr = drive.Attributes[id];
+                                    attr.Current = value;
+                                    attr.Worst = worst;
+                                    attr.Data = vendordata;
+                                    attr.IsOK = !failureImminent;
+                                }
+                                catch
+                                {
+                                    // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
+                                    _logger.AppendLine($"SMART Key Not found {id}");
+                                }
+                            }
                     }
+                    iDriveIndex++;
                 }
-                iDriveIndex++;
+            }
+            catch (System.Management.ManagementException)
+            {
+                _logger.AppendLine("SMART not supported.");
             }
         }
 
@@ -259,10 +266,12 @@ namespace getSystemInfo_cli
              * 0xC9 Soft Read Error Rate
              */
             bool warning = false;
+            bool unknown = true;
             foreach (var attr in drive.Attributes)
             {
                 if (attr.Value.HasData)
                 {
+                    unknown = false;
                     int id = attr.Key;
                     if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7
                          || id == 0x0A || id == 0xB8 || id == 0xBB || id == 0xBC || id == 0xC9)
@@ -292,7 +301,12 @@ namespace getSystemInfo_cli
                 }
             }
 
-            if (failed)
+            if (unknown)
+            {
+                drive.IsOK = null;
+                drive.Health = "UNKNOWN";
+            }
+            else if (failed)
             {
                 drive.IsOK = false;
                 drive.Health = "FAILED";
@@ -327,29 +341,36 @@ namespace getSystemInfo_cli
             // retreive threshold values foreach attribute
             searcher.Query = new ObjectQuery("Select * from MSStorageDriver_FailurePredictThresholds");
             int iDriveIndex = 0;
-            foreach (ManagementObject data in searcher.Get())
+            try
             {
-                if (index == iDriveIndex)
+                foreach (ManagementObject data in searcher.Get())
                 {
-                    Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
-                    for (int i = 0; i < 30; ++i)
+                    if (index == iDriveIndex)
                     {
-                        try
+                        Byte[] bytes = (Byte[])data.Properties["VendorSpecific"].Value;
+                        for (int i = 0; i < 30; ++i)
                         {
-                            int id = bytes[i * 12 + 2];
-                            int thresh = bytes[i * 12 + 3];
-                            if (id == 0) continue;
+                            try
+                            {
+                                int id = bytes[i * 12 + 2];
+                                int thresh = bytes[i * 12 + 3];
+                                if (id == 0) continue;
 
-                            var attr = drive.Attributes[id];
-                            attr.Threshold = thresh;
-                        }
-                        catch
-                        {
-                            // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
+                                var attr = drive.Attributes[id];
+                                attr.Threshold = thresh;
+                            }
+                            catch
+                            {
+                                // given key does not exist in attribute collection (attribute not in the dictionary of attributes)
+                            }
                         }
                     }
+                    iDriveIndex++;
                 }
-                iDriveIndex++;
+            }
+            catch (System.Management.ManagementException)
+            {
+                _logger.AppendLine("SMART not supported.");
             }
         }
 
