@@ -1254,6 +1254,11 @@
             // numCheckLocalDiskUsageEveryxHour
             // 
             this.numCheckLocalDiskUsageEveryxHour.Location = new System.Drawing.Point(160, 95);
+            this.numCheckLocalDiskUsageEveryxHour.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
             this.numCheckLocalDiskUsageEveryxHour.Minimum = new decimal(new int[] {
             1,
             0,
@@ -1373,6 +1378,11 @@
             // numDiagnoseLocalDiskHealthEveryxHour
             // 
             this.numDiagnoseLocalDiskHealthEveryxHour.Location = new System.Drawing.Point(59, 38);
+            this.numDiagnoseLocalDiskHealthEveryxHour.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
             this.numDiagnoseLocalDiskHealthEveryxHour.Minimum = new decimal(new int[] {
             1,
             0,

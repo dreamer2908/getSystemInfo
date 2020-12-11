@@ -32,7 +32,6 @@ namespace systemResourceAlerter
             if (autoStart)
             {
                 startEmailAlert();
-                sendHddHealthAlert();
             }
 
             timer3.Start();
@@ -41,6 +40,12 @@ namespace systemResourceAlerter
 
             allowShowUI = !autoHide;
             notifyIcon1.Visible = autoHide;
+
+            if (autoStart && diagnoseLocalDiskHealthEnable)
+            {
+                diagnoseLocalDiskHealth();
+                sendHddHealthAlert();
+            }
         }
 
         #region Variables
@@ -1695,6 +1700,7 @@ namespace systemResourceAlerter
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+            Environment.Exit(0);
         }
 
         private void timer5_Tick(object sender, EventArgs e)
