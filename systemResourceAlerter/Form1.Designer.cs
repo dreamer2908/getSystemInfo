@@ -132,7 +132,7 @@
             this.tabPage3 = new System.Windows.Forms.TabPage();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.groupBox6 = new System.Windows.Forms.GroupBox();
-            this.numCheckLocalDiskUsageEveryxHour = new System.Windows.Forms.NumericUpDown();
+            this.numCheckLocalDiskUsagePeriod = new System.Windows.Forms.NumericUpDown();
             this.numOtherPartitionUsageThreshold = new System.Windows.Forms.NumericUpDown();
             this.label32 = new System.Windows.Forms.Label();
             this.label27 = new System.Windows.Forms.Label();
@@ -143,7 +143,7 @@
             this.label30 = new System.Windows.Forms.Label();
             this.chbCheckLocalDiskSpaceEnable = new System.Windows.Forms.CheckBox();
             this.groupBox5 = new System.Windows.Forms.GroupBox();
-            this.numDiagnoseLocalDiskHealthEveryxHour = new System.Windows.Forms.NumericUpDown();
+            this.numDiagnoseLocalDiskHealthPeriod = new System.Windows.Forms.NumericUpDown();
             this.label33 = new System.Windows.Forms.Label();
             this.chbDiagnoseLocalDiskHealthEnable = new System.Windows.Forms.CheckBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
@@ -164,11 +164,11 @@
             this.tabPage3.SuspendLayout();
             this.tabPage1.SuspendLayout();
             this.groupBox6.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numCheckLocalDiskUsageEveryxHour)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCheckLocalDiskUsagePeriod)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOtherPartitionUsageThreshold)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSystemPartitionUsageThreshold)).BeginInit();
             this.groupBox5.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDiagnoseLocalDiskHealthEveryxHour)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDiagnoseLocalDiskHealthPeriod)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.tabPage2.SuspendLayout();
             this.SuspendLayout();
@@ -1234,7 +1234,7 @@
             // 
             // groupBox6
             // 
-            this.groupBox6.Controls.Add(this.numCheckLocalDiskUsageEveryxHour);
+            this.groupBox6.Controls.Add(this.numCheckLocalDiskUsagePeriod);
             this.groupBox6.Controls.Add(this.numOtherPartitionUsageThreshold);
             this.groupBox6.Controls.Add(this.label32);
             this.groupBox6.Controls.Add(this.label27);
@@ -1251,19 +1251,24 @@
             this.groupBox6.TabStop = false;
             this.groupBox6.Text = "Storage Space";
             // 
-            // numCheckLocalDiskUsageEveryxHour
+            // numCheckLocalDiskUsagePeriod
             // 
-            this.numCheckLocalDiskUsageEveryxHour.Location = new System.Drawing.Point(160, 95);
-            this.numCheckLocalDiskUsageEveryxHour.Minimum = new decimal(new int[] {
+            this.numCheckLocalDiskUsagePeriod.Location = new System.Drawing.Point(160, 95);
+            this.numCheckLocalDiskUsagePeriod.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numCheckLocalDiskUsagePeriod.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.numCheckLocalDiskUsageEveryxHour.Name = "numCheckLocalDiskUsageEveryxHour";
-            this.numCheckLocalDiskUsageEveryxHour.Size = new System.Drawing.Size(59, 20);
-            this.numCheckLocalDiskUsageEveryxHour.TabIndex = 8;
-            this.numCheckLocalDiskUsageEveryxHour.Value = new decimal(new int[] {
-            1,
+            this.numCheckLocalDiskUsagePeriod.Name = "numCheckLocalDiskUsagePeriod";
+            this.numCheckLocalDiskUsagePeriod.Size = new System.Drawing.Size(59, 20);
+            this.numCheckLocalDiskUsagePeriod.TabIndex = 8;
+            this.numCheckLocalDiskUsagePeriod.Value = new decimal(new int[] {
+            60,
             0,
             0,
             0});
@@ -1360,7 +1365,7 @@
             // 
             // groupBox5
             // 
-            this.groupBox5.Controls.Add(this.numDiagnoseLocalDiskHealthEveryxHour);
+            this.groupBox5.Controls.Add(this.numDiagnoseLocalDiskHealthPeriod);
             this.groupBox5.Controls.Add(this.label33);
             this.groupBox5.Controls.Add(this.chbDiagnoseLocalDiskHealthEnable);
             this.groupBox5.Location = new System.Drawing.Point(231, 7);
@@ -1370,18 +1375,23 @@
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "Disk Health";
             // 
-            // numDiagnoseLocalDiskHealthEveryxHour
+            // numDiagnoseLocalDiskHealthPeriod
             // 
-            this.numDiagnoseLocalDiskHealthEveryxHour.Location = new System.Drawing.Point(59, 38);
-            this.numDiagnoseLocalDiskHealthEveryxHour.Minimum = new decimal(new int[] {
+            this.numDiagnoseLocalDiskHealthPeriod.Location = new System.Drawing.Point(59, 38);
+            this.numDiagnoseLocalDiskHealthPeriod.Maximum = new decimal(new int[] {
+            1000000,
+            0,
+            0,
+            0});
+            this.numDiagnoseLocalDiskHealthPeriod.Minimum = new decimal(new int[] {
             1,
             0,
             0,
             0});
-            this.numDiagnoseLocalDiskHealthEveryxHour.Name = "numDiagnoseLocalDiskHealthEveryxHour";
-            this.numDiagnoseLocalDiskHealthEveryxHour.Size = new System.Drawing.Size(47, 20);
-            this.numDiagnoseLocalDiskHealthEveryxHour.TabIndex = 1;
-            this.numDiagnoseLocalDiskHealthEveryxHour.Value = new decimal(new int[] {
+            this.numDiagnoseLocalDiskHealthPeriod.Name = "numDiagnoseLocalDiskHealthPeriod";
+            this.numDiagnoseLocalDiskHealthPeriod.Size = new System.Drawing.Size(59, 20);
+            this.numDiagnoseLocalDiskHealthPeriod.TabIndex = 1;
+            this.numDiagnoseLocalDiskHealthPeriod.Value = new decimal(new int[] {
             60,
             0,
             0,
@@ -1392,9 +1402,9 @@
             this.label33.AutoSize = true;
             this.label33.Location = new System.Drawing.Point(25, 41);
             this.label33.Name = "label33";
-            this.label33.Size = new System.Drawing.Size(126, 13);
+            this.label33.Size = new System.Drawing.Size(141, 13);
             this.label33.TabIndex = 2;
-            this.label33.Text = "every                   minutes";
+            this.label33.Text = "every                        minutes";
             // 
             // chbDiagnoseLocalDiskHealthEnable
             // 
@@ -1496,12 +1506,12 @@
             this.tabPage1.PerformLayout();
             this.groupBox6.ResumeLayout(false);
             this.groupBox6.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numCheckLocalDiskUsageEveryxHour)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numCheckLocalDiskUsagePeriod)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numOtherPartitionUsageThreshold)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.numSystemPartitionUsageThreshold)).EndInit();
             this.groupBox5.ResumeLayout(false);
             this.groupBox5.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numDiagnoseLocalDiskHealthEveryxHour)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.numDiagnoseLocalDiskHealthPeriod)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.tabPage2.ResumeLayout(false);
@@ -1624,9 +1634,9 @@
         private System.Windows.Forms.Label label29;
         private System.Windows.Forms.Label label30;
         private System.Windows.Forms.CheckBox chbCheckLocalDiskSpaceEnable;
-        private System.Windows.Forms.NumericUpDown numDiagnoseLocalDiskHealthEveryxHour;
+        private System.Windows.Forms.NumericUpDown numDiagnoseLocalDiskHealthPeriod;
         private System.Windows.Forms.CheckBox chbDiagnoseLocalDiskHealthEnable;
-        private System.Windows.Forms.NumericUpDown numCheckLocalDiskUsageEveryxHour;
+        private System.Windows.Forms.NumericUpDown numCheckLocalDiskUsagePeriod;
         private System.Windows.Forms.Label label32;
         private System.Windows.Forms.Label label31;
         private System.Windows.Forms.Label label33;

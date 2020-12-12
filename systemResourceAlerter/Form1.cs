@@ -32,7 +32,6 @@ namespace systemResourceAlerter
             if (autoStart)
             {
                 startEmailAlert();
-                sendHddHealthAlert();
             }
 
             timer3.Start();
@@ -41,6 +40,12 @@ namespace systemResourceAlerter
 
             allowShowUI = !autoHide;
             notifyIcon1.Visible = autoHide;
+
+            if (autoStart && diagnoseLocalDiskHealthEnable)
+            {
+                diagnoseLocalDiskHealth();
+                sendHddHealthAlert();
+            }
         }
 
         #region Variables
@@ -128,7 +133,7 @@ namespace systemResourceAlerter
         int onlineUpdatePeriod = 900; // seconds. set this to 0 or negative to disable update
 
         bool checkLocalDiskSpaceEnable = true;
-        int checkLocalDiskSpacePeriod = 1; // minutes
+        int checkLocalDiskSpacePeriod = 60; // minutes
         int systemPartitionThreshold = 90;
         int otherPartitionThreshold = 90;
         bool alert2InProgress = false;
@@ -1169,12 +1174,12 @@ namespace systemResourceAlerter
             dailySystemInfoEmailTime = txtDailySystemInfoEmailTime.Text;
 
             checkLocalDiskSpaceEnable = chbCheckLocalDiskSpaceEnable.Checked;
-            checkLocalDiskSpacePeriod = (int)numCheckLocalDiskUsageEveryxHour.Value;
+            checkLocalDiskSpacePeriod = (int)numCheckLocalDiskUsagePeriod.Value;
             systemPartitionThreshold = (int)numSystemPartitionUsageThreshold.Value;
             otherPartitionThreshold = (int)numOtherPartitionUsageThreshold.Value;
 
             diagnoseLocalDiskHealthEnable = chbDiagnoseLocalDiskHealthEnable.Checked;
-            diagnoseLocalDiskHealthPeriod = (int)numDiagnoseLocalDiskHealthEveryxHour.Value;
+            diagnoseLocalDiskHealthPeriod = (int)numDiagnoseLocalDiskHealthPeriod.Value;
 
             restartDiskTimers();
         }
@@ -1232,12 +1237,12 @@ namespace systemResourceAlerter
             txtDailySystemInfoEmailTime.Text = dailySystemInfoEmailTime;
 
             chbCheckLocalDiskSpaceEnable.Checked = checkLocalDiskSpaceEnable;
-            numCheckLocalDiskUsageEveryxHour.Value = checkLocalDiskSpacePeriod;
+            numCheckLocalDiskUsagePeriod.Value = checkLocalDiskSpacePeriod;
             numSystemPartitionUsageThreshold.Value = systemPartitionThreshold;
             numOtherPartitionUsageThreshold.Value = otherPartitionThreshold;
 
             chbDiagnoseLocalDiskHealthEnable.Checked = diagnoseLocalDiskHealthEnable;
-            numDiagnoseLocalDiskHealthEveryxHour.Value = diagnoseLocalDiskHealthPeriod;
+            numDiagnoseLocalDiskHealthPeriod.Value = diagnoseLocalDiskHealthPeriod;
         }
 
         private void writeSettings()
@@ -1382,7 +1387,7 @@ namespace systemResourceAlerter
             lastLogEntryTime = parseDateTime(timeTmp, lastLogEntryTime_maxDistance);
 
             checkLocalDiskSpaceEnable = Settings.Get("checkLocalDiskSpaceEnable", true);
-            checkLocalDiskSpacePeriod = Settings.Get("checkLocalDiskSpacePeriod", 1);
+            checkLocalDiskSpacePeriod = Settings.Get("checkLocalDiskSpacePeriod", 60);
             systemPartitionThreshold = Settings.Get("systemPartitionThreshold", 90);
             otherPartitionThreshold = Settings.Get("otherPartitionThreshold", 90);
 
@@ -1695,6 +1700,7 @@ namespace systemResourceAlerter
         private void exitToolStripMenuItem_Click(object sender, EventArgs e)
         {
             this.Close();
+            Environment.Exit(0);
         }
 
         private void timer5_Tick(object sender, EventArgs e)
