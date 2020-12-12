@@ -28,23 +28,25 @@ namespace systemResourceAlerter
             loadSettings();
 
             timer1.Start();
-
-            if (autoStart)
-            {
-                startEmailAlert();
-            }
-
             timer3.Start();
-
             restartDiskTimers();
 
             allowShowUI = !autoHide;
             notifyIcon1.Visible = autoHide;
 
-            if (autoStart && diagnoseLocalDiskHealthEnable)
+            if (autoStart)
             {
-                diagnoseLocalDiskHealth();
-                sendHddHealthAlert();
+                startEmailAlert();
+                if (checkLocalDiskSpaceEnable)
+                {
+                    checkLocalDiskSpaceUsage();
+                    sendDiskSpaceAlert();
+                }
+                if (diagnoseLocalDiskHealthEnable)
+                {
+                    diagnoseLocalDiskHealth();
+                    sendHddHealthAlert();
+                }
             }
         }
 
@@ -138,11 +140,15 @@ namespace systemResourceAlerter
         int otherPartitionThreshold = 90;
         bool alert2InProgress = false;
         string alert2Message = string.Empty;
+        DateTime alertBegin2 = DateTime.MinValue;
+        DateTime lastEmailTimestamp2 = DateTime.MinValue;
 
         bool diagnoseLocalDiskHealthEnable = true;
         int diagnoseLocalDiskHealthPeriod = 60; // minutes
         bool alert3InProgress = false;
         string alert3Message = string.Empty;
+        DateTime alertBegin3 = DateTime.MinValue;
+        DateTime lastEmailTimestamp3 = DateTime.MinValue;
 
         #endregion
 
@@ -570,7 +576,7 @@ namespace systemResourceAlerter
             // or when delay is asked to be ignored
             double secondSinceLastEmail = (DateTime.Now - lastEmailTimestamp).TotalSeconds;
 
-            if ((alertInProgress || alert2InProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
+            if ((alertInProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
             {
                 string email_body = emailHeadline + "At system time: " + getNowString();
                 double avgCPU = queueCalcAverage(cpuUsageHistory);
@@ -579,7 +585,7 @@ namespace systemResourceAlerter
 
                 if (alertInProgress)
                 {
-                    email_body += "\n \n" + string.Format("Alert detected at: {0}!! \nElapsed Time: {1}", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
+                    email_body += "\n \n" + string.Format("Alert detected at: {0}. \nElapsed Time: {1}.", formatDateTime(alertBegin), formatTimeSpan(alertDuration));
                 }
                 else
                 {
@@ -588,15 +594,6 @@ namespace systemResourceAlerter
 
                 email_body += "\n \n" + string.Format("Average CPU usage over {1} seconds period is {0:0.00}%.", avgCPU, cpuUsageHistory.Count);
                 email_body += "\n" + string.Format("Average RAM usage over {1} seconds period is {0:0.00}%.", avgRAM, ramUsageHistory.Count);
-
-                if (alert2InProgress)
-                {
-                    email_body += "\n \n" + "Disk space alert detected!!\n \n" + alert2Message;
-                }
-                else
-                {
-                    email_body += "\n \n" + string.Format("No alert detected about local disk space.\n");
-                }
 
                 lastEmailTimestamp = DateTime.Now;
                 if (custom_to != null)
@@ -610,25 +607,63 @@ namespace systemResourceAlerter
             }
         }
 
+        private void sendDiskSpaceAlert(bool ignoreDelay = false, bool ignoreAlertStatus = false, List<string> custom_to = null)
+        {
+            // only send email if more than delayBetweenEmails seconds has passed since last email
+            // or when delay is asked to be ignored
+            double secondSinceLastEmail = (DateTime.Now - lastEmailTimestamp2).TotalSeconds;
+
+            if ((alert2InProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
+            {
+                string email_body = emailHeadline + "At system time: " + getNowString();
+                var alertDuration = (DateTime.Now - alertBegin2);
+
+                if (alert2InProgress)
+                {
+                    email_body += "\n \n" + string.Format("Disk space alert detected at: {0}. \nElapsed Time: {1}.\n \n", formatDateTime(alertBegin2), formatTimeSpan(alertDuration));
+                    email_body += alert2Message;
+                }
+                else
+                {
+                    email_body += "\n \n" + string.Format("No alert detected about local disk space.\n");
+                }
+
+                lastEmailTimestamp2 = DateTime.Now;
+                if (custom_to != null)
+                {
+                    sendEmail(custom_to, email_subject, email_body);
+                }
+                else
+                {
+                    sendEmail(email_to, email_subject, email_body);
+                }
+            }
+        }
+
         private void sendHddHealthAlert(bool ignoreDelay = false, bool ignoreAlertStatus = false, List<string> custom_to = null)
         {
-            if (alert3InProgress || ignoreAlertStatus)
+            // only send email if more than delayBetweenEmails seconds has passed since last email
+            // or when delay is asked to be ignored
+            double secondSinceLastEmail = (DateTime.Now - lastEmailTimestamp3).TotalSeconds;
+
+            if ((alert3InProgress || ignoreAlertStatus) && (ignoreDelay || secondSinceLastEmail >= delayBetweenEmails))
             {
                 string email_body = emailHeadline + "At system time: " + getNowString();
                 double avgCPU = queueCalcAverage(cpuUsageHistory);
                 double avgRAM = queueCalcAverage(ramUsageHistory);
-                var alertDuration = (DateTime.Now - alertBegin);
+                var alertDuration = (DateTime.Now - alertBegin3);
 
                 if (alert3InProgress)
                 {
-                    email_body += "\n \n" + "Disk health alert detected!!\n \n" + alert3Message;
+                    email_body += "\n \n" + string.Format("Disk health alert detected at: {0}. \nElapsed Time: {1}.\n \n", formatDateTime(alertBegin3), formatTimeSpan(alertDuration));
+                    email_body += alert3Message;
                 }
                 else
                 {
                     email_body += "\n \n" + string.Format("No alert detected about local disk health.\n");
                 }
 
-                lastEmailTimestamp = DateTime.Now;
+                lastEmailTimestamp3 = DateTime.Now;
                 if (custom_to != null)
                 {
                     sendEmail(custom_to, email_subject, email_body);
@@ -1078,6 +1113,7 @@ namespace systemResourceAlerter
                 }
             }
 
+            if (!alert2InProgress) alertBegin2 = DateTime.Now;
             alert2InProgress = alert;
             alert2Message = messages.ToString();
         }
@@ -1115,6 +1151,7 @@ namespace systemResourceAlerter
 
             sb2.Append("\nMore detail below.\n \n \n");
 
+            if (!alert3InProgress) alertBegin3 = DateTime.Now;
             alert3InProgress = alert;
             alert3Message = sb2.ToString() + sb.ToString();
         }
@@ -1416,7 +1453,7 @@ namespace systemResourceAlerter
         }
         #endregion
 
-        #region UI stuff
+        #region Timer
         private void timer1_Tick(object sender, EventArgs e)
         {
             queueCpuUsage();
@@ -1428,12 +1465,43 @@ namespace systemResourceAlerter
         private void timer2_Tick(object sender, EventArgs e)
         {
             sendEmailAlert();
+            sendDiskSpaceAlert();
             if (forwardEventLogs && !backgroundWorker1.IsBusy)
             {
                 backgroundWorker1.RunWorkerAsync();
             }
         }
 
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            schedulerLoop();
+        }
+
+        private void timer4_Tick(object sender, EventArgs e)
+        {
+            checkOnlineForUpdate();
+        }
+
+        private void timer5_Tick(object sender, EventArgs e)
+        {
+            if (checkLocalDiskSpaceEnable)
+            {
+                checkLocalDiskSpaceUsage();
+            }
+        }
+
+        private void timer6_Tick(object sender, EventArgs e)
+        {
+            if (diagnoseLocalDiskHealthEnable)
+            {
+                diagnoseLocalDiskHealth();
+                sendHddHealthAlert();
+            }
+        }
+
+        #endregion
+
+        #region UI stuff
         private void notifyIcon1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             allowShowUI = true;
@@ -1663,20 +1731,10 @@ namespace systemResourceAlerter
             MessageBox.Show("Sent general system information to email!");
         }
 
-        private void timer3_Tick(object sender, EventArgs e)
-        {
-            schedulerLoop();
-        }
-
         private void btnCheckOnlineUpdate_Click(object sender, EventArgs e)
         {
             MessageBox.Show("File version = " + Application.ProductVersion);
             checkOnlineForUpdate(true);
-        }
-
-        private void timer4_Tick(object sender, EventArgs e)
-        {
-            checkOnlineForUpdate();
         }
 
         private void sendSystemInfoToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1690,6 +1748,7 @@ namespace systemResourceAlerter
             applySettings();
             checkLocalDiskSpaceUsage();
             sendEmailAlert(true, true);
+            sendDiskSpaceAlert(true, true);
         }
 
         private void updateAppToolStripMenuItem_Click(object sender, EventArgs e)
@@ -1701,23 +1760,6 @@ namespace systemResourceAlerter
         {
             this.Close();
             Environment.Exit(0);
-        }
-
-        private void timer5_Tick(object sender, EventArgs e)
-        {
-            if (checkLocalDiskSpaceEnable)
-            {
-                checkLocalDiskSpaceUsage();
-            }
-        }
-
-        private void timer6_Tick(object sender, EventArgs e)
-        {
-            if (diagnoseLocalDiskHealthEnable)
-            {
-                diagnoseLocalDiskHealth();
-                sendHddHealthAlert();
-            }
         }
 
         private void toolStripMenuItem1_Click(object sender, EventArgs e)
