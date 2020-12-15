@@ -625,7 +625,8 @@ namespace systemResourceAlerter
                 }
                 else
                 {
-                    email_body += "\n \n" + string.Format("No alert detected about local disk space.\n");
+                    email_body += "\n \n" + string.Format("No alert detected about local disk space.\n \n");
+                    email_body += alert2Message;
                 }
 
                 lastEmailTimestamp2 = DateTime.Now;
@@ -660,7 +661,8 @@ namespace systemResourceAlerter
                 }
                 else
                 {
-                    email_body += "\n \n" + string.Format("No alert detected about local disk health.\n");
+                    email_body += "\n \n" + string.Format("No alert detected about local disk health.\n \n");
+                    email_body += alert3Message;
                 }
 
                 lastEmailTimestamp3 = DateTime.Now;
@@ -1088,6 +1090,7 @@ namespace systemResourceAlerter
         {
             bool alert = false;
             var messages = new StringBuilder();
+            var messages2 = new StringBuilder();
 
             var allLogicalDrives = systemInfo.getDrive_allLogicalDrives();
 
@@ -1110,12 +1113,13 @@ namespace systemResourceAlerter
                         messages.AppendLine(string.Format("Drive: {0} ({1}). Capacity: {2}, {3} used ({4:0.00}%)", d.name, d.volumeName, misc.byteToHumanSize(d.size), misc.byteToHumanSize(dUsedSize), dUsedPercent));
 
                     }
+                    messages2.AppendLine(string.Format("Drive: {0} ({1}). Capacity: {2}, {3} used ({4:0.00}%)", d.name, d.volumeName, misc.byteToHumanSize(d.size), misc.byteToHumanSize(dUsedSize), dUsedPercent));
                 }
             }
 
             if (!alert2InProgress) alertBegin2 = DateTime.Now;
             alert2InProgress = alert;
-            alert2Message = messages.ToString();
+            alert2Message = (alert) ? messages.ToString() : messages2.ToString();
         }
 
         private void diagnoseLocalDiskHealth()
