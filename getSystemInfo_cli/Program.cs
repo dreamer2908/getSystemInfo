@@ -14,9 +14,21 @@ namespace getSystemInfo_cli
     {
         static void Main(string[] args)
         {
-            Console.Write("Hostname to connect: ");
-            string hostname = Console.ReadLine();
-            hostname = hostname.Trim();
+            string _host = args.Length > 0 ? args[0] : string.Empty;
+            bool dontAsk = false;
+            string hostname;
+            if (_host.Length > 0)
+            {
+                hostname = _host.Trim();
+                dontAsk = true;
+                Console.Write("Using the paramenter hostname: " + hostname + '\n');
+            }
+            else
+            {
+                Console.Write("Hostname to connect: ");
+                hostname = Console.ReadLine();
+                hostname = hostname.Trim();
+            }
 
             int connectionResult = 0;
             bool connectionIsLocal = true;
@@ -29,49 +41,58 @@ namespace getSystemInfo_cli
             else
             {
                 connectionIsLocal = false;
-                Console.Write("Use Windows Authentication? [y/n] ");
-                var userInput = Console.ReadKey();
-                string selection = userInput.KeyChar.ToString().ToLower();
 
-                Console.WriteLine();
-                if (selection != "n")
+                if (dontAsk)
                 {
                     Console.WriteLine("Setting up remote WMi and registry connections with Windows Authentication...");
                     connectionResult = systemInfo.setupContextRemote(hostname, true);
                 }
                 else
                 {
-                    Console.Write("Enter username: ");
-                    string username = Console.ReadLine();
+                    Console.Write("Use Windows Authentication? [y/n] ");
+                    var userInput = Console.ReadKey();
+                    string selection = userInput.KeyChar.ToString().ToLower();
 
-                    Console.Write("Enter password: ");
-                    // hide keypress, from https://stackoverflow.com/a/3404522
-                    string password = "";
-                    do
-                    {
-                        ConsoleKeyInfo key = Console.ReadKey(true);
-                        // Backspace Should Not Work
-                        if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
-                        {
-                            password += key.KeyChar;
-                            Console.Write("*");
-                        }
-                        else
-                        {
-                            if (key.Key == ConsoleKey.Backspace && password.Length > 0)
-                            {
-                                password = password.Substring(0, (password.Length - 1));
-                                Console.Write("\b \b");
-                            }
-                            else if (key.Key == ConsoleKey.Enter)
-                            {
-                                break;
-                            }
-                        }
-                    } while (true);
                     Console.WriteLine();
+                    if (selection != "n")
+                    {
+                        Console.WriteLine("Setting up remote WMi and registry connections with Windows Authentication...");
+                        connectionResult = systemInfo.setupContextRemote(hostname, true);
+                    }
+                    else
+                    {
+                        Console.Write("Enter username: ");
+                        string username = Console.ReadLine();
 
-                    connectionResult = systemInfo.setupContextRemote(hostname, false, username, password);
+                        Console.Write("Enter password: ");
+                        // hide keypress, from https://stackoverflow.com/a/3404522
+                        string password = "";
+                        do
+                        {
+                            ConsoleKeyInfo key = Console.ReadKey(true);
+                            // Backspace Should Not Work
+                            if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
+                            {
+                                password += key.KeyChar;
+                                Console.Write("*");
+                            }
+                            else
+                            {
+                                if (key.Key == ConsoleKey.Backspace && password.Length > 0)
+                                {
+                                    password = password.Substring(0, (password.Length - 1));
+                                    Console.Write("\b \b");
+                                }
+                                else if (key.Key == ConsoleKey.Enter)
+                                {
+                                    break;
+                                }
+                            }
+                        } while (true);
+                        Console.WriteLine();
+
+                        connectionResult = systemInfo.setupContextRemote(hostname, false, username, password);
+                    }
                 }
             }
 
@@ -107,7 +128,10 @@ namespace getSystemInfo_cli
             Console.WriteLine("Written list to {0}", outputProgramCsv);
 
             Console.WriteLine("Done.");
-            Console.ReadLine();
+            if (!dontAsk)
+            {
+                Console.ReadLine();
+            }
         }
 
         static void getSystemResources(string outputFname)
@@ -152,8 +176,15 @@ namespace getSystemInfo_cli
                 sbAppendWriteLine("    CPU Clock Speed: {0}", allCPUs[i][3]);
             }
 
-            var p = systemInfo.getCPU_usageAvg(5, 500);
-            sbAppendWriteLine("CPU Usage (via WMI): {0:0.00}%", p);
+            try
+            {
+                var p = systemInfo.getCPU_usageAvg(5, 500);
+                sbAppendWriteLine("CPU Usage (via WMI): {0:0.00}%", p);
+            }
+            catch
+            {
+
+            }
 
             #endregion
 
