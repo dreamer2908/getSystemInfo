@@ -36,6 +36,7 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.sendSystemInfoToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.sendResourceStatusToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.updateAppToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.groupBox2 = new System.Windows.Forms.GroupBox();
@@ -150,7 +151,6 @@
             this.tabPage2 = new System.Windows.Forms.TabPage();
             this.timer5 = new System.Windows.Forms.Timer(this.components);
             this.timer6 = new System.Windows.Forms.Timer(this.components);
-            this.toolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.numEmailPort)).BeginInit();
@@ -216,6 +216,13 @@
             this.sendResourceStatusToolStripMenuItem.Size = new System.Drawing.Size(198, 22);
             this.sendResourceStatusToolStripMenuItem.Text = "Send Resource Status";
             this.sendResourceStatusToolStripMenuItem.Click += new System.EventHandler(this.sendResourceStatusToolStripMenuItem_Click);
+            // 
+            // toolStripMenuItem1
+            // 
+            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
+            this.toolStripMenuItem1.Size = new System.Drawing.Size(198, 22);
+            this.toolStripMenuItem1.Text = "Send Disk Health Status";
+            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // updateAppToolStripMenuItem
             // 
@@ -570,17 +577,18 @@
             this.chbDailySystemInfoEmailEnable.AutoSize = true;
             this.chbDailySystemInfoEmailEnable.Location = new System.Drawing.Point(3, 407);
             this.chbDailySystemInfoEmailEnable.Name = "chbDailySystemInfoEmailEnable";
-            this.chbDailySystemInfoEmailEnable.Size = new System.Drawing.Size(254, 17);
+            this.chbDailySystemInfoEmailEnable.Size = new System.Drawing.Size(294, 17);
             this.chbDailySystemInfoEmailEnable.TabIndex = 19;
-            this.chbDailySystemInfoEmailEnable.Text = "Send general system information daily at (hh:mm)";
+            this.chbDailySystemInfoEmailEnable.Text = "Send general system information daily at (hh:mm,[hh:mm])";
             this.chbDailySystemInfoEmailEnable.UseVisualStyleBackColor = true;
             // 
             // txtDailySystemInfoEmailTime
             // 
-            this.txtDailySystemInfoEmailTime.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.txtDailySystemInfoEmailTime.Location = new System.Drawing.Point(259, 405);
+            this.txtDailySystemInfoEmailTime.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDailySystemInfoEmailTime.Location = new System.Drawing.Point(300, 405);
             this.txtDailySystemInfoEmailTime.Name = "txtDailySystemInfoEmailTime";
-            this.txtDailySystemInfoEmailTime.Size = new System.Drawing.Size(70, 20);
+            this.txtDailySystemInfoEmailTime.Size = new System.Drawing.Size(190, 20);
             this.txtDailySystemInfoEmailTime.TabIndex = 18;
             // 
             // btnExit
@@ -1464,13 +1472,6 @@
             // 
             this.timer6.Tag = "Disk space";
             this.timer6.Tick += new System.EventHandler(this.timer6_Tick);
-            // 
-            // toolStripMenuItem1
-            // 
-            this.toolStripMenuItem1.Name = "toolStripMenuItem1";
-            this.toolStripMenuItem1.Size = new System.Drawing.Size(198, 22);
-            this.toolStripMenuItem1.Text = "Send Disk Health Status";
-            this.toolStripMenuItem1.Click += new System.EventHandler(this.toolStripMenuItem1_Click);
             // 
             // Form1
             // 

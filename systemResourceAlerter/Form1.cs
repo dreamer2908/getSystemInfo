@@ -1022,11 +1022,18 @@ namespace systemResourceAlerter
 
             // MessageBox.Show("now = " + now);
 
-            if (now == dailySystemInfoEmailTime)
+            // now support multiple times
+            // dailySystemInfoEmailTime is hh:mm,hh:mm,hh:mm,hh:mm,etc.
+            string[] times = dailySystemInfoEmailTime.Split(',');
+
+            foreach (string time in times)
             {
-                // MessageBox.Show("scheduler running");
-                statusBarText = "Scheduler running";
-                sendDailySystemInfoEmail();
+                if (now == time)
+                {
+                    // MessageBox.Show("scheduler running");
+                    statusBarText = "Scheduler running";
+                    sendDailySystemInfoEmail();
+                }
             }
         }
 
