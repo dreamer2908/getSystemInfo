@@ -86,6 +86,7 @@ namespace getSystemInfo_cli
                     || ex is ArgumentNullException // null hostname
                     || ex is System.Security.SecurityException // user doesn't have permissions for this action
                     || ex is UnauthorizedAccessException // user doesn't have the necessary rights
+                    || ex is System.Runtime.InteropServices.COMException // The RPC server is unavailable
                 )
             {
                 re = re - 1;
@@ -104,6 +105,7 @@ namespace getSystemInfo_cli
                     || ex is ArgumentNullException // null hostname
                     || ex is System.Security.SecurityException // user doesn't have permissions for this action
                     || ex is UnauthorizedAccessException // user doesn't have the necessary registry rights
+                    || ex is System.Runtime.InteropServices.COMException // The RPC server is unavailable
                 )
             {
                 re = re - 2;
