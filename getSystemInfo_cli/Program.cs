@@ -109,11 +109,19 @@ namespace getSystemInfo_cli
                     Console.WriteLine("{0} registry connection failed.", localOrRemote);
                 }
 
-                Console.Write("Continue? [y/n] ");
-                var userInput = Console.ReadKey();
-                if (userInput.KeyChar.ToString().ToLower() != "y")
+                if (dontAsk)
                 {
+                    Console.Write("Exiting...");
                     System.Environment.Exit(1);
+                }
+                else
+                {
+                    Console.Write("Continue? [y/n] ");
+                    var userInput = Console.ReadKey();
+                    if (userInput.KeyChar.ToString().ToLower() != "y")
+                    {
+                        System.Environment.Exit(1);
+                    }
                 }
             }
 
