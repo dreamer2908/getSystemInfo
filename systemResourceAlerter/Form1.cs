@@ -537,6 +537,7 @@ namespace systemResourceAlerter
                         mail.Subject = email_subject;
                         mail.IsBodyHtml = true;
                         mail.Body = convertTextToHtml(email_body);
+                        mail.BodyEncoding = mail.SubjectEncoding = System.Text.Encoding.UTF8;
 
                         // attach files
                         if (attachments != null)
