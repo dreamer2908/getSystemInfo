@@ -265,19 +265,19 @@ namespace getSystemInfo_cli
              * 0xBC Command Timeout
              * 0xC9 Soft Read Error Rate
              */
-            bool warning = false;
-            bool unknown = true;
+            bool overallWarning = false;
+            bool overallUnknown = true;
             foreach (var attr in drive.Attributes)
             {
                 if (attr.Value.HasData)
                 {
-                    unknown = false;
+                    overallUnknown = false;
                     int id = attr.Key;
                     if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7
                          || id == 0x0A || id == 0xB8 || id == 0xBB || id == 0xBC || id == 0xC9)
                         && attr.Value.Data != 0)
                     {
-                        warning = true;
+                        overallWarning = true;
                         attr.Value.IsOK = false;
                         attr.Value.Health = "warning";
                     }
@@ -287,31 +287,43 @@ namespace getSystemInfo_cli
             /*
              * failed health if any attribute is equal to or lower than its threshold
              */
-            bool failed = false;
+            bool overallFailed = false;
+            bool overallFailedBefore = false;
+            int attrFailedBefore = 0;
             foreach (var attr in drive.Attributes)
             {
                 if (attr.Value.HasData)
                 {
-                    if (attr.Value.Worst <= attr.Value.Threshold)
+                    bool failedBefore = attr.Value.Worst <= attr.Value.Threshold;
+                    bool failedNow = attr.Value.Current <= attr.Value.Threshold;
+
+                    if (failedNow)
                     {
-                        failed = true;
+                        overallFailed = true;
                         attr.Value.IsOK = false;
                         attr.Value.Health = "failed";
+                    }
+                    else if (failedBefore)
+                    {
+                        overallFailedBefore = true;
+                        attr.Value.IsOK = false;
+                        attr.Value.Health = "failed in the past";
+                        attrFailedBefore += 1;
                     }
                 }
             }
 
-            if (unknown)
+            if (overallUnknown && !overallFailed && !overallFailedBefore)
             {
                 drive.IsOK = null;
                 drive.Health = "UNKNOWN";
             }
-            else if (failed)
+            else if (overallFailed)
             {
                 drive.IsOK = false;
                 drive.Health = "FAILED";
             }
-            else if (warning)
+            else if (overallWarning)
             {
                 drive.IsOK = false;
                 drive.Health = "WARNING";
@@ -320,6 +332,10 @@ namespace getSystemInfo_cli
             {
                 drive.IsOK = true;
                 drive.Health = "GOOD";
+            }
+            if (overallFailedBefore)
+            {
+                drive.Health = string.Format("{0}, {1} attr failed in the past", drive.Health, attrFailedBefore);
             }
         }
 
