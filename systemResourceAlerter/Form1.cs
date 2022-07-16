@@ -1302,7 +1302,8 @@ namespace systemResourceAlerter
             Settings.Set("email_from", email_from);
             Settings.Set("email_user", email_user);
             Settings.Set("email_login", email_login);
-            Settings.Set("email_password", email_password);
+            string encryptedPassword = misc.encryptPassword(email_password);
+            Settings.Set("email_password", encryptedPassword);
             Settings.Set("email_subject", email_subject);
             Settings.Set("cpuHistoryMax", cpuHistoryMax);
             Settings.Set("ramHistoryMax", ramHistoryMax);
@@ -1373,7 +1374,8 @@ namespace systemResourceAlerter
             email_from = Settings.Get("email_from", "");
             email_user = Settings.Get("email_user", "");
             email_login = Settings.Get("email_login", true);
-            email_password = Settings.Get("email_password", "");
+            string encryptedPassword = Settings.Get("email_password", "");
+            email_password = misc.decryptPassword(encryptedPassword);
             email_subject = Settings.Get("email_subject", "");
             cpuHistoryMax = Settings.Get("cpuHistoryMax", 60);
             ramHistoryMax = Settings.Get("ramHistoryMax", 60);
