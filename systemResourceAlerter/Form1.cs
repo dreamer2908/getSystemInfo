@@ -1025,7 +1025,7 @@ namespace systemResourceAlerter
 
             // now support multiple times
             // dailySystemInfoEmailTime is hh:mm,hh:mm,hh:mm,hh:mm,etc.
-            string[] times = dailySystemInfoEmailTime.Split(',');
+            string[] times = dailySystemInfoEmailTime.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
 
             foreach (string time in times)
             {
@@ -1302,7 +1302,7 @@ namespace systemResourceAlerter
             Settings.Set("email_from", email_from);
             Settings.Set("email_user", email_user);
             Settings.Set("email_login", email_login);
-            string encryptedPassword = misc.encryptPassword(email_password);
+            string encryptedPassword = misc.encryptPasswordAes(email_password);
             Settings.Set("email_password", encryptedPassword);
             Settings.Set("email_subject", email_subject);
             Settings.Set("cpuHistoryMax", cpuHistoryMax);
@@ -1375,7 +1375,7 @@ namespace systemResourceAlerter
             email_user = Settings.Get("email_user", "");
             email_login = Settings.Get("email_login", true);
             string encryptedPassword = Settings.Get("email_password", "");
-            email_password = misc.decryptPassword(encryptedPassword);
+            email_password = misc.decryptPasswordAes(encryptedPassword);
             email_subject = Settings.Get("email_subject", "");
             cpuHistoryMax = Settings.Get("cpuHistoryMax", 60);
             ramHistoryMax = Settings.Get("ramHistoryMax", 60);

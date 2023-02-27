@@ -4,6 +4,7 @@ using System.IO;
 using System.Text;
 using System.Web.Security;
 using System.Web;
+using System.Security.Cryptography;
 
 namespace getSystemInfo_cli
 {
@@ -41,6 +42,67 @@ namespace getSystemInfo_cli
             try
             {
                 string re = Unprotect(text, "907331bf-0052-464b-be89-19a517e79f6c");
+                return (string.IsNullOrEmpty(re)) ? string.Empty : re;
+            }
+            catch (Exception)
+            {
+                return text;
+            }
+        }
+
+        private static Aes BuildAesEncryptor(string key)
+        {
+            var aesEncryptor = Aes.Create();
+            var pdb = new Rfc2898DeriveBytes(key, new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
+            aesEncryptor.Key = pdb.GetBytes(32);
+            aesEncryptor.IV = pdb.GetBytes(16);
+            return aesEncryptor;
+        }
+
+        public static string EncryptStringAes(string clearText, string key)
+        {
+            var aesEncryptor = BuildAesEncryptor(key);
+            var clearBytes = Encoding.Unicode.GetBytes(clearText);
+            using (var ms = new MemoryStream())
+            {
+                using (var cs = new CryptoStream(ms, aesEncryptor.CreateEncryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(clearBytes, 0, clearBytes.Length);
+                }
+                var encryptedText = Convert.ToBase64String(ms.ToArray());
+                return encryptedText;
+            }
+        }
+
+        public static string DecryptStringAes(string cipherText, string key)
+        {
+            var aesEncryptor = BuildAesEncryptor(key);
+            cipherText = cipherText.Replace(" ", "+");
+            var cipherBytes = Convert.FromBase64String(cipherText);
+            using (var ms = new MemoryStream())
+            {
+                using (var cs = new CryptoStream(ms, aesEncryptor.CreateDecryptor(), CryptoStreamMode.Write))
+                {
+                    cs.Write(cipherBytes, 0, cipherBytes.Length);
+                }
+                var clearText = Encoding.Unicode.GetString(ms.ToArray());
+                return clearText;
+            }
+        }
+
+        private static string AesKey = "907331bf-0052-464b-be89-19a517e79f6c";
+
+        public static string encryptPasswordAes(string text)
+        {
+            string re = EncryptStringAes(text, AesKey);
+            return (string.IsNullOrEmpty(re)) ? string.Empty : re;
+        }
+
+        public static string decryptPasswordAes(string text)
+        {
+            try
+            {
+                string re = DecryptStringAes(text, AesKey);
                 return (string.IsNullOrEmpty(re)) ? string.Empty : re;
             }
             catch (Exception)
