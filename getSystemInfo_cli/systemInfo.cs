@@ -17,6 +17,7 @@ namespace getSystemInfo_cli
         #region Setup Context Local/Remote
         public static ManagementScope scope;
         public static ManagementScope scope2;
+        public static ManagementScope scope3;
         public static RegistryKey registryLocalMachine;
         public static RegistryKey registryCurrentUser;
         public static RegistryKey registryUsers;
@@ -37,9 +38,11 @@ namespace getSystemInfo_cli
 
             scope = new ManagementScope(@"\\.\root\cimv2");
             scope2 = new ManagementScope(@"\\.\root\wmi");
+            scope3 = new ManagementScope(@"\\.\root\microsoft\windows\storage");
             try {
                 scope.Connect();
                 scope2.Connect();
+                scope3.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -72,6 +75,7 @@ namespace getSystemInfo_cli
 
             scope = new ManagementScope(@"\\" + hostname + @"\root\cimv2");
             scope2 = new ManagementScope(@"\\" + hostname + @"\root\wmi");
+            scope3 = new ManagementScope(@"\\" + hostname + @"\root\microsoft\windows\storage");
             scope.Options = options;
 
             int re = 0;
@@ -80,6 +84,7 @@ namespace getSystemInfo_cli
             {
                 scope.Connect();
                 scope2.Connect();
+                scope3.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -426,6 +431,7 @@ namespace getSystemInfo_cli
                 var getHddInfo = new getHddInfo();
                 getHddInfo.scope = scope;
                 getHddInfo.scope2 = scope2;
+                getHddInfo.scope3 = scope3;
                 wmiHDDs = getHddInfo.getAllDiskData();
             }
 
