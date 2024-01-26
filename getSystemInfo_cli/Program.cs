@@ -50,8 +50,11 @@ namespace getSystemInfo_cli
                 else
                 {
                     Console.Write("Use Windows Authentication? [y/n] ");
-                    var userInput = Console.ReadKey();
-                    string selection = userInput.KeyChar.ToString().ToLower();
+                    // var userInput = Console.ReadKey();
+                    // string selection = userInput.KeyChar.ToString().ToLower();
+
+                    Console.Write(" y\n");
+                    string selection = "y";
 
                     Console.WriteLine();
                     if (selection != "n")
