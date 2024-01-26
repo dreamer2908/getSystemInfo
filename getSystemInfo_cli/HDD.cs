@@ -157,6 +157,7 @@ namespace getSystemInfo_cli
         public ManagementScope scope;
         public ManagementScope scope2;
         public ManagementScope scope3;
+        public static Boolean scope3_enabled;
         private StringBuilder _logger = new StringBuilder();
 
         /* 
@@ -180,6 +181,7 @@ namespace getSystemInfo_cli
                 hdd.Model = drive["Model"].ToString().Trim();
                 hdd.Type = drive["InterfaceType"].ToString().Trim();
                 hdd.MediaType = drive["MediaType"].ToString().Trim();
+                hdd.IsSSD = false;
                 _logger.AppendLine($"disk drive {hdd.Index} {hdd.Id} {hdd.Model}");
                 dicDrives.Add(hdd.Index, hdd); // modified from iDriveIndex to Index
                 iDriveIndex++;
@@ -190,90 +192,94 @@ namespace getSystemInfo_cli
             }
 
             // extract MediaType info (SSD/HDD)
-            var dicMedia = new Dictionary<int, string>();
-            var mediaSearcher = new ManagementObjectSearcher("SELECT * FROM MSFT_PhysicalDisk");
-            mediaSearcher.Scope = scope3;
-
-            // extract model and interface information
-            int iMax = iDriveIndex;
-            foreach (ManagementObject drive in mediaSearcher.Get())
+            // only when scope3 is enabled
+            if (scope3_enabled)
             {
-                string sDriveID = drive["DeviceId"].ToString().Trim();
-                int iDriveID = Convert.ToInt16(sDriveID);
-                //Console.WriteLine(drive["DeviceId"].ToString());
-                //Console.WriteLine(drive["FriendlyName"].ToString());
-                //Console.WriteLine(drive["MediaType"].ToString());
-                //Console.WriteLine(drive["BusType"].ToString());
-                int iMediaType = Convert.ToInt16(drive["MediaType"].ToString().Trim());
-                bool isSSD = false;
-                int iBusType = Convert.ToInt16(drive["BusType"].ToString().Trim());
+                var dicMedia = new Dictionary<int, string>();
+                var mediaSearcher = new ManagementObjectSearcher("SELECT * FROM MSFT_PhysicalDisk");
+                mediaSearcher.Scope = scope3;
 
-                string sMediaType = string.Empty;
-                switch (iMediaType)
+                // extract model and interface information
+                int iMax = iDriveIndex;
+                foreach (ManagementObject drive in mediaSearcher.Get())
                 {
-                    case 1:
-                        sMediaType = "Unspecified"; break;
-                    case 3:
-                        sMediaType = "HDD"; break;
-                    case 4:
-                        sMediaType = "SSD"; isSSD = true; break;
-                    case 5:
-                        sMediaType = "SCM"; isSSD = true; break;
-                    default:
-                        sMediaType = "Unspecified"; break;
-                }
+                    string sDriveID = drive["DeviceId"].ToString().Trim();
+                    int iDriveID = Convert.ToInt16(sDriveID);
+                    //Console.WriteLine(drive["DeviceId"].ToString());
+                    //Console.WriteLine(drive["FriendlyName"].ToString());
+                    //Console.WriteLine(drive["MediaType"].ToString());
+                    //Console.WriteLine(drive["BusType"].ToString());
+                    int iMediaType = Convert.ToInt16(drive["MediaType"].ToString().Trim());
+                    bool isSSD = false;
+                    int iBusType = Convert.ToInt16(drive["BusType"].ToString().Trim());
 
-                string sBusType = string.Empty;
-                switch (iBusType)
-                {
-                    case 1:
-                        sBusType = "SCSI"; break;
-                    case 2:
-                        sBusType = "ATAPI"; break;
-                    case 3:
-                        sBusType = "ATA"; break;
-                    case 4:
-                        sBusType = "1394"; break;
-                    case 5:
-                        sBusType = "SSA"; break;
-                    case 6:
-                        sBusType = "Fibre Channel"; break;
-                    case 7:
-                        sBusType = "USB"; break;
-                    case 8:
-                        sBusType = "RAID"; break;
-                    case 9:
-                        sBusType = "iSCSI"; break;
-                    case 10:
-                        sBusType = "SAS"; break;
-                    case 11:
-                        sBusType = "SATA"; break;
-                    case 12:
-                        sBusType = "SD"; break;
-                    case 13:
-                        sBusType = "MMC"; break;
-                    case 14:
-                        sBusType = "MAX"; break;
-                    case 15:
-                        sBusType = "File Backed Virtual"; break;
-                    case 16:
-                        sBusType = "Storage Spaces"; break;
-                    case 17:
-                        sBusType = "NVMe"; break;
-                    case 18:
-                        sBusType = "Microsoft Reserved"; break;
-                    default:
-                        sBusType = "Unknown"; break;
-                }
-
-                for (int i = 0; i < iMax; i++)
-                {
-                    if (dicDrives[i].Index == iDriveID)
+                    string sMediaType = string.Empty;
+                    switch (iMediaType)
                     {
-                        dicDrives[i].Type = sBusType;
-                        dicDrives[i].MediaType = sMediaType;
-                        dicDrives[i].IsSSD = isSSD;
-                        break;
+                        case 1:
+                            sMediaType = "Unspecified"; break;
+                        case 3:
+                            sMediaType = "HDD"; break;
+                        case 4:
+                            sMediaType = "SSD"; isSSD = true; break;
+                        case 5:
+                            sMediaType = "SCM"; isSSD = true; break;
+                        default:
+                            sMediaType = "Unspecified"; break;
+                    }
+
+                    string sBusType = string.Empty;
+                    switch (iBusType)
+                    {
+                        case 1:
+                            sBusType = "SCSI"; break;
+                        case 2:
+                            sBusType = "ATAPI"; break;
+                        case 3:
+                            sBusType = "ATA"; break;
+                        case 4:
+                            sBusType = "1394"; break;
+                        case 5:
+                            sBusType = "SSA"; break;
+                        case 6:
+                            sBusType = "Fibre Channel"; break;
+                        case 7:
+                            sBusType = "USB"; break;
+                        case 8:
+                            sBusType = "RAID"; break;
+                        case 9:
+                            sBusType = "iSCSI"; break;
+                        case 10:
+                            sBusType = "SAS"; break;
+                        case 11:
+                            sBusType = "SATA"; break;
+                        case 12:
+                            sBusType = "SD"; break;
+                        case 13:
+                            sBusType = "MMC"; break;
+                        case 14:
+                            sBusType = "MAX"; break;
+                        case 15:
+                            sBusType = "File Backed Virtual"; break;
+                        case 16:
+                            sBusType = "Storage Spaces"; break;
+                        case 17:
+                            sBusType = "NVMe"; break;
+                        case 18:
+                            sBusType = "Microsoft Reserved"; break;
+                        default:
+                            sBusType = "Unknown"; break;
+                    }
+
+                    for (int i = 0; i < iMax; i++)
+                    {
+                        if (dicDrives[i].Index == iDriveID)
+                        {
+                            dicDrives[i].Type = sBusType;
+                            dicDrives[i].MediaType = sMediaType;
+                            dicDrives[i].IsSSD = isSSD;
+                            break;
+                        }
                     }
                 }
             }
@@ -369,21 +375,30 @@ namespace getSystemInfo_cli
             {
                 if (attr.Value.HasData)
                 {
-                    overallUnknown = false;
                     int id = attr.Key;
-                    if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7
-                         || id == 0x0A || id == 0xB8 || id == 0xBB || id == 0xBC || id == 0xC9)
-                        && attr.Value.Data != 0)
+                    if (drive.IsSSD)
                     {
-                        overallWarning = true;
-                        attr.Value.IsOK = false;
-                        attr.Value.Health = "warning";
+                        // TODO: find critical attributes for SSD
+                        overallUnknown = true;
+                    }
+                    else
+                    {
+                        overallUnknown = false;
+                        if ((id == 0x05 || id == 0xC4 || id == 0xC5 || id == 0xC6 || id == 0xC7
+                             || id == 0x0A || id == 0xB8 || id == 0xBB || id == 0xBC || id == 0xC9)
+                            && attr.Value.Data != 0)
+                        {
+                            overallWarning = true;
+                            attr.Value.IsOK = false;
+                            attr.Value.Health = "warning";
+                        }
+
                     }
                 }
             }
 
             /*
-             * failed health if any attribute is equal to or lower than its threshold
+             * If one or more "current value" is smaller than "threshold value" (except the "threshold value" is 0), that will reported as "drive failure"
              */
             bool overallFailed = false;
             bool overallFailedBefore = false;
@@ -392,9 +407,14 @@ namespace getSystemInfo_cli
             {
                 if (attr.Value.HasData)
                 {
-                    // If one or more "current value" is smaller than "threshold value" (except the "threshold value" is 0), that will reported as "drive failure"
                     bool failedBefore = (attr.Value.Worst < attr.Value.Threshold || attr.Value.Worst == 0) && !(drive.IsSSD && attr.Value.Worst == 0); // added correction for some SSDs where worst values = 0
                     bool failedNow = attr.Value.Current < attr.Value.Threshold || attr.Value.Current == 0;
+
+                    // some SSDs report faulty current value < worst value. Ignore in this case
+                    if (attr.Value.Current < attr.Value.Worst)
+                    {
+                        failedBefore = failedNow = false;
+                    }
 
                     if (failedNow)
                     {

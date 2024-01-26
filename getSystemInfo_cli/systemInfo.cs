@@ -18,6 +18,7 @@ namespace getSystemInfo_cli
         public static ManagementScope scope;
         public static ManagementScope scope2;
         public static ManagementScope scope3;
+        public static Boolean scope3_enabled = false;
         public static RegistryKey registryLocalMachine;
         public static RegistryKey registryCurrentUser;
         public static RegistryKey registryUsers;
@@ -42,7 +43,6 @@ namespace getSystemInfo_cli
             try {
                 scope.Connect();
                 scope2.Connect();
-                scope3.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -53,6 +53,24 @@ namespace getSystemInfo_cli
             {
                 return -1;
             }
+
+            // scope3 is only available in Windows 8 and later
+            try
+            {
+                scope3.Connect();
+                scope3_enabled = true;
+            }
+            catch (Exception ex) when (
+                       ex is IOException // hostname not found or unreachable
+                    || ex is ArgumentNullException // null hostname
+                    || ex is System.Security.SecurityException // user doesn't have permissions for this action
+                    || ex is UnauthorizedAccessException // user doesn't have the necessary registry rights
+                    || ex is System.Management.ManagementException // 'Invalid namespace '
+                )
+            {
+                scope3_enabled = false;
+            }
+
             return 0;
         }
 
@@ -84,7 +102,6 @@ namespace getSystemInfo_cli
             {
                 scope.Connect();
                 scope2.Connect();
-                scope3.Connect();
             }
             catch (Exception ex) when (
                        ex is IOException // hostname not found or unreachable
@@ -92,9 +109,30 @@ namespace getSystemInfo_cli
                     || ex is System.Security.SecurityException // user doesn't have permissions for this action
                     || ex is UnauthorizedAccessException // user doesn't have the necessary rights
                     || ex is System.Runtime.InteropServices.COMException // The RPC server is unavailable
+                    || ex is System.Management.ManagementException // 'Invalid namespace '
                 )
             {
                 re = re - 1;
+            }
+
+            // scope3 is only available in Windows 8 and later. Try if scope and scope2 connections are all right
+            if (re == 0)
+            {
+                try
+                {
+                    scope3.Connect();
+                    scope3_enabled = true;
+                }
+                catch (Exception ex) when (
+                           ex is IOException // hostname not found or unreachable
+                        || ex is ArgumentNullException // null hostname
+                        || ex is System.Security.SecurityException // user doesn't have permissions for this action
+                        || ex is UnauthorizedAccessException // user doesn't have the necessary registry rights
+                        || ex is System.Management.ManagementException // 'Invalid namespace '
+                    )
+                {
+                    scope3_enabled = false;
+                }
             }
 
             try
@@ -432,6 +470,7 @@ namespace getSystemInfo_cli
                 getHddInfo.scope = scope;
                 getHddInfo.scope2 = scope2;
                 getHddInfo.scope3 = scope3;
+                getHddInfo.scope3_enabled = scope3_enabled;
                 wmiHDDs = getHddInfo.getAllDiskData();
             }
 
