@@ -13,6 +13,7 @@ using System.IO;
 using System.Drawing;
 using System.Globalization;
 using getSystemInfo_cli;
+using System.Drawing.Imaging;
 
 namespace systemResourceAlerter
 {
@@ -747,7 +748,7 @@ namespace systemResourceAlerter
             string imgFilename = "screenshot.png";
             List<string> attachments = new List<string>();
             string screenshotMsg;
-            bool screenshotOk = takeScreenShot(imgFilename);
+            bool screenshotOk = takeScreenShot(ref imgFilename);
             if (screenshotOk)
             {
                 attachments.Add(imgFilename);
@@ -1049,8 +1050,13 @@ namespace systemResourceAlerter
         }
 
         // return true on success, false on any exception
-        private static bool takeScreenShot(string output = "screenshot.png")
+        private static bool takeScreenShot(ref string output)
         {
+            if (string.IsNullOrWhiteSpace(output))
+            {
+                output = "screenshot.png";
+            }
+
             int screenLeft = SystemInformation.VirtualScreen.Left;
             int screenTop = SystemInformation.VirtualScreen.Top;
             int screenWidth = SystemInformation.VirtualScreen.Width;
@@ -1064,7 +1070,27 @@ namespace systemResourceAlerter
                     try
                     {
                         g.CopyFromScreen(screenLeft, screenTop, 0, 0, bitmap.Size);
-                        bitmap.Save(output);  // saves the image to file, format guessed from filename
+
+                        // check PNG vs JPG image size.
+                        MemoryStream memoryStreamPng = new MemoryStream();
+                        MemoryStream memoryStreamJpg = new MemoryStream();
+                        bitmap.Save(memoryStreamPng, System.Drawing.Imaging.ImageFormat.Png);
+                        // use 90% quality for JPG encoder.
+                        var encoder = ImageCodecInfo.GetImageEncoders().First(c => c.FormatID == ImageFormat.Jpeg.Guid);
+                        var encParams = new EncoderParameters() { Param = new[] { new EncoderParameter(System.Drawing.Imaging.Encoder.Quality, 90L) } };
+                        bitmap.Save(memoryStreamJpg, encoder, encParams);
+                        // Use JPG if it's at least 20% smaller.
+                        if (memoryStreamJpg.Length < memoryStreamPng.Length * 0.8)
+                        {
+                            output = Path.ChangeExtension(output, ".jpg");
+                            // bitmap.Save(output, encoder, encParams); // make sure it use the same encoder paramenter
+                            File.WriteAllBytes(output, memoryStreamJpg.ToArray()); // save JPG image from memory
+                        }
+                        else
+                        {
+                            // bitmap.Save(output);  // saves the image to file, format guessed from filename PNG
+                            File.WriteAllBytes(output, memoryStreamPng.ToArray()); // save PNG image from memory
+                        }
                     }
                     catch (Exception ex) when (
                         ex is System.ComponentModel.Win32Exception ||
