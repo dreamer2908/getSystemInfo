@@ -371,15 +371,16 @@ namespace getSystemInfo_cli
              */
             bool overallWarning = false;
             bool overallUnknown = true;
+            int attCount = 0;
             foreach (var attr in drive.Attributes)
             {
                 if (attr.Value.HasData)
                 {
+                    attCount++;
                     int id = attr.Key;
                     if (drive.IsSSD)
                     {
                         // TODO: find critical attributes for SSD
-                        overallUnknown = true;
                     }
                     else
                     {
@@ -432,7 +433,15 @@ namespace getSystemInfo_cli
                 }
             }
 
-            if (overallUnknown && !overallFailed && !overallFailedBefore)
+            // if the drive is flash-based, assume GOOD if SMART works and there's no warning or failure
+            Console.WriteLine(attCount);
+            if (overallUnknown && !overallFailed && !overallFailedBefore && !overallWarning && (attCount > 0))
+            {
+                drive.IsOK = true;
+                drive.Health = "GOOD";
+            }
+            // if SMART doesn't work (blank attribute list) or there're some warning or past failure, keep it UNKNOWN
+            else if (overallUnknown && !overallFailed)
             {
                 drive.IsOK = null;
                 drive.Health = "UNKNOWN";
